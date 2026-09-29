@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<script>document.documentElement.setAttribute("data-theme",localStorage.getItem("asb_theme")||"light")</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>بيانات الطالب | د.علاء صبح</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --primary:#391263;
+    --primary-dark:#240A40;
+    --primary-deep:#240A40;
+    --teal:#B86114;
+    --ink:#241433;
+    --slate:#7A668C;
+    --slate-light:#A48FB8;
+    --line:#E9E3F0;
+    --surface:#FFFFFF;
+    --surface-soft:#F7F4FA;
+    --danger:#D6455B;
+    --success:#9C591F;
+    --radius-lg:30px;
+    --radius-md:20px;
+    --radius-sm:12px;
+    --shadow-soft:0 1px 2px rgba(36, 10, 64,.04), 0 8px 24px rgba(36, 10, 64,.06);
+    --shadow-lift:0 4px 12px rgba(36, 10, 64,.22);
+    --ease:cubic-bezier(.4,0,.2,1);
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    font-family:'Cairo',sans-serif;
+    background:var(--surface-soft);
+  background-image:
+    radial-gradient(circle at 8% 4%, rgba(184, 97, 20,0.07) 0, transparent 42%),
+    radial-gradient(circle at 96% 96%, rgba(36, 10, 64,0.08) 0, transparent 46%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='none' stroke='%23391263' stroke-opacity='0.045' stroke-width='1'%3E%3Cpath d='M42 2 L82 42 L42 82 L2 42 Z'/%3E%3Ccircle cx='42' cy='42' r='19'/%3E%3C/g%3E%3C/svg%3E");
+  background-attachment: fixed;
+  background-size: auto, auto, 84px 84px;
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    display:flex;
+  }
+  h1,h2,h3,.display{font-family:'Amiri',serif;}
+  button{font-family:inherit;}
+  input,select{font-family:inherit;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important;}
+  }
+
+  /* ============ Layout Shell ============ */
+  .shell{display:flex; width:100%; min-height:100vh;}
+
+  /* ============ Brand Panel ============ */
+  .brand{
+    position:relative;
+    flex:0 0 40%;
+    max-width:560px;
+    background:linear-gradient(160deg, var(--primary-deep) 0%, #240A40 55%, var(--primary-dark) 130%);
+    color:#FFFFFF;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    padding:56px 52px;
+    overflow:hidden;
+  }
+  .brand-glow{
+    position:absolute; width:520px;height:520px; border-radius:50%;
+    background:radial-gradient(circle, rgba(184, 97, 20,.15) 0%, rgba(184, 97, 20,0) 70%);
+    top:-120px; left:-160px; pointer-events:none;
+  }
+  .star-field{position:absolute; inset:0; opacity:.5; pointer-events:none;}
+  .star-field svg{position:absolute;}
+
+  .brand-top{position:relative; z-index:2; display:flex; align-items:center; gap:14px;}
+  .brand-logo-wrap{
+    width:52px;height:52px; border-radius:14px;
+    background:rgba(255, 255, 255,.08); border:1px solid rgba(255, 255, 255,.14);
+    display:flex;align-items:center;justify-content:center; overflow:hidden; flex-shrink:0;
+  }
+  .brand-logo-wrap img{width:70%;height:70%;object-fit:contain;}
+  .brand-name{font-size:22px;font-weight:800;letter-spacing:.3px;}
+  .brand-name span{display:block;font-family:'Cairo',sans-serif;font-size:12px;font-weight:400;color:rgba(255, 255, 255,.55);margin-top:2px;letter-spacing:.5px;}
+
+  .brand-mid{position:relative; z-index:2; margin-top:auto; margin-bottom:auto; padding:60px 0;}
+  .brand-quote-mark{font-family:'Amiri',serif; font-size:64px; font-weight:800; color:var(--teal); opacity:.35; line-height:1; margin-bottom:8px;}
+  .brand-headline{font-size:30px; font-weight:800; line-height:1.55; max-width:420px;}
+  .brand-sub{margin-top:18px; font-size:15px; color:rgba(255, 255, 255,.6); line-height:1.9; max-width:380px;}
+
+  /* خطوات العملية داخل بانل الهوية */
+  .brand-steps{position:relative; z-index:2; display:flex; flex-direction:column; gap:18px;}
+  .brand-step{display:flex; align-items:center; gap:14px; opacity:.45; transition:opacity .3s var(--ease);}
+  .brand-step.active{opacity:1;}
+  .brand-step-num{
+    width:34px;height:34px; border-radius:50%;
+    border:1.5px solid rgba(255, 255, 255,.3);
+    display:flex; align-items:center; justify-content:center;
+    font-size:13px; font-weight:800; flex-shrink:0;
+    transition:all .3s var(--ease);
+  }
+  .brand-step.active .brand-step-num{background:var(--teal); border-color:var(--teal); color:var(--primary-deep);}
+  .brand-step.done .brand-step-num{background:rgba(184, 97, 20,.25); border-color:var(--teal); color:var(--teal);}
+  .brand-step-text b{display:block; font-size:14px; font-weight:700;}
+  .brand-step-text span{font-size:12px; color:rgba(255, 255, 255,.5);}
+
+  /* ============ Form Panel ============ */
+  .form-panel{flex:1; display:flex; align-items:center; justify-content:center; padding:40px 72px;}
+  .form-wrap{width:100%; max-width:540px;}
+
+  .mobile-brand{display:none; align-items:center; gap:12px; margin-bottom:24px;}
+  .mobile-brand .brand-logo-wrap{width:44px;height:44px;border-radius:12px;background:var(--primary-deep);}
+  .mobile-brand .brand-name{color:var(--ink); font-size:19px;}
+  .mobile-brand .brand-name span{color:var(--slate);}
+
+  /* شريط تقدّم للموبايل والحالة العامة */
+  .progress-track{
+    height:6px; width:100%; background:var(--line); border-radius:99px; overflow:hidden; margin-bottom:28px;
+  }
+  .progress-fill{
+    height:100%; width:50%; border-radius:99px;
+    background:linear-gradient(90deg, var(--primary), var(--teal));
+    transition:width .4s var(--ease);
+  }
+  .progress-label{display:flex; justify-content:space-between; font-size:12px; color:var(--slate); margin-top:8px; margin-bottom:20px;}
+  .progress-label b{color:var(--primary-dark);}
+
+  .form-head{margin-bottom:26px;}
+  .form-head h1{font-size:24px; font-weight:800; color:var(--ink); margin-bottom:8px;}
+  .form-head p{font-size:14px; color:var(--slate); line-height:1.7;}
+
+  .steps-wrap{position:relative; overflow:hidden;}
+  .step-panel{display:none; flex-direction:column; gap:18px; padding-top:24px; animation:fadeSlide .35s var(--ease);}
+  .step-panel.active{display:flex;}
+  @keyframes fadeSlide{from{opacity:0; transform:translateX(10px);} to{opacity:1; transform:translateX(0);}}
+
+  .field-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+
+  .field{position:relative; margin-top:22px;}
+  .field.tight{margin-top:0;}
+  .field .input-shell{position:relative; display:flex; align-items:center;}
+  .field input{
+    width:100%;
+    padding:13px 16px 13px 16px;
+    border:1.5px solid var(--line);
+    border-radius:var(--radius-sm);
+    font-size:15px;
+    color:var(--ink);
+    background:var(--surface);
+    transition:border-color .2s var(--ease), box-shadow .2s var(--ease);
+    outline:none;
+  }
+  .field input.has-icon{padding-right:44px;}
+  .field input::placeholder{color:transparent;}
+  .field input:focus{border-color:var(--primary); box-shadow:0 0 0 4px rgba(36, 10, 64,.12);}
+
+  /* منع لون التعبئة التلقائية للمتصفح من إخفاء حدود الخانة */
+  .field input:-webkit-autofill,
+  .field input:-webkit-autofill:hover,
+  .field input:-webkit-autofill:focus,
+  .field input:-webkit-autofill:active{
+    -webkit-box-shadow:0 0 0 1000px var(--surface) inset !important;
+    box-shadow:0 0 0 1000px var(--surface) inset !important;
+    -webkit-text-fill-color:var(--ink) !important;
+    caret-color:var(--ink);
+    border:1.5px solid var(--line) !important;
+    transition:background-color 9999s ease-in-out 0s;
+  }
+  .field input:-webkit-autofill ~ .floating-label{
+    top:-22px; right:2px; transform:translateY(0) scale(1);
+    font-size:12px; font-weight:700; color:var(--primary);
+  }
+  .field-icon{
+    position:absolute; right:15px; width:18px;height:18px;
+    color:var(--slate-light); pointer-events:none; transition:color .2s var(--ease);
+  }
+  .field input:focus ~ .field-icon{color:var(--primary);}
+
+  .floating-label{
+    position:absolute; right:16px; top:50%; transform:translateY(-50%);
+    font-size:14.5px; font-weight:500; color:var(--slate-light);
+    pointer-events:none;
+    transition:top .2s var(--ease), right .2s var(--ease), transform .2s var(--ease), font-size .2s var(--ease), color .2s var(--ease);
+    max-width:calc(100% - 20px); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .field input.has-icon ~ .floating-label{right:44px;}
+  .field input:focus ~ .floating-label,
+  .field input:not(:placeholder-shown) ~ .floating-label{
+    top:-22px; right:2px; transform:translateY(0) scale(1);
+    font-size:12px; font-weight:700; color:var(--primary);
+  }
+  .field.has-error input:not(:placeholder-shown) ~ .floating-label,
+  .field.has-error input:focus ~ .floating-label{color:var(--danger);}
+  .field.has-error input{border-color:var(--danger);}
+
+  .field-error{display:none; font-size:11.5px; color:var(--danger); margin-top:6px; font-weight:500;}
+  .field.has-error .field-error{display:block;}
+
+  .field-hint{font-size:11.5px; color:var(--slate-light); margin-top:6px;}
+
+  .toggle-pass{
+    position:absolute; left:13px; background:none; border:none; cursor:pointer;
+    color:var(--slate-light); display:flex; align-items:center; padding:4px; transition:color .2s var(--ease);
+  }
+  .toggle-pass:hover{color:var(--primary);}
+  .toggle-pass svg{width:18px;height:18px;}
+  .field input[data-pass]{padding-left:40px;}
+
+  /* اختيار النوع */
+  .gender-group{margin-top:22px;}
+  .gender-label{font-size:13px; font-weight:700; color:var(--ink); margin-bottom:10px; display:block;}
+  .gender-options{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  .gender-card{
+    position:relative;
+    border:1.5px solid var(--line);
+    border-radius:var(--radius-sm);
+    padding:14px 12px;
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+    cursor:pointer;
+    transition:border-color .2s var(--ease), background .2s var(--ease);
+  }
+  .gender-card input{position:absolute; opacity:0; inset:0; cursor:pointer; margin:0;}
+  .gender-card svg{width:26px;height:26px; color:var(--slate-light); transition:color .2s var(--ease);}
+  .gender-card span{font-size:13.5px; font-weight:700; color:var(--slate);}
+  .gender-card:has(input:checked){border-color:var(--primary); background:rgba(36, 10, 64,.05);}
+  .gender-card:has(input:checked) svg{color:var(--primary);}
+  .gender-card:has(input:checked) span{color:var(--primary-dark);}
+  .gender-card:has(input:focus-visible){outline:2px solid var(--primary); outline-offset:2px;}
+
+  /* مقياس قوة كلمة المرور */
+  .pw-meter{margin-top:10px;}
+  .pw-bar-track{height:5px; background:var(--line); border-radius:99px; overflow:hidden; display:flex; gap:4px;}
+  .pw-bar-seg{flex:1; height:100%; background:var(--line); border-radius:99px; transition:background .25s var(--ease);}
+  .pw-bar-seg.on-weak{background:var(--danger);}
+  .pw-bar-seg.on-mid{background:#F59E0B;}
+  .pw-bar-seg.on-strong{background:var(--success);}
+  .pw-checklist{display:grid; grid-template-columns:1fr 1fr; gap:6px 14px; margin-top:12px;}
+  .pw-check-item{display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--slate-light); transition:color .2s var(--ease);}
+  .pw-check-item svg{width:14px;height:14px; flex-shrink:0; color:var(--line); transition:color .2s var(--ease);}
+  .pw-check-item.met{color:var(--success);}
+  .pw-check-item.met svg{color:var(--success);}
+
+  .terms-row{display:flex; align-items:flex-start; gap:10px; margin-top:22px; font-size:12.5px; color:var(--slate); line-height:1.8;}
+  .terms-row input{width:16px;height:16px; accent-color:var(--primary); cursor:pointer; margin-top:2px; flex-shrink:0;}
+  .terms-row a{color:var(--primary-dark); font-weight:700; text-decoration:none;}
+  .terms-row a:hover{text-decoration:underline;}
+
+  .btn-row{display:flex; gap:12px; margin-top:8px;}
+  .btn{
+    flex:1; padding:14px; border:none; border-radius:var(--radius-sm);
+    font-size:15px; font-weight:800; cursor:pointer;
+    transition:transform .18s var(--ease), box-shadow .18s var(--ease), filter .18s var(--ease);
+    display:flex; align-items:center; justify-content:center; gap:10px;
+  }
+  .btn-primary{
+    background:linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color:#FFFFFF; box-shadow:var(--shadow-lift);
+  }
+  .btn-primary:hover{transform:translateY(-1px); filter:brightness(1.06); box-shadow:0 8px 20px rgba(36, 10, 64,.28);}
+  .btn-primary:active{transform:translateY(0);}
+  .btn-ghost{
+    background:var(--surface); color:var(--slate); border:1.5px solid var(--line);
+    flex:0 0 auto; width:56px;
+  }
+  .btn-ghost:hover{border-color:var(--primary); color:var(--primary);}
+  .btn:focus-visible{outline:2px solid var(--primary-deep); outline-offset:3px;}
+  .btn .spinner{
+    width:16px;height:16px; border:2px solid rgba(255, 255, 255,.4); border-top-color:#FFFFFF;
+    border-radius:50%; display:none; animation:spin .7s linear infinite;
+  }
+  .btn.loading .btn-text{opacity:.85;}
+  .btn.loading .spinner{display:inline-block;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .login-cta{text-align:center; font-size:14px; color:var(--slate); margin-top:22px;}
+  .login-cta a{color:var(--primary-dark); font-weight:800; text-decoration:none;}
+  .login-cta a:hover{text-decoration:underline;}
+
+  a:focus-visible, button:focus-visible, input:focus-visible{outline:2px solid var(--primary); outline-offset:2px;}
+  /* الخانات ليها مؤشر تركيز خاص بيها (حدود + هالة زرقاء) فمش محتاجة الإطار الإضافي فوقه */
+  .field input:focus-visible{outline:none !important;}
+
+  /* ============ Toast ============ */
+  .toast-stack{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+    display:flex; flex-direction:column; gap:10px; z-index:999;
+    width:calc(100% - 32px); max-width:380px; pointer-events:none;
+  }
+  .toast{
+    background:var(--ink); color:#FFFFFF; padding:13px 18px; border-radius:var(--radius-sm);
+    font-size:13.5px; font-weight:500; box-shadow:0 10px 30px rgba(0, 0, 0,.2);
+    display:flex; align-items:center; gap:10px; opacity:0; transform:translateY(10px);
+    transition:opacity .3s var(--ease), transform .3s var(--ease);
+  }
+  .toast.show{opacity:1; transform:translateY(0);}
+  .toast.error{background:#7A2E22;}
+  .toast svg{width:16px;height:16px; flex-shrink:0;}
+
+  /* ============ Responsive ============ */
+  @media (max-width: 980px){
+    .brand{flex:0 0 38%;}
+    .brand-headline{font-size:24px;}
+  }
+  @media (max-width: 820px){
+    .shell{flex-direction:column;}
+    .brand{flex:none; max-width:none; width:100%; padding:30px 26px; min-height:auto;}
+    .brand-mid{padding:22px 0; margin:0;}
+    .brand-headline{font-size:19px; max-width:none;}
+    .brand-sub{display:none;}
+    .brand-steps{display:none;}
+    .form-panel{padding:34px 20px 48px;}
+  }
+  @media (max-width: 520px){
+    .brand{padding:24px 20px;}
+    .brand-quote-mark{font-size:40px;}
+    .brand-headline{font-size:17px;}
+    .form-wrap{max-width:none;}
+    .form-head h1{font-size:21px;}
+    .field-grid{grid-template-columns:1fr;}
+    .gender-options{grid-template-columns:1fr 1fr;}
+    .field input{font-size:16px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- ============ Brand Panel ============ -->
+  <aside class="brand">
+    <div class="brand-glow" aria-hidden="true"></div>
+    <div class="star-field" aria-hidden="true">
+      <svg width="560" height="560" viewBox="0 0 560 560" style="top:-70px; right:-140px; opacity:.35;">
+        <g stroke="#B86114" stroke-width="1" fill="none" opacity=".5">
+          <polygon points="280,50 340,205 500,205 375,300 425,455 280,362 135,455 185,300 60,205 220,205"/>
+        </g>
+        <circle cx="280" cy="280" r="205" stroke="#FFFFFF" stroke-width="0.6" fill="none" opacity=".18"/>
+      </svg>
+      <svg width="380" height="380" viewBox="0 0 380 380" style="bottom:-80px; left:-110px; opacity:.25;">
+        <g stroke="#FFFFFF" stroke-width="0.7" fill="none">
+          <polygon points="190,36 233,140 344,140 255,206 288,312 190,246 92,312 125,206 36,140 147,140"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="brand-top">
+      <div class="brand-name">د.علاء صبح<span>منصة طلاب السناتر</span></div>
+    </div>
+
+    <div class="brand-mid">
+      <div class="brand-quote-mark" aria-hidden="true">"</div>
+      <h2 class="brand-headline">أكمل بياناتك مرة واحدة وابدأ مذاكرتك</h2>
+      <p class="brand-sub">بياناتك بتتربط بكود السنتر الخاص بك ومش هتحتاج تدخلها تاني.</p>
+    </div>
+  </aside>
+
+  <!-- ============ Form Panel ============ -->
+  <main class="form-panel">
+    <div class="form-wrap">
+
+      <div class="mobile-brand">
+        <div class="brand-name">د.علاء صبح<span>منصة طلاب السناتر</span></div>
+      </div>
+
+      <div class="form-head">
+        <h1 id="headTitle">سنتر ...</h1>
+        <p id="headSub">اكتب بياناتك وهتتربط بكود السنتر الخاص بك</p>
+      </div>
+
+      <form id="signupForm" novalidate autocomplete="off">
+        <!-- خانات وهمية مخفية لامتصاص اقتراحات المتصفح المحفوظة بدل الخانات الحقيقية -->
+        <input type="text" name="username" autocomplete="username" style="position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;" tabindex="-1" aria-hidden="true">
+        <input type="password" name="password" autocomplete="new-password" style="position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;" tabindex="-1" aria-hidden="true">
+        <div class="steps-wrap">
+
+          <!-- ============ الخطوة 1: البيانات الشخصية ============ -->
+          <div class="step-panel active" id="step1">
+            <div class="field">
+              <div class="input-shell">
+                <input type="text" id="studentName" placeholder=" " autocomplete="off" >
+                <label for="studentName" class="floating-label">اسم الطالب</label>
+              </div>
+              <span class="field-error" id="studentNameErr"></span>
+            </div>
+            <div class="field">
+              <div class="input-shell">
+                <input type="text" id="studentPhone" placeholder=" " autocomplete="off" inputmode="numeric" maxlength="11">
+                <label for="studentPhone" class="floating-label">رقم تليفون الطالب</label>
+              </div>
+              <span class="field-error" id="studentPhoneErr"></span>
+            </div>
+            <div class="field">
+              <div class="input-shell">
+                <input type="text" id="parentPhone" placeholder=" " autocomplete="off" inputmode="numeric" maxlength="11">
+                <label for="parentPhone" class="floating-label">رقم تليفون ولي الأمر</label>
+              </div>
+              <span class="field-error" id="parentPhoneErr"></span>
+            </div>
+            <div class="btn-row" style="margin-top:26px;">
+              <button type="submit" class="btn btn-primary" id="submitBtn">
+                <span class="btn-text">حفظ ودخول</span>
+                <span class="spinner" aria-hidden="true"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <p class="login-cta"><a href="index.html" id="backLink">تغيير كود السنتر</a></p>
+
+    </div>
+  </main>
+
+</div>
+
+<div class="toast-stack" id="toastStack" aria-live="polite"></div>
+
+<!-- ===== Firebase ===== -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script>
+  const code = CenterAuth.session();
+  let centerName = '';
+  if(!code){ window.location.href = 'index.html'; }
+  else {
+    CenterAuth.lookup(code).then(function(r){
+      if(!r.exists){ auth.signOut(); window.location.href = 'index.html'; return; }
+      if(r.registered){ window.location.href = 'home.html'; return; }
+      centerName = r.centerName;
+      document.getElementById('headTitle').textContent = 'سنتر ' + centerName;
+    }).catch(function(){
+      document.getElementById('headSub').textContent = 'تعذر الاتصال بقاعدة البيانات، تأكد من الإنترنت وأعد تحميل الصفحة';
+    });
+  }
+  document.getElementById('backLink').addEventListener('click', function(){ auth.signOut(); });
+
+  const isPhone = v => /^01[0125][0-9]{8}$/.test(v);
+  ['studentPhone','parentPhone'].forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener('input', () => { el.value = el.value.replace(/[^0-9]/g,'').slice(0,11); });
+  });
+  function setErr(id, msg){
+    const el = document.getElementById(id);
+    const f = el.closest('.field');
+    f.classList.toggle('has-error', !!msg);
+    document.getElementById(id + 'Err').textContent = msg || '';
+    return !msg;
+  }
+  document.getElementById('signupForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    const name = document.getElementById('studentName').value.trim().replace(/\s+/g,' ');
+    const sp = document.getElementById('studentPhone').value.trim();
+    const pp = document.getElementById('parentPhone').value.trim();
+    const ok1 = setErr('studentName', name.split(' ').length >= 2 ? '' : 'اكتب اسمك ثنائي على الأقل');
+    const ok2 = setErr('studentPhone', isPhone(sp) ? '' : 'رقم هاتف مصري صحيح');
+    const ok3 = setErr('parentPhone', isPhone(pp) ? '' : 'رقم هاتف مصري صحيح');
+    if(!(ok1 && ok2 && ok3)) return;
+    const btn = document.getElementById('submitBtn');
+    btn.classList.add('loading'); btn.disabled = true;
+    CenterAuth.register(code, { name: name, phone: sp, parentPhone: pp }, centerName).then(function(){
+      window.location.href = 'home.html';
+    }).catch(function(){
+      btn.classList.remove('loading'); btn.disabled = false;
+      setErr('parentPhone', 'تعذر الحفظ، تأكد من الإنترنت وحاول تاني');
+    });
+  });
+</script>
+</body>
+</html>

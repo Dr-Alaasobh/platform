@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<script>document.documentElement.setAttribute("data-theme",localStorage.getItem("asb_theme")||"light")</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>الرئيسية — منصة د.علاء صبح</title>
+<link rel="stylesheet" href="style.css?v=2">
+</head>
+<body>
+
+<header class="app-header" id="appHeader"></header>
+
+<main class="page">
+  <div class="home-hero">
+    <div class="hero-greet">
+      <div class="hero-greet-text">
+        <h1 id="heroGreetName">أهلًا بك 👋</h1>
+        <p id="heroGreetSub"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="ayah-banner" id="ayahBanner"></div>
+
+  <section class="dashboard-section" id="dashboardSection" style="display:none;">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-info">
+          <div class="stat-num" id="statCompleted">0</div>
+          <div class="stat-label">كورسات مكتملة</div>
+          <div class="stat-desc">الكورسات التي أنهيت كل محتواها الدراسي.</div>
+        </div>
+        <div class="stat-icon completed" id="iconCompleted"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-info">
+          <div class="stat-num" id="statCurrent">0</div>
+          <div class="stat-label">كورسات حالية</div>
+          <div class="stat-desc">الكورسات التي بدأت فيها ولسه مكملتش محتواها.</div>
+        </div>
+        <div class="stat-icon current" id="iconCurrent"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-info">
+          <div class="stat-num" id="statVideos">0</div>
+          <div class="stat-label">فيديوهات تمت مشاهدتها</div>
+          <div class="stat-desc">المحاضرات اللي شاهدتها عشان ترجع لها بسرعة.</div>
+        </div>
+        <div class="stat-icon videos" id="iconVideos"></div>
+      </div>
+    </div>
+
+    <div class="dash-row2">
+      <div class="activity-card">
+        <div class="activity-head">
+          <h4>نشاطي التعليمي</h4>
+          <div class="activity-legend">
+            <span><i class="legend-dot prev"></i> الأسبوع الماضي</span>
+            <span><i class="legend-dot curr"></i> الأسبوع الحالي</span>
+          </div>
+        </div>
+        <svg class="activity-chart-svg" id="activityChartSvg" viewBox="0 0 600 150" preserveAspectRatio="none"></svg>
+        <div class="activity-days" id="activityDays"></div>
+        <div class="activity-foot">ابدأ أول كورس عشان نقدر نعرض بيانات نشاطك التعليمي بشكل دقيق</div>
+      </div>
+
+      <div class="progress-card">
+        <div class="progress-pill-wrap">
+          <div class="progress-pill">
+            <span class="progress-pill-value" id="progressRingValue">0%</span>
+            <div class="progress-pill-fill" id="progressPillFill"></div>
+          </div>
+        </div>
+        <h4>تقدّمك</h4>
+        <p>مقياس لكمية الدروس السابقة والمتبقية في كورساتك الحالية.</p>
+        <button type="button" class="btn btn-primary btn-sm" id="startStudyBtn">ابدأ مذاكرة</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="content-head" id="coursesSection">
+    <h2 class="section-title">المحتوى التعليمي</h2>
+    <div class="filter-tabs" id="filterTabs">
+      <button class="filter-tab" data-filter="mine" style="display:none;">كورساتي</button>
+      <button class="filter-tab" data-filter="course">الكورسات</button>
+      <button class="filter-tab active" data-filter="all">الكل</button>
+    </div>
+  </div>
+  <!-- شريط البحث المعتمد هو اللي في الهيدر فقط؛ الحقل ده مخفي وبيُستخدم داخليًا لتوصيل كلمة البحث لمنطق الفلترة هنا -->
+  <input type="hidden" id="searchInput">
+
+  <div id="content">
+    <div class="skeleton-grid">
+      <div class="skeleton-card"><div class="skeleton sk-cover"></div><div class="sk-body"><div class="skeleton sk-line w-70"></div><div class="skeleton sk-line w-40"></div><div class="skeleton sk-btn"></div></div></div>
+      <div class="skeleton-card"><div class="skeleton sk-cover"></div><div class="sk-body"><div class="skeleton sk-line w-70"></div><div class="skeleton sk-line w-40"></div><div class="skeleton sk-btn"></div></div></div>
+      <div class="skeleton-card"><div class="skeleton sk-cover"></div><div class="sk-body"><div class="skeleton sk-line w-70"></div><div class="skeleton sk-line w-40"></div><div class="skeleton sk-btn"></div></div></div>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer" id="siteFooter"></footer>
+
+<!-- ===== Firebase + Libraries ===== -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="icons.js?v=2"></script>
+
+<!-- ===== app-shell.js ===== -->
+<script src="app-shell.js?v=4"></script>
+
+<!-- ===== الصفحة الرئيسية ===== -->
+<script>
+  (function() {
+    const content = document.getElementById('content');
+    let currentFilter = 'all';
+    let searchQuery = '';
+    let cachedFiltered = {};
+    let cachedEnrolls = {};
+    let cachedProgress = {};
+
+    document.getElementById('iconCompleted').innerHTML = icon('circleCheck', 'icon-md');
+    document.getElementById('iconCurrent').innerHTML = icon('fire', 'icon-md');
+    document.getElementById('iconVideos').innerHTML = icon('video', 'icon-md');
+
+    /* ===== لوحة الإحصائيات: كورسات مكتملة/حالية، فيديوهات، نسبة التقدم، النشاط الأسبوعي ===== */
+    function renderDashboardStats(filtered, enrolls, progress) {
+      const section = document.getElementById('dashboardSection');
+      const enrolledIds = Object.keys(enrolls).filter(function (id) { return filtered[id]; });
+
+      if (enrolledIds.length === 0) { section.style.display = 'none'; return; }
+      section.style.display = 'block';
+
+      let completedCount = 0, currentCount = 0, videosWatched = 0;
+      let totalLessons = 0, totalCompletedLessons = 0;
+      const examTimestamps = [];
+
+      enrolledIds.forEach(function (id) {
+        const c = filtered[id];
+        const lessons = c.lessons || {};
+        const compProgress = progress[id] || {};
+        const pct = computeCourseProgress(lessons, compProgress);
+        if (pct >= 100) completedCount++; else currentCount++;
+
+        Object.keys(lessons).forEach(function (lid) {
+          totalLessons++;
+          const lp = compProgress[lid] || {};
+          if (lp.completed) totalCompletedLessons++;
+
+          const videos = lp.videos || {};
+          Object.keys(videos).forEach(function (vid) {
+            if (videos[vid] && videos[vid].watched) videosWatched++;
+          });
+
+          const exams = lp.exams || {};
+          Object.keys(exams).forEach(function (eid) {
+            const ex = exams[eid];
+            if (ex && ex.answeredAt) examTimestamps.push(ex.answeredAt);
+          });
+        });
+      });
+
+      const overallPct = totalLessons ? Math.round((totalCompletedLessons / totalLessons) * 100) : 0;
+
+      document.getElementById('statCompleted').textContent = completedCount;
+      document.getElementById('statCurrent').textContent = currentCount;
+      document.getElementById('statVideos').textContent = videosWatched;
+
+      // ===== نسبة التقدم (شكل كبسولة) =====
+      const pillFill = document.getElementById('progressPillFill');
+      pillFill.style.transition = 'height .6s ease';
+      requestAnimationFrame(function () { pillFill.style.height = overallPct + '%'; });
+      document.getElementById('progressRingValue').textContent = overallPct + '%';
+
+      // ===== رسم بياني للنشاط الأسبوعي (بناءً على مواعيد حل الاختبارات الفعلية) =====
+      const DAY_LABELS = ['السبت', 'الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
+      function satIndex(date) { return (date.getDay() + 1) % 7; } // Saturday=0 ... Friday=6
+
+      const now = new Date();
+      const todaySatIdx = satIndex(now);
+      const startOfThisWeek = new Date(now);
+      startOfThisWeek.setHours(0, 0, 0, 0);
+      startOfThisWeek.setDate(now.getDate() - todaySatIdx);
+      const startOfLastWeek = new Date(startOfThisWeek);
+      startOfLastWeek.setDate(startOfThisWeek.getDate() - 7);
+
+      const currWeek = [0, 0, 0, 0, 0, 0, 0];
+      const prevWeek = [0, 0, 0, 0, 0, 0, 0];
+
+      examTimestamps.forEach(function (ts) {
+        const d = new Date(ts);
+        const idx = satIndex(d);
+        if (d >= startOfThisWeek) { currWeek[idx]++; }
+        else if (d >= startOfLastWeek) { prevWeek[idx]++; }
+      });
+
+      const maxVal = Math.max(1, Math.max.apply(null, currWeek), Math.max.apply(null, prevWeek));
+      const W = 600, H = 150, PAD = 14;
+      function pointsFor(arr) {
+        return arr.map(function (v, i) {
+          const x = (i / 6) * (W - PAD * 2) + PAD;
+          const y = H - PAD - (v / maxVal) * (H - PAD * 2);
+          return x + ',' + y;
+        }).join(' ');
+      }
+      function dotsFor(arr, cls) {
+        return arr.map(function (v, i) {
+          const x = (i / 6) * (W - PAD * 2) + PAD;
+          const y = H - PAD - (v / maxVal) * (H - PAD * 2);
+          return '<circle cx="' + x + '" cy="' + y + '" r="4" class="' + cls + '"></circle>';
+        }).join('');
+      }
+
+      const svg = document.getElementById('activityChartSvg');
+      svg.innerHTML =
+        '<polyline points="' + pointsFor(prevWeek) + '" class="activity-line prev"></polyline>' +
+        '<polyline points="' + pointsFor(currWeek) + '" class="activity-line curr"></polyline>' +
+        dotsFor(prevWeek, 'activity-dot prev') +
+        dotsFor(currWeek, 'activity-dot curr');
+
+      document.getElementById('activityDays').innerHTML = DAY_LABELS.map(function (d) { return '<span>' + d + '</span>'; }).join('');
+      document.querySelector('.activity-foot').textContent = examTimestamps.length
+        ? 'نشاطك في حل الاختبارات خلال آخر أسبوعين'
+        : 'ابدأ أول اختبار عشان نقدر نعرض بيانات نشاطك التعليمي بشكل دقيق';
+    }
+
+    document.getElementById('startStudyBtn').addEventListener('click', function () {
+      document.getElementById('content').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    const AYAHS = [
+      { text: 'وَقُل رَّبِّ زِدْنِي عِلْمًا', ref: 'سورة طه: 114' },
+      { text: 'إِنَّمَا يَخْشَى اللَّهَ مِنْ عِبَادِهِ الْعُلَمَاءُ', ref: 'سورة فاطر: 28' },
+      { text: 'مَن سَلَكَ طَرِيقًا يَلْتَمِسُ فِيهِ عِلْمًا سَهَّلَ اللَّهُ لَهُ بِهِ طَرِيقًا إِلَى الْجَنَّةِ', ref: 'حديث شريف — رواه مسلم' },
+      { text: 'وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا', ref: 'سورة الطلاق: 2' },
+      { text: 'إِنَّ مَعَ الْعُسْرِ يُسْرًا', ref: 'سورة الشرح: 6' },
+      { text: 'طَلَبُ الْعِلْمِ فَرِيضَةٌ عَلَى كُلِّ مُسْلِمٍ', ref: 'حديث شريف — رواه ابن ماجه' }
+    ];
+
+    function renderAyah() {
+      const a = AYAHS[Math.floor(Math.random() * AYAHS.length)];
+      document.getElementById('ayahBanner').innerHTML =
+        '<p class="ayah-text">' + escapeHtml(a.text) + '</p>' +
+        '<p class="ayah-ref">' + escapeHtml(a.ref) + '</p>';
+    }
+
+    function renderHero(userData) {
+      document.getElementById('heroGreetName').textContent = 'أهلًا يا ' + (userData.name || '').trim() + ' 👋';
+      document.getElementById('heroGreetSub').textContent = 'طالب سنتر ' + (userData.centerName || '');
+    }
+
+    function showError(msg) {
+      content.innerHTML =
+        '<div class="empty-state" style="border:2px solid var(--danger); border-radius:var(--radius); padding:30px;">' +
+          '<div class="empty-state-icon" style="color:var(--danger);">' + icon('circleXmark', 'icon-xl') + '</div>' +
+          '<h3 style="color:var(--danger);">' + msg + '</h3>' +
+          '<button class="btn btn-primary btn-sm" onclick="location.reload()" style="width:auto; margin-top:10px;">إعادة المحاولة</button>' +
+        '</div>';
+    }
+
+    function renderCompetitions(competitionsData, enrollments, progressByComp) {
+      const allIds = Object.keys(competitionsData);
+      const q = searchQuery.trim().toLowerCase();
+      const ids = allIds.filter(function (id) {
+        const c = competitionsData[id];
+        if (currentFilter === 'mine') {
+          if (!enrollments || !enrollments[id]) return false;
+        } else if (currentFilter === 'course') {
+          if (c.type === 'competition') return false;
+        }
+        if (q) {
+          const haystack = ((c.title || '') + ' ' + (c.description || '')).toLowerCase();
+          if (haystack.indexOf(q) === -1) return false;
+        }
+        return true;
+      });
+
+      if (allIds.length === 0) {
+        content.innerHTML =
+          '<div class="empty-state"><div class="empty-state-icon">' + icon('trophy', 'icon-xl') + '</div>' +
+          '<p>لا يوجد محتوى متاح حاليًا، تابعنا قريبًا</p></div>';
+        return;
+      }
+      if (ids.length === 0) {
+        content.innerHTML = q
+          ? '<div class="empty-state"><div class="empty-state-icon">' + icon('search', 'icon-xl') + '</div>' +
+              '<p>لا يوجد نتائج بحث تطابق "' + escapeHtml(searchQuery.trim()) + '"</p>' +
+              '<button type="button" class="btn btn-outline btn-sm" id="clearSearchFromEmpty" style="width:auto; margin-top:10px;">مسح البحث</button>' +
+            '</div>'
+          : '<div class="empty-state"><div class="empty-state-icon">' + icon('circleInfo', 'icon-xl') + '</div>' +
+              '<p>' + (currentFilter === 'mine' ? 'لسه ما اشتركتش في أي كورس' : 'لا يوجد محتوى من هذا النوع حاليًا') + '</p></div>';
+        const clearBtn = document.getElementById('clearSearchFromEmpty');
+        if (clearBtn) clearBtn.addEventListener('click', function () { resetSearch(); });
+        return;
+      }
+
+      let html = '<div class="grid">';
+      ids.forEach(function (id) {
+        const c = competitionsData[id];
+        const lessons = c.lessons || {};
+        const lessonsCount = Object.keys(lessons).length;
+        const isCourse = c.type !== 'competition';
+        const typeLabel = isCourse ? 'كورس' : 'مسابقة';
+        const typeIcon = isCourse ? 'bookOpen' : 'trophy';
+        const isEnrolled = !!enrollments[id];
+        const pct = isEnrolled ? computeCourseProgress(lessons, progressByComp[id] || {}) : 0;
+        const ctaLabel = isEnrolled ? 'متابعة التعلم' : (isCourse ? 'اشتراك في الكورس' : 'انضمام للمسابقة');
+        const isNew = c.createdAt && (Date.now() - c.createdAt) < (7 * 24 * 60 * 60 * 1000);
+
+        html +=
+          '<a class="comp-card ' + (isEnrolled ? 'is-enrolled' : '') + '" href="competition.html?id=' + encodeURIComponent(id) + '">' +
+            '<div class="cc-media">' +
+              '<div class="cc-cover">' +
+                (c.coverUrl ? '<img src="' + escapeHtml(c.coverUrl) + '" alt="" loading="lazy">' : '<span class="cover-icon">' + icon(typeIcon, 'icon-lg') + '</span>') +
+              '</div>' +
+              '<span class="cc-ribbon ' + (isCourse ? 'course' : 'competition') + '">' + icon(typeIcon, 'icon-sm') + ' ' + typeLabel + '</span>' +
+              (isNew ? '<span class="cc-new-badge">' + icon('star', 'icon-sm') + ' جديد</span>' : '') +
+            '</div>' +
+            '<div class="cc-body">' +
+              '<span class="cc-pill ' + (isEnrolled ? 'is-enrolled' : '') + '">' +
+                (isEnrolled ? icon('circleCheck', 'icon-sm') + ' أنت مشترك بالفعل' : icon('gem', 'icon-sm') + ' ' + (isCourse ? 'كورس مجاني' : 'مسابقة مجانية')) +
+              '</span>' +
+              '<h3>' + escapeHtml(c.title || 'بدون عنوان') + '</h3>' +
+              (c.description ? '<p>' + escapeHtml(truncateText(c.description, 80)) + '</p>' : '') +
+              '<div class="cc-meta-row">' +
+                '<span class="cc-meta-item">' + icon('bookOpen', 'icon-sm') + ' ' + lessonsCount + ' محاضرة</span>' +
+                (c.instructorName
+                  ? '<span class="cc-meta-item">' + icon('graduationCap', 'icon-sm') + ' ' + escapeHtml(c.instructorName) + '</span>'
+                  : '<span class="cc-meta-item">' + icon('calendar', 'icon-sm') + ' ' + (isNew ? 'أُضيف حديثًا' : 'متاح الآن') + '</span>') +
+              '</div>' +
+              (isEnrolled ?
+                '<div class="card-progress-wrap">' +
+                  '<div class="card-progress-bar"><div class="card-progress-fill" style="width:' + pct + '%;"></div></div>' +
+                  '<span class="card-progress-pct">' + pct + '%</span>' +
+                '</div>' : ''
+              ) +
+              '<span class="cc-details">التفاصيل ' + icon('chevronLeft', 'icon-sm') + '</span>' +
+              '<span class="btn ' + (isEnrolled ? 'btn-outline' : 'btn-primary') + ' cc-cta">' + ctaLabel + '</span>' +
+            '</div>' +
+          '</a>';
+      });
+      html += '</div>';
+      content.innerHTML = html;
+    }
+
+    /* لو مشترك في أي كورس: يظهر "كورساتي" ويختفي "الكل". لو غير مشترك: العكس */
+    function syncFilterTabs(enrolls, all) {
+      const hasEnrolled = Object.keys(enrolls || {}).some(function (id) { return all[id]; });
+      const mineBtn = document.querySelector('.filter-tab[data-filter="mine"]');
+      const allBtn = document.querySelector('.filter-tab[data-filter="all"]');
+      mineBtn.style.display = hasEnrolled ? '' : 'none';
+      allBtn.style.display = hasEnrolled ? 'none' : '';
+      if (hasEnrolled && (currentFilter === 'all')) currentFilter = 'mine';
+      if (!hasEnrolled && currentFilter === 'mine') currentFilter = 'all';
+      document.querySelectorAll('.filter-tab').forEach(function (b) { b.classList.toggle('active', b.dataset.filter === currentFilter); });
+    }
+
+    function setActiveFilter(filter) {
+      currentFilter = filter;
+      document.querySelectorAll('.filter-tab').forEach(function (b) { b.classList.toggle('active', b.dataset.filter === filter); });
+      renderCompetitions(cachedFiltered, cachedEnrolls, cachedProgress);
+    }
+
+    document.getElementById('filterTabs').addEventListener('click', function (e) {
+      const btn = e.target.closest('.filter-tab');
+      if (!btn) return;
+      setActiveFilter(btn.dataset.filter);
+    });
+
+    /* ===== البحث: شريط الهيدر هو المعتمد فقط، وهنا بس منطق الفلترة ===== */
+    const searchInputEl = document.getElementById('searchInput');
+    const coursesSection = document.getElementById('coursesSection');
+
+    function resetSearch() {
+      searchQuery = '';
+      searchInputEl.value = '';
+      renderCompetitions(cachedFiltered, cachedEnrolls, cachedProgress);
+    }
+
+    searchInputEl.addEventListener('input', function () {
+      searchQuery = searchInputEl.value;
+      renderCompetitions(cachedFiltered, cachedEnrolls, cachedProgress);
+    });
+
+    /* لو جاي من صفحة تانية ببحث (?q=...) هات القيمة واعرضها فورًا */
+    const initialQuery = new URLSearchParams(location.search).get('q');
+    if (initialQuery) {
+      searchQuery = initialQuery;
+      searchInputEl.value = initialQuery;
+    }
+
+    function truncateText(text, max) {
+      if (!text || text.length <= max) return text;
+      return text.slice(0, max).trim() + '…';
+    }
+
+    // ===== بدء التشغيل =====
+    auth.onAuthStateChanged(function(user) {
+      if (!user) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      // 1. جلب بيانات المستخدم
+      db.ref('users/' + user.uid).once('value')
+        .then(function(snap) {
+          let userData = snap.val();
+          if (!userData || !userData.name) { window.location.href = 'register.html'; return Promise.reject(new Error('redirect')); }
+          if (!userData) {
+            userData = {
+              name: user.displayName || 'مستخدم',
+              email: user.email || '',
+              isAdmin: false,
+              createdAt: firebase.database.ServerValue.TIMESTAMP
+            };
+            db.ref('users/' + user.uid).set(userData).catch(function(e) {
+              console.warn('فشل حفظ بيانات المستخدم:', e);
+            });
+          }
+          // عرض الهيدر والفوتر
+          window.__ud = userData;
+          if (userData.blocked === true) { alert('تم إيقاف حسابك من المنصة. تواصل مع المسئول.'); auth.signOut().then(function(){ window.location.href = 'index.html'; }); return Promise.reject(new Error('blocked')); }
+          renderAppHeader(user, userData, { showPoints: true });
+          renderFooter();
+          renderHero(userData);
+          renderAyah();
+
+          // 2. تحميل المحتوى
+          return Promise.all([
+            db.ref('competitions').once('value'),
+            db.ref('userEnrollments/' + user.uid).once('value'),
+            db.ref('userProgress/' + user.uid).once('value')
+          ]);
+        })
+        .then(function(results) {
+          const allData = results[0].val() || {};
+          const enrolls = results[1].val() || {};
+          const progress = results[2].val() || {};
+
+          // تصفية العناصر التي تحتوي على محتوى فعلي
+          const filtered = {};
+          Object.keys(allData).forEach(id => {
+            const comp = allData[id];
+            const lessons = comp.lessons || {};
+            let hasContent = false;
+            Object.keys(lessons).forEach(lid => {
+              const lesson = lessons[lid];
+              if (lesson.videos && Object.keys(lesson.videos).length > 0) hasContent = true;
+              if (lesson.exams && Object.keys(lesson.exams).length > 0) hasContent = true;
+              if (lesson.pdfs && Object.keys(lesson.pdfs).length > 0) hasContent = true;
+            });
+            if (hasContent && isCourseVisibleForUser(comp, window.__ud)) filtered[id] = comp;
+          });
+
+          cachedFiltered = filtered;
+          cachedEnrolls = enrolls;
+          cachedProgress = progress;
+
+          syncFilterTabs(enrolls, filtered);
+          renderCompetitions(filtered, enrolls, progress);
+          renderDashboardStats(filtered, enrolls, progress);
+
+          if (initialQuery) {
+            setTimeout(function () {
+              coursesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 200);
+          }
+        })
+        .catch(function(err) {
+          if (err && err.message === 'redirect') return;
+          console.error('خطأ في تحميل المحتوى:', err);
+          showError('تعذر تحميل المحتوى: ' + (err.message || 'خطأ غير معروف'));
+        });
+    });
+  })();
+</script>
+</body>
+</html>

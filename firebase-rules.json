@@ -1,0 +1,63 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "centers": {
+      ".read": true,
+      ".write": true,
+      "$center": {
+        ".validate": "$center.matches(/^[0-9]{4}$/) && newData.isString() && newData.val().length <= 100"
+      }
+    },
+
+    "codes": {
+      ".read": true,
+      ".write": true,
+      "$code": {
+        ".validate": "$code.matches(/^[0-9]{12}$/) && newData.isBoolean()"
+      }
+    },
+
+    "users": {
+      ".read": true,
+      ".write": true,
+      "$uid": {
+        ".validate": "$uid.matches(/^[0-9]{12}$/) && root.child('codes').child($uid).exists()",
+        "name": { ".validate": "newData.isString() && newData.val().length <= 100" },
+        "phone": { ".validate": "newData.isString() && newData.val().length <= 20" },
+        "parentPhone": { ".validate": "newData.isString() && newData.val().length <= 20" },
+        "blocked": { ".validate": "newData.isBoolean()" }
+      }
+    },
+
+    "userProgress": {
+      ".read": true,
+      ".write": true,
+      "$uid": { ".validate": "$uid.matches(/^[0-9]{12}$/) && root.child('codes').child($uid).exists()" }
+    },
+
+    "userEnrollments": {
+      ".read": true,
+      ".write": true,
+      "$uid": { ".validate": "$uid.matches(/^[0-9]{12}$/) && root.child('codes').child($uid).exists()" }
+    },
+
+    "competitions": { ".read": true, ".write": true },
+
+    "essaySubmissions": { ".read": true, ".write": true },
+    "examAttempts": { ".read": true, ".write": true },
+    "violations": { ".read": true, ".write": true },
+
+    "forumQuestions": { ".read": true, ".write": true },
+    "favorites": { ".read": true, ".write": true },
+    "notifications": { ".read": true, ".write": true },
+    "notifiedLessons": { ".read": true, ".write": true },
+    "notes": { ".read": true, ".write": true },
+    "enrollments": { ".read": true, ".write": true },
+    "phoneIndex": { ".read": true, ".write": true },
+    "sessions": { ".read": true, ".write": true },
+
+    "settings": { ".read": true, ".write": false }
+  }
+}
