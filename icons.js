@@ -77,3 +77,37 @@ function icon(name, className) {
   if (!def) return '';
   return '<svg class="icon' + (className ? ' ' + className : '') + '" viewBox="' + def.vb + '" fill="currentColor" aria-hidden="true"><path d="' + def.d + '"/></svg>';
 }
+/* ===== شعار المنصة ===== */
+(function(){
+  var n=0;
+  window.brandLogo=function(size){
+    var id='bg'+(++n), s=size||44;
+    return '<svg width="'+s+'" height="'+s+'" viewBox="0 0 48 48" role="img" aria-label="شعار د.علاء صبح" xmlns="http://www.w3.org/2000/svg">'+
+      '<defs><linearGradient id="'+id+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6b2fa3"/><stop offset="1" stop-color="#2a0f4a"/></linearGradient></defs>'+
+      '<rect width="48" height="48" rx="14" fill="url(#'+id+')"/>'+
+      '<rect x=".75" y=".75" width="46.5" height="46.5" rx="13.3" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="1.5"/>'+
+      '<path d="M24 35c-5-4-11-5-15-4V19c4-1 10 0 15 4z" fill="#fff"/>'+
+      '<path d="M24 35c5-4 11-5 15-4V19c-4-1-10 0-15 4z" fill="#f6d9b0"/>'+
+      '<path d="M24 23v12" stroke="#2a0f4a" stroke-width="1.4" opacity=".35"/>'+
+      '<path d="M24 5.5l1.7 4.3 4.3 1.7-4.3 1.7L24 17.5l-1.7-4.3-4.3-1.7 4.3-1.7z" fill="#f0a53a"/></svg>';
+  };
+})();
+
+/* ===== إظهار / إخفاء كلمة المرور ===== */
+(function(){
+  var st=document.createElement('style');
+  st.textContent='.pw-toggle{position:absolute;left:10px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:#75648a;cursor:pointer;padding:8px;border-radius:10px;display:grid;place-items:center;line-height:0;transition:background .15s,color .15s}.pw-toggle:hover{background:rgba(75,29,122,.08);color:#4b1d7a}.pw-toggle .icon{width:18px;height:18px}';
+  document.head.appendChild(st);
+  window.attachPwToggle=function(id){
+    var inp=document.getElementById(id); if(!inp) return;
+    var sh=inp.closest('.input-shell')||inp.parentNode; sh.style.position='relative'; inp.style.paddingLeft='46px';
+    var b=document.createElement('button'); b.type='button'; b.className='pw-toggle'; b.tabIndex=-1;
+    b.setAttribute('aria-label','إظهار كلمة المرور'); b.innerHTML=icon('eye','icon-sm');
+    b.addEventListener('click',function(){
+      var show=inp.type==='password'; inp.type=show?'text':'password';
+      b.innerHTML=icon(show?'eyeSlash':'eye','icon-sm');
+      b.setAttribute('aria-label',show?'إخفاء كلمة المرور':'إظهار كلمة المرور'); inp.focus();
+    });
+    sh.appendChild(b);
+  };
+})();

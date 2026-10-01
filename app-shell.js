@@ -481,7 +481,7 @@ function renderAppHeader(user, userData, opts) {
   header.innerHTML =
     '<div class="header-inner" id="headerInnerNormal">' +
       '<a class="brand-block" href="home.html" aria-label="الذهاب للرئيسية">' +
-        '<div class="brand-text"><h2>د.علاء صبح</h2></div>' +
+        '<span class="brand-mark">' + (window.brandLogo ? brandLogo(44) : '') + '</span><div class="brand-text"><h2>د.علاء صبح</h2><small>منصة طلاب السناتر</small></div>' +
       '</a>' +
       '<nav class="main-nav" aria-label="التنقل">' +
         links.map(function (l) {
@@ -490,8 +490,14 @@ function renderAppHeader(user, userData, opts) {
       '</nav>' +
       '<div class="header-right">' +
         '<button type="button" class="theme-btn" id="themeBtn" aria-label="تبديل الوضع النهاري / الليلي">' + icon(isDark ? 'sun' : 'moon', 'icon-md') + '</button>' +
+        '<button type="button" class="theme-btn logout-btn" id="logoutBtn" title="تسجيل الخروج" aria-label="تسجيل الخروج">' + icon('logout', 'icon-md') + '</button>' +
       '</div>' +
     '</div>';
+
+  document.getElementById('logoutBtn').addEventListener('click', function () {
+    if (!confirm('تأكيد تسجيل الخروج؟')) return;
+    auth.signOut().catch(function () {}).then(function () { window.location.href = 'index.html'; });
+  });
 
   document.getElementById('themeBtn').addEventListener('click', function () {
     const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';

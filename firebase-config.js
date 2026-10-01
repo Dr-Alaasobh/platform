@@ -42,10 +42,60 @@ const db = firebase.database();
         return { exists: r[0].exists(), registered: !!(u && u.name), centerName: r[2].val() || '', user: u };
       });
     },
-    register: function (code, data, centerName) {
-      return db.ref('users/' + code).set(Object.assign({
-        createdAt: firebase.database.ServerValue.TIMESTAMP, centerCode: code, centerName: centerName || ''
-      }, data));
+    hash: function (pass, code) {
+      var str = 'asb|' + code + '|' + pass;
+      if (window.crypto && crypto.subtle) {
+        return crypto.subtle.digest('SHA-256', new TextEncoder().encode(str)).then(function (b) {
+          return Array.from(new Uint8Array(b)).map(function (x) { return x.toString(16).padStart(2, '0'); }).join('');
+        });
+      }
+      var h = 5381; for (var i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) >>> 0;
+      return Promise.resolve('x' + h.toString(16));
+    },
+    register: function (code, data, centerName, password) {
+      var self = this;
+      return db.ref('phoneIndex/' + data.phone).once('value').then(function (ps) {
+        if (ps.exists() && ps.val() !== code) { var e = new Error('phone-used'); e.phoneUsed = true; throw e; }
+        return self.hash(password, code);
+      }).then(function (h) {
+        return db.ref('users/' + code).set(Object.assign({
+          createdAt: firebase.database.ServerValue.TIMESTAMP, centerCode: code, centerName: centerName || '', passHash: h
+        }, data));
+      }).then(function () { return db.ref('phoneIndex/' + data.phone).set(code); });
+    },
+    setPassword: function (code, password) {
+      return this.hash(password, code).then(function (h) { return db.ref('users/' + code + '/passHash').set(h); });
+    },
+    /* دخول برقم الهاتف وكلمة المرور */
+    loginPhone: function (phone, password, preHash) {
+      var self = this, intl = '+20' + phone.slice(1);
+      /* 1) الفهرس السريع  2) لو الطالب مسجّل قبل كده بدون فهرس، نبحث عنه في users بالرقم */
+      function findCode() {
+        return db.ref('phoneIndex/' + phone).once('value').then(function (ps) {
+          var c = ps.val(); if (c && /^[0-9]{12}$/.test(String(c))) return String(c);
+          return searchUsers(phone).then(function (c2) { return c2 || searchUsers(intl); });
+        });
+      }
+      function searchUsers(v) {
+        return db.ref('users').orderByChild('phone').equalTo(v).limitToFirst(5).once('value').then(function (qs) {
+          var found = null;
+          qs.forEach(function (ch) { var u = ch.val(); if (!found && u && u.phone === v && /^[0-9]{12}$/.test(ch.key)) found = ch.key; });
+          return found;
+        });
+      }
+      return findCode().then(function (code) {
+        if (!code) return { ok: false, reason: 'nophone' };
+        return db.ref('users/' + code).once('value').then(function (us) {
+          var u = us.val(); if (!u) return { ok: false, reason: 'nophone' };
+          if (!u.passHash) { self.login(code); return { ok: false, reason: 'nopass', code: code }; }
+          return (preHash ? Promise.resolve(preHash) : self.hash(password, code)).then(function (h) {
+            if (h !== u.passHash) return { ok: false, reason: 'wrong' };
+            db.ref('phoneIndex/' + phone).set(code).catch(function () {});
+            self.login(code);
+            return { ok: true, code: code, hash: h };
+          });
+        });
+      });
     }
   };
 })();

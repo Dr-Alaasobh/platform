@@ -20,6 +20,7 @@
     },
 
     "users": {
+      ".indexOn": ["phone"],
       ".read": true,
       ".write": true,
       "$uid": {

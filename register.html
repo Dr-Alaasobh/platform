@@ -383,7 +383,7 @@
             <div class="field">
               <div class="input-shell">
                 <input type="text" id="studentName" placeholder=" " autocomplete="off" >
-                <label for="studentName" class="floating-label">اسم الطالب</label>
+                <label for="studentName" class="floating-label">اسم الطالب رباعي (بالعربي)</label>
               </div>
               <span class="field-error" id="studentNameErr"></span>
             </div>
@@ -401,6 +401,15 @@
               </div>
               <span class="field-error" id="parentPhoneErr"></span>
             </div>
+            <div class="field" id="pwField"><div class="input-shell">
+                <input type="password" id="pw1" placeholder=" " autocomplete="new-password" style="direction:ltr;text-align:right">
+                <label for="pw1" class="floating-label">كلمة المرور</label></div>
+              <span class="field-error" id="pw1Err"></span></div>
+            <div class="field" id="pwField2"><div class="input-shell">
+                <input type="password" id="pw2" placeholder=" " autocomplete="new-password" style="direction:ltr;text-align:right">
+                <label for="pw2" class="floating-label">تأكيد كلمة المرور</label></div>
+              <span class="field-error" id="pw2Err"></span></div>
+            <p class="muted" style="font-size:12px;margin:-4px 2px 0">6 أحرف على الأقل، وفيها حرف إنجليزي كبير وحرف صغير (الرموز اختيارية).</p>
             <div class="btn-row" style="margin-top:26px;">
               <button type="submit" class="btn btn-primary" id="submitBtn">
                 <span class="btn-text">حفظ ودخول</span>
@@ -423,15 +432,17 @@
 <!-- ===== Firebase ===== -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-<script src="firebase-config.js"></script>
+<script src="firebase-config.js?v=9"></script>
+<script src="icons.js?v=3"></script>
 <script>
   const code = CenterAuth.session();
-  let centerName = '';
+  let centerName = '', passOnly = false;
   if(!code){ window.location.href = 'index.html'; }
   else {
     CenterAuth.lookup(code).then(function(r){
       if(!r.exists){ auth.signOut(); window.location.href = 'index.html'; return; }
-      if(r.registered){ window.location.href = 'home.html'; return; }
+      if(r.registered && r.user && r.user.passHash){ window.location.href = 'home.html'; return; }
+      if(r.registered){ passOnly = true; ['studentName','studentPhone','parentPhone'].forEach(function(i){ document.getElementById(i).closest('.field').style.display='none'; }); }
       centerName = r.centerName;
       document.getElementById('headTitle').textContent = 'سنتر ' + centerName;
     }).catch(function(){
@@ -452,22 +463,31 @@
     document.getElementById(id + 'Err').textContent = msg || '';
     return !msg;
   }
+  attachPwToggle('pw1'); attachPwToggle('pw2');
+  const isArName = v => { const w = v.split(' '); return w.length >= 4 && w.every(x => /^[\u0621-\u064A]{2,}$/.test(x)); };
+  const strongPw = v => v.length >= 6 && /[a-z]/.test(v) && /[A-Z]/.test(v);
   document.getElementById('signupForm').addEventListener('submit', function(e){
     e.preventDefault();
     const name = document.getElementById('studentName').value.trim().replace(/\s+/g,' ');
     const sp = document.getElementById('studentPhone').value.trim();
     const pp = document.getElementById('parentPhone').value.trim();
-    const ok1 = setErr('studentName', name.split(' ').length >= 2 ? '' : 'اكتب اسمك ثنائي على الأقل');
-    const ok2 = setErr('studentPhone', isPhone(sp) ? '' : 'رقم هاتف مصري صحيح');
-    const ok3 = setErr('parentPhone', isPhone(pp) ? '' : 'رقم هاتف مصري صحيح');
-    if(!(ok1 && ok2 && ok3)) return;
+    const p1 = document.getElementById('pw1').value, p2 = document.getElementById('pw2').value;
+    const ok1 = passOnly || setErr('studentName', isArName(name) ? '' : 'اكتب اسمك رباعي بالعربي، وكل كلمة حرفين على الأقل');
+    const ok2 = passOnly || setErr('studentPhone', isPhone(sp) ? '' : 'رقم هاتف مصري صحيح');
+    const ok3 = passOnly || setErr('parentPhone', isPhone(pp) ? '' : 'رقم هاتف مصري صحيح');
+    const ok4 = setErr('pw1', strongPw(p1) ? '' : 'كلمة المرور 6 أحرف على الأقل وفيها حرف كبير وحرف صغير');
+    const ok5 = setErr('pw2', (p1 === p2 && p2) ? '' : 'كلمة المرور وتأكيدها مش متطابقين');
+    if(!(ok1 && ok2 && ok3 && ok4 && ok5)) return;
     const btn = document.getElementById('submitBtn');
     btn.classList.add('loading'); btn.disabled = true;
-    CenterAuth.register(code, { name: name, phone: sp, parentPhone: pp }, centerName).then(function(){
+    const job = passOnly ? CenterAuth.setPassword(code, p1) : CenterAuth.register(code, { name: name, phone: sp, parentPhone: pp }, centerName, p1);
+    job.then(function(){
+      try { if (!passOnly) localStorage.setItem('asb_last_phone', sp); } catch (e) {}
       window.location.href = 'home.html';
-    }).catch(function(){
+    }).catch(function(err){
       btn.classList.remove('loading'); btn.disabled = false;
-      setErr('parentPhone', 'تعذر الحفظ، تأكد من الإنترنت وحاول تاني');
+      if (err && err.phoneUsed) setErr('studentPhone', 'الرقم ده مسجل بحساب تاني');
+      else setErr('pw2', 'تعذر الحفظ، تأكد من الإنترنت وحاول تاني');
     });
   });
 </script>

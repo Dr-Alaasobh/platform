@@ -463,6 +463,12 @@
     .brand-top{gap:10px;}
     .brand-logo-wrap{width:42px;height:42px;}
   }
+
+.login-tabs{display:flex;gap:6px;background:var(--primary-tint,#f3ecf9);padding:5px;border-radius:14px;margin:0 0 18px}
+.ltab{flex:1;border:0;background:transparent;padding:10px 6px;border-radius:10px;font:700 13px inherit;font-family:inherit;color:var(--text-muted,#75648a);cursor:pointer;transition:.2s}
+.ltab.active{background:#fff;color:var(--primary,#3b1160);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.remember{display:flex;align-items:center;gap:9px;margin:14px 2px 18px;font-size:13.5px;font-weight:600;color:var(--text-muted,#75648a);cursor:pointer;user-select:none}
+.remember input{width:18px;height:18px;accent-color:#4b1d7a;cursor:pointer}
 </style>
 </head>
 <body>
@@ -494,7 +500,7 @@
     <div class="brand-mid">
       <div class="brand-quote-mark" aria-hidden="true">"</div>
       <h2 class="brand-headline">مذاكرتك مع د.علاء صبح بقت أسهل، وكل خطوة محسوبة</h2>
-      <p class="brand-sub">ادخل بكود السنتر الخاص بك، وتابع محاضراتك واختباراتك ونقاطك في مكان واحد.</p>
+      <p class="brand-sub">سجّل دخولك، وتابع محاضراتك واختباراتك ونقاطك في مكان واحد.</p>
     </div>
 
     <div class="brand-bottom">
@@ -514,10 +520,14 @@
 
       <div class="form-head">
         <h1>أهلًا بك</h1>
-        <p>ادخل كود السنتر الخاص بك للمتابعة</p>
+        <p id="formSub">ادخل برقم الهاتف وكلمة المرور اللي سجلت بيهم.</p>
+      </div>
+      <div class="login-tabs" role="tablist">
+        <button type="button" class="ltab active" data-mode="phone">رقم الهاتف وكلمة المرور</button>
+        <button type="button" class="ltab" data-mode="code">أول مرة؟ كود السنتر</button>
       </div>
 
-      <form id="loginForm" novalidate autocomplete="off">
+      <form id="loginForm" novalidate autocomplete="on">
         <!-- خانات وهمية مخفية لامتصاص اقتراحات المتصفح المحفوظة بدل الخانات الحقيقية -->
         <input type="text" name="username" autocomplete="username" style="position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;" tabindex="-1" aria-hidden="true">
         <input type="password" name="password" autocomplete="new-password" style="position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;" tabindex="-1" aria-hidden="true">
@@ -531,6 +541,17 @@
           <span class="field-error">الكود لازم يكون 12 رقم</span>
         </div>
 
+        <div id="phoneBox">
+          <div class="field" id="phoneField"><div class="input-shell">
+            <input type="text" id="phoneInput" name="username" placeholder=" " inputmode="numeric" maxlength="11" autocomplete="username">
+            <label for="phoneInput" class="floating-label">رقم الهاتف</label></div>
+            <span class="field-error">اكتب رقم هاتف مصري صحيح</span></div>
+          <div class="field" id="passField"><div class="input-shell">
+            <input type="password" id="passInput" name="password" placeholder=" " autocomplete="current-password" style="direction:ltr;text-align:right">
+            <label for="passInput" class="floating-label">كلمة المرور</label></div>
+            <span class="field-error">اكتب كلمة المرور</span></div>
+          <label class="remember"><input type="checkbox" id="rememberChk" checked><span>حفظ البيانات على هذا الجهاز</span></label>
+        </div>
         <button type="submit" class="submit-btn" id="submitBtn">
           <span class="btn-text">دخول</span>
           <span class="spinner" aria-hidden="true"></span>
@@ -548,8 +569,9 @@
 <!-- ===== Firebase ===== -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-<script src="firebase-config.js"></script>
+<script src="firebase-config.js?v=9"></script>
 
+<script src="icons.js?v=3"></script>
 <script>
   /* لو الطالب داخل بالفعل حوّله للصفحة المناسبة */
   (function(){
@@ -557,13 +579,14 @@
     if(!c) return;
     CenterAuth.lookup(c).then(function(r){
       if(!r.exists){ auth.signOut(); return; }
-      window.location.href = r.registered ? 'home.html' : 'register.html';
+      window.location.href = (r.registered && r.user && r.user.passHash) ? 'home.html' : 'register.html';
     }).catch(function(){});
   })();
 
   const identifierInput = document.getElementById('identifierInput');
   const submitBtn = document.getElementById('submitBtn');
   const form = document.getElementById('loginForm');
+
 
   identifierInput.addEventListener('input', () => {
     identifierInput.value = identifierInput.value.replace(/[^0-9]/g,'').slice(0,12);
@@ -582,8 +605,54 @@
     setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3800);
   }
 
+  let mode = 'phone';
+  const phoneBox = document.getElementById('phoneBox'), idField = document.getElementById('identifierField');
+  const phoneInput = document.getElementById('phoneInput'), passInput = document.getElementById('passInput');
+  function setMode(m){
+    mode = m;
+    document.querySelectorAll('.ltab').forEach(b => b.classList.toggle('active', b.dataset.mode === m));
+    phoneBox.style.display = m === 'phone' ? 'block' : 'none';
+    idField.style.display = m === 'code' ? 'block' : 'none';
+    document.getElementById('formSub').textContent = m === 'code' ? 'أول مرة بتدخل؟ اكتب كود السنتر وسجّل بياناتك. بعدها تدخل برقم هاتفك وكلمة المرور.' : 'ادخل برقم الهاتف وكلمة المرور اللي سجلت بيهم.';
+  }
+  document.querySelectorAll('.ltab').forEach(b => b.addEventListener('click', () => setMode(b.dataset.mode)));
+  phoneInput.addEventListener('input', () => { phoneInput.value = phoneInput.value.replace(/[^0-9]/g,'').slice(0,11); });
+  setMode('phone');
+  const rememberChk = document.getElementById('rememberChk');
+  try {
+    rememberChk.checked = localStorage.getItem('asb_remember') !== '0';
+    const lp = localStorage.getItem('asb_last_phone'); if (lp && rememberChk.checked) phoneInput.value = lp;
+    if (lp && rememberChk.checked && localStorage.getItem('asb_last_hash')) { passInput.value = '••••••••'; passInput.dataset.saved = '1'; }
+  } catch (e) {}
+  attachPwToggle('passInput');
+  /* كلمة المرور المحفوظة: لو الطالب كتب أي حاجة جديدة أو غيّر الرقم، نتجاهل المحفوظ */
+  function dropSaved(){ if (passInput.dataset.saved) { delete passInput.dataset.saved; passInput.value = ''; } }
+  passInput.addEventListener('focus', () => { if (passInput.dataset.saved) passInput.select(); });
+  passInput.addEventListener('keydown', () => { if (passInput.dataset.saved) dropSaved(); });
+  passInput.addEventListener('paste', () => { if (passInput.dataset.saved) dropSaved(); });
+  phoneInput.addEventListener('input', () => { try { if (phoneInput.value !== localStorage.getItem('asb_last_phone')) dropSaved(); } catch (e) {} });
+  function done(){ submitBtn.classList.remove('loading'); submitBtn.disabled = false; }
+  const netErr = () => { done(); showToast('تعذر الاتصال بقاعدة البيانات، تأكد من الإنترنت', 'error'); };
+
   form.addEventListener('submit', (e) => {
     e.preventDefault();
+    if (mode === 'phone') {
+      const ph = phoneInput.value.trim(), saved = !!passInput.dataset.saved, pw = passInput.value;
+      const okP = /^01[0125][0-9]{8}$/.test(ph), okW = pw.length > 0;
+      document.getElementById('phoneField').classList.toggle('has-error', !okP);
+      document.getElementById('passField').classList.toggle('has-error', !okW);
+      if (!okP || !okW) return;
+      submitBtn.classList.add('loading'); submitBtn.disabled = true;
+      let preHash = null; try { if (saved) preHash = localStorage.getItem('asb_last_hash'); } catch (e) {}
+      CenterAuth.loginPhone(ph, pw, preHash).then(function (r) {
+        if (r.ok) { try { localStorage.setItem('asb_remember', rememberChk.checked ? '1' : '0'); if (rememberChk.checked) { localStorage.setItem('asb_last_phone', ph); if (r.hash) localStorage.setItem('asb_last_hash', r.hash); } else { localStorage.removeItem('asb_last_phone'); localStorage.removeItem('asb_last_hash'); } } catch (e) {} window.location.href = 'home.html'; return; }
+        if (r.reason === 'nopass') { showToast('أنشئ كلمة مرور لحسابك أول مرة', 'info'); setTimeout(function(){ window.location.href = 'register.html'; }, 900); return; }
+        if (saved && r.reason === 'wrong') { try { localStorage.removeItem('asb_last_hash'); } catch (e) {} delete passInput.dataset.saved; passInput.value = ''; }
+        done();
+        showToast(r.reason === 'nophone' ? 'الرقم ده مش مسجل. ادخل أول مرة بكود السنتر' : r.reason === 'nopass' ? 'لسه ما حطيتش كلمة مرور. ادخل بكود السنتر وأنشئ واحدة' : 'كلمة المرور غلط', 'error');
+      }).catch(netErr);
+      return;
+    }
     const field = document.getElementById('identifierField');
     const code = identifierInput.value.trim();
     if(!/^[0-9]{12}$/.test(code)){
@@ -595,17 +664,16 @@
     submitBtn.classList.add('loading');
     submitBtn.disabled = true;
     CenterAuth.lookup(code).then(function(r){
-      if(!r.exists){
-        submitBtn.classList.remove('loading'); submitBtn.disabled = false;
-        showToast('الكود غير موجود، راجع السنتر', 'error');
-        return;
+      if(!r.exists){ done(); showToast('الكود غير موجود، راجع السنتر', 'error'); return; }
+      if (r.registered && r.user && r.user.passHash) {
+        done(); setMode('phone'); identifierInput.value = '';
+        showToast('حسابك مسجل بالفعل. ادخل برقم الهاتف وكلمة المرور', 'info');
+        passInput.focus(); return;
       }
+      try { localStorage.setItem('asb_last_code', code); } catch (e) {}
       CenterAuth.login(code);
-      window.location.href = r.registered ? 'home.html' : 'register.html';
-    }).catch(function(){
-      submitBtn.classList.remove('loading'); submitBtn.disabled = false;
-      showToast('تعذر الاتصال بقاعدة البيانات، تأكد من الإنترنت', 'error');
-    });
+      window.location.href = 'register.html';
+    }).catch(netErr);
   });
 </script>
 </body>
