@@ -21,18 +21,40 @@ const db = firebase.database();
 (function () {
   var SES = 'asb_session_v2', OK = /^[0-9A-Za-z_-]{4,40}$/;
   var cbs = [];
-  /* الجلسة بتتخزن في 3 أماكن (localStorage + sessionStorage + كوكي سنة) علشان لو المتصفح مسح واحد منهم
-     (متصفحات فيسبوك/واتساب، سفاري، تنظيف الذاكرة) الطالب ما يتطردش لصفحة الدخول */
+  /* الجلسة بتتخزن في 5 أماكن (localStorage + sessionStorage + كوكي سنة + IndexedDB + window.name) علشان لو المتصفح مسح واحد منهم
+     (متصفحات فيسبوك/واتساب، سفاري بعد أسبوع، تنظيف الذاكرة) الطالب ما يتطردش لصفحة الدخول.
+     أي مكان يتمسح بيتعالج تلقائيًا من الأماكن التانية، والجلسة بتتجدد كل ما الطالب يفتح صفحة أو يرجع للتطبيق. */
+  function idb(op, v) {
+    return new Promise(function (res) {
+      try {
+        var r = indexedDB.open('asb_auth', 1);
+        r.onupgradeneeded = function () { r.result.createObjectStore('kv'); };
+        r.onerror = function () { res(null); };
+        r.onsuccess = function () {
+          try {
+            var tx = r.result.transaction('kv', op === 'get' ? 'readonly' : 'readwrite'), s = tx.objectStore('kv');
+            var q = op === 'get' ? s.get(SES) : op === 'set' ? s.put(v, SES) : s.delete(SES);
+            q.onsuccess = function () { res(op === 'get' ? q.result : true); };
+            q.onerror = function () { res(null); };
+            tx.oncomplete = function () { r.result.close(); };
+          } catch (e) { res(null); }
+        };
+      } catch (e) { res(null); }
+    });
+  }
   function wr(v) {
     try { localStorage.setItem(SES, v); } catch (e) {}
     try { sessionStorage.setItem(SES, v); } catch (e) {}
-    try { document.cookie = 'asb_s=' + v + '; max-age=31536000; path=/; SameSite=Lax'; } catch (e) {}
+    try { document.cookie = 'asb_s=' + v + '; max-age=31536000; path=/; SameSite=Lax' + (location.protocol === 'https:' ? '; Secure' : ''); } catch (e) {}
+    try { if (!window.name || /^asb_s=/.test(window.name)) window.name = 'asb_s=' + v; } catch (e) {}
+    idb('set', v);
   }
   function rd() {
-    var v = null;
+    var v = null, m;
     try { v = localStorage.getItem(SES); } catch (e) {}
     if (!v) { try { v = sessionStorage.getItem(SES); } catch (e) {} }
-    if (!v) { try { var m = document.cookie.match(/(?:^|; )asb_s=([^;]+)/); v = m ? decodeURIComponent(m[1]) : null; } catch (e) {} }
+    if (!v) { try { m = document.cookie.match(/(?:^|; )asb_s=([^;]+)/); v = m ? decodeURIComponent(m[1]) : null; } catch (e) {} }
+    if (!v) { try { m = /^asb_s=(.+)$/.exec(window.name || ''); v = m ? m[1] : null; } catch (e) {} }
     if (v && OK.test(v)) { try { if (localStorage.getItem(SES) !== v) wr(v); } catch (e) {} return v; }
     return null;
   }
@@ -40,13 +62,27 @@ const db = firebase.database();
     try { localStorage.removeItem(SES); } catch (e) {}
     try { sessionStorage.removeItem(SES); } catch (e) {}
     try { document.cookie = 'asb_s=; max-age=0; path=/'; } catch (e) {}
+    try { if (/^asb_s=/.test(window.name)) window.name = ''; } catch (e) {}
+    return idb('del');
   }
   try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
+  /* لو كل الأماكن السريعة فاضية، بنقرا من IndexedDB قبل ما نقرر إن الطالب مش داخل */
+  var ready = rd() ? Promise.resolve() : idb('get').then(function (v) { if (v && OK.test(v)) wr(v); });
+  /* تجديد الجلسة (بيمدّ عمر الكوكي ويعالج أي مكان اتمسح) */
+  function renew() { var v = rd(); if (v) wr(v); }
+  ready.then(renew);
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') renew(); });
+  window.addEventListener('pageshow', renew); window.addEventListener('pagehide', renew);
+  setInterval(renew, 300000);
   function currentUser() { var c = rd(); return c ? { uid: c, displayName: '', email: '' } : null; }
   window.auth = {
     get currentUser() { return currentUser(); },
-    onAuthStateChanged: function (cb) { setTimeout(function () { cb(currentUser()); }, 0); return function () {}; },
-    signOut: function () { clr(); return Promise.resolve(); }
+    onAuthStateChanged: function (cb) { ready.then(function () { cb(currentUser()); }); return function () {}; },
+    /* الخروج الصريح (أو الحظر) بيمنع الدخول الصامت من حفظ كلمات المرور، علشان الطالب ما يرجعش لوحده */
+    signOut: function () {
+      try { if (navigator.credentials && navigator.credentials.preventSilentAccess) navigator.credentials.preventSilentAccess(); } catch (e) {}
+      return clr().then(function () {});
+    }
   };
 
   window.CenterAuth = {

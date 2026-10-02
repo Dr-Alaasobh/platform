@@ -575,14 +575,22 @@
 
 <script src="icons.js?v=3"></script>
 <script>
-  /* لو الطالب داخل بالفعل حوّله للصفحة المناسبة */
+  /* لو الطالب داخل بالفعل حوّله للصفحة المناسبة. ولو الجلسة اتمسحت من المتصفح بنحاول ندخله صامت من كلمات المرور المحفوظة */
   (function(){
-    var c = CenterAuth.session();
-    if(!c) return;
-    CenterAuth.lookup(c).then(function(r){
-      if(!r.exists){ auth.signOut(); return; }
-      window.location.href = (r.registered && r.user && r.user.passHash) ? 'home.html' : 'register.html';
-    }).catch(function(){});
+    function go(c){
+      CenterAuth.lookup(c).then(function(r){
+        if(!r.exists){ auth.signOut(); return; }
+        window.location.href = (r.registered && r.user && r.user.passHash) ? 'home.html' : 'register.html';
+      }).catch(function(){});
+    }
+    function silent(){
+      if(!(navigator.credentials && window.PasswordCredential)) return;
+      navigator.credentials.get({ password: true, mediation: 'silent' }).then(function(c){
+        if(!c || !/^01[0125][0-9]{8}$/.test(c.id || '') || !c.password) return;
+        CenterAuth.loginPhone(c.id, c.password, null).then(function(r){ if(r.ok) window.location.href = 'home.html'; }).catch(function(){});
+      }).catch(function(){});
+    }
+    auth.onAuthStateChanged(function(u){ if(u) go(u.uid); else silent(); });
   })();
 
   const identifierInput = document.getElementById('identifierInput');
@@ -647,7 +655,7 @@
       submitBtn.classList.add('loading'); submitBtn.disabled = true;
       let preHash = null; try { if (saved) preHash = localStorage.getItem('asb_last_hash'); } catch (e) {}
       CenterAuth.loginPhone(ph, pw, preHash).then(function (r) {
-        if (r.ok) { try { localStorage.setItem('asb_remember', rememberChk.checked ? '1' : '0'); if (rememberChk.checked) { localStorage.setItem('asb_last_phone', ph); if (r.hash) localStorage.setItem('asb_last_hash', r.hash); } else { localStorage.removeItem('asb_last_phone'); localStorage.removeItem('asb_last_hash'); } } catch (e) {} window.location.href = 'home.html'; return; }
+        if (r.ok) { try { localStorage.setItem('asb_remember', rememberChk.checked ? '1' : '0'); if (rememberChk.checked) { localStorage.setItem('asb_last_phone', ph); if (r.hash) localStorage.setItem('asb_last_hash', r.hash); } else { localStorage.removeItem('asb_last_phone'); localStorage.removeItem('asb_last_hash'); } } catch (e) {} try { if (rememberChk.checked && !saved && window.PasswordCredential && navigator.credentials) navigator.credentials.store(new PasswordCredential({ id: ph, password: pw, name: ph })); } catch (e) {} window.location.href = 'home.html'; return; }
         if (r.reason === 'nopass') { showToast('أنشئ كلمة مرور لحسابك أول مرة', 'info'); setTimeout(function(){ window.location.href = 'register.html'; }, 900); return; }
         if (saved && r.reason === 'wrong') { try { localStorage.removeItem('asb_last_hash'); } catch (e) {} delete passInput.dataset.saved; passInput.value = ''; }
         done();

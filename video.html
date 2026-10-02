@@ -175,6 +175,7 @@ a.vp-it:hover{background:var(--bg)}
 }
 @media (prefers-reduced-motion:reduce){.vp *{transition:none!important;animation:none!important}}
 </style>
+<link rel="stylesheet" href="player.css?v=1">
 <link rel="stylesheet" href="mobile-app.css?v=2">
 </head>
 <body>
@@ -197,6 +198,7 @@ a.vp-it:hover{background:var(--bg)}
 <script src="firebase-config.js?v=10"></script>
 <script src="icons.js?v=3"></script>
 <script src="app-shell.js?v=7"></script>
+<script src="player.js?v=1"></script>
 <script>
 const params = new URLSearchParams(location.search);
 const compId = params.get('comp'), lessonId = params.get('lesson'), videoId = params.get('video');
@@ -262,7 +264,8 @@ function setTab(t) {
 }
 
 function renderVideo(video, lesson, vprog) {
-  const ytId = extractYouTubeId(video.url);
+  const S = ASBPlayer.resolve(video.url);
+  curVideo = video;
   progRef = db.ref('userProgress/' + currentUser.uid + '/' + compId + '/' + lessonId);
   maxViews = MAX_VIEWS;
   viewsUsed = Number(vprog.viewsUsed) || 0;
@@ -276,30 +279,16 @@ function renderVideo(video, lesson, vprog) {
   const dur = Number(video.durationMinutes) > 0 ? fmtMin(Number(video.durationMinutes)) : (blocked ? 'غير محددة' : '—');
 
   let player;
-  if (ytId && !blocked) {
+  if (S && !blocked) {
     player =
       '<div class="vp-player" id="videoWrap">' +
-        '<div class="vp-cover" id="videoCover"><img id="coverImg" src="https://img.youtube.com/vi/' + ytId + '/maxresdefault.jpg" alt="" onerror="this.onerror=null;this.src=\'https://img.youtube.com/vi/' + ytId + '/hqdefault.jpg\'">' +
+        '<div class="vp-cover" id="videoCover">' + (S.poster ? '<img src="' + S.poster + '" alt="" onerror="this.remove()">' : '') +
           '<button type="button" class="vp-bigplay" aria-label="تشغيل الفيديو"><i class="fas fa-play"></i></button>' +
           (dur !== '—' ? '<span class="vp-chip"><i class="far fa-clock"></i> ' + dur + '</span>' : '') + '</div>' +
-        '<div id="ytPlayerMount"></div><div class="vp-catch" id="catcher"></div><div class="vp-boost">تسريع ×2</div>' +
         '<div class="vp-end" id="endOv"><div class="vp-end-in">' +
           '<button type="button" class="vp-replay" id="replayBtn"><i class="fas fa-rotate-left"></i> إعادة المشاهدة</button>' +
           (nextId ? '<a class="vp-next" href="' + vHref(nextId) + '"><i class="fas fa-forward-step"></i><span><small>الفيديو التالي</small><b>' + escapeHtml(nextTitle) + '</b></span></a>' : '') +
         '</div></div>' +
-        '<div class="vp-ctrl" id="ctrl">' +
-          '<div class="vp-seek" id="seek"><div class="vp-seek-bar" id="seekBar"><i id="seekFill"></i></div></div>' +
-          '<div class="vp-row">' +
-            '<button type="button" class="vp-b vp-pp" id="ppBtn" aria-label="تشغيل/إيقاف"><i class="fas fa-play"></i></button>' +
-            '<button type="button" class="vp-b" id="bkBtn" aria-label="رجوع 10 ثوانٍ"><i class="fas fa-rotate-left"></i><em>10</em></button>' +
-            '<button type="button" class="vp-b" id="fwBtn" aria-label="تقديم 10 ثوانٍ"><i class="fas fa-rotate-right"></i><em>10</em></button>' +
-            '<span class="vp-time" id="timeEl">0:00 / 0:00</span><span class="vp-sp"></span>' +
-            '<button type="button" class="vp-b" id="volBtn" aria-label="الصوت"><i class="fas fa-volume-high"></i></button>' +
-            '<input type="range" class="vp-vol" id="volRange" min="0" max="100" value="100" aria-label="مستوى الصوت">' +
-            '<button type="button" class="vp-b vp-rate" id="rateBtn" aria-label="السرعة">1x</button>' +
-            '<button type="button" class="vp-b" id="fsBtn" aria-label="تكبير الفيديو"><i class="fas fa-expand"></i></button>' +
-          '</div>' +
-        '</div>' +
       '</div>';
   } else if (blocked) {
     player = '<div class="vp-card vp-gate"><i class="fas fa-lock"></i><h3>استنفدت عدد المشاهدات المتاحة</h3><p>استخدمت كل مشاهداتك المسموح بها لهذه المحاضرة (' + maxViews + ' مشاهدات). تقدر تراجع تفاصيلها تحت.</p></div>';
@@ -332,11 +321,10 @@ function renderVideo(video, lesson, vprog) {
     '</div>';
 
   renderActions(lesson, nextId);
-  if (ytId && !blocked) {
+  if (S && !blocked) {
     $('videoCover').addEventListener('click', function start() {
-      playbackStartedAt = Date.now();
       $('videoCover').classList.add('is-hidden'); $('videoWrap').classList.add('is-playing');
-      initPlayer(ytId);
+      startPlayer(S);
       $('videoCover').removeEventListener('click', start);
     });
     getOrCreateWatermarkCode(currentUser.uid, function (code) { startVideoWatermark($('videoWrap'), code, currentUserData.name || ''); });
@@ -436,11 +424,16 @@ function sampleWatch(cur, dur, playing, rate) {
   lastPos = cur; lastWall = now;
 }
 function trackProgress() {
-  const dur = ytPlayer.getDuration() || 0;
-  if (!(dur > 0)) return;
-  const playing = ytPlayer.getPlayerState() === YT.PlayerState.PLAYING;
-  sampleWatch(ytPlayer.getCurrentTime() || 0, dur, playing, ytPlayer.getPlaybackRate());
-  const coverage = Math.min(100, seen.size / Math.ceil(dur) * 100);
+  let coverage;
+  if (P.tracked) {
+    const dur = P.dur(); if (!(dur > 0)) return;
+    sampleWatch(P.time(), dur, P.playing(), P.rate());
+    coverage = Math.min(100, seen.size / Math.ceil(dur) * 100);
+  } else {
+    /* مصدر مضمّن (Drive/Facebook/...) مينفعش نقيس تقدّمه: بنحسب وقت وجود الطالب على الصفحة مقابل مدة الفيديو (أو 5 دقايق لو مش محددة) */
+    const total = (Number(curVideo && curVideo.durationMinutes) || 5) * 60;
+    coverage = Math.min(100, watchAccum / total * 100);
+  }
   if (coverage > maxPct) {
     maxPct = coverage;
     const l = $('pctLabel'), f = $('pctFill');
@@ -457,7 +450,8 @@ function trackProgress() {
   }
 }
 function tickWatch() {
-  if (!ytReady || !ytPlayer || ytPlayer.getPlayerState() !== YT.PlayerState.PLAYING) return;
+  if (!P) return;
+  if (P.tracked ? !P.playing() : document.visibilityState !== 'visible') return;
   watchAccum++;
   const el = $('statWatch'); if (el) el.textContent = fmtWatch(watchBase + watchAccum);
 }
@@ -470,132 +464,21 @@ function flush() {
   if (Object.keys(u).length) progRef.update(u);
 }
 
-/* ===== المشغّل المخصص (يوتيوب بدون أدوات التحكم الأصلية) ===== */
-const RATES = [1, 1.25, 1.5, 1.75, 2, 0.5, 0.75];
-let ytPlayer = null, ytReady = false, rateIdx = 0, lastVol = 100, seeking = false, playbackStartedAt = 0, hideTimer = null;
-
-function loadYT(cb) {
-  if (window.YT && window.YT.Player) { cb(); return; }
-  const prev = window.onYouTubeIframeAPIReady;
-  window.onYouTubeIframeAPIReady = function () { if (typeof prev === 'function') prev(); cb(); };
-  if (!$('ytIframeApiScript')) { const t = document.createElement('script'); t.id = 'ytIframeApiScript'; t.src = 'https://www.youtube.com/iframe_api'; document.head.appendChild(t); }
-}
-function initPlayer(ytId) {
-  loadYT(function () {
-    ytPlayer = new YT.Player('ytPlayerMount', {
-      videoId: ytId,
-      playerVars: { controls: 0, disablekb: 1, modestbranding: 1, rel: 0, iv_load_policy: 3, fs: 0, playsinline: 1, autoplay: 1 },
-      events: { onReady: onReady, onStateChange: onState }
-    });
+/* ===== ربط المشغّل الشامل (player.js) ===== */
+let P = null, curVideo = null;
+function startPlayer(S) {
+  P = ASBPlayer.mount($('videoWrap'), S, {
+    onState: function (s) { const ov = $('endOv'); if (!ov) return; if (s === 'ended') ov.classList.add('show'); else if (s === 'playing') ov.classList.remove('show'); },
+    onReady: function () { const d = $('statDuration'); if (d && d.textContent === '—' && P) { const s = P.dur(); if (s > 0) d.textContent = fmtMin(s / 60); } },
+    onTick: function () { if (P) trackProgress(); }
   });
-}
-function showBar() { const w = $('videoWrap'); if (w) w.classList.remove('controls-hidden'); clearTimeout(hideTimer); hideTimer = setTimeout(function () { if (ytReady && ytPlayer.getPlayerState() === YT.PlayerState.PLAYING && $('videoWrap')) $('videoWrap').classList.add('controls-hidden'); }, 5000); }
-function toggleBar() { const w = $('videoWrap'); if (w.classList.contains('controls-hidden')) showBar(); else { clearTimeout(hideTimer); w.classList.add('controls-hidden'); } }
-function togglePlay() { if (!ytReady) return; ytPlayer.getPlayerState() === YT.PlayerState.PLAYING ? ytPlayer.pauseVideo() : ytPlayer.playVideo(); }
-function seekBy(d) { if (!ytReady) return; const dur = ytPlayer.getDuration() || 0; ytPlayer.seekTo(Math.max(0, Math.min(dur, (ytPlayer.getCurrentTime() || 0) + d)), true); }
-function flashSeek(side) {
-  const wrap = $('videoWrap'), el = document.createElement('div');
-  el.className = 'vp-flash ' + side;
-  el.innerHTML = side === 'fwd' ? '10 ثوانٍ <i class="fas fa-forward"></i>' : '<i class="fas fa-backward"></i> 10 ثوانٍ';
-  wrap.appendChild(el);
-  requestAnimationFrame(function () { el.classList.add('show'); });
-  setTimeout(function () { el.classList.remove('show'); setTimeout(function () { el.remove(); }, 200); }, 550);
-}
-
-function onReady() {
-  ytReady = true; ytPlayer.playVideo();
-  setInterval(updateProgress, 250); setInterval(tickWatch, 1000);
-  const d = $('statDuration');
-  if (d && d.textContent === '—') { const s = ytPlayer.getDuration() || 0; if (s > 0) d.textContent = fmtMin(s / 60); }
-
-  $('ppBtn').onclick = function () { togglePlay(); showBar(); };
-  $('bkBtn').onclick = function () { seekBy(-10); flashSeek('back'); showBar(); };
-  $('fwBtn').onclick = function () { seekBy(10); flashSeek('fwd'); showBar(); };
-  $('ctrl').addEventListener('pointerdown', showBar);
-  $('videoWrap').addEventListener('mousemove', showBar);
+  setInterval(tickWatch, 1000);
   $('replayBtn').onclick = function () {
     if (viewsUsed >= maxViews) { location.reload(); return; }   // خلّص مشاهداته: الصفحة هتعرض رسالة القفل
     $('endOv').classList.remove('show');
     seen = new Set(); lastPos = null; viewCounted = false;      // إعادة المشاهدة = محاولة جديدة بتتحسب لو اكتملت 80%
-    ytPlayer.seekTo(0, true); ytPlayer.playVideo();
+    P.seek(0); P.play();
   };
-  setupGestures(); showBar();
-
-  const seek = $('seek');
-  const seekTo = function (e) {
-    const r = seek.getBoundingClientRect(), x = e.touches ? e.touches[0].clientX : e.clientX;
-    const f = Math.max(0, Math.min(1, (x - r.left) / r.width));
-    ytPlayer.seekTo((ytPlayer.getDuration() || 0) * f, true); $('seekFill').style.width = f * 100 + '%'; $('seekBar').style.setProperty('--p', f * 100 + '%');
-  };
-  seek.addEventListener('mousedown', function (e) { seeking = true; $('videoWrap').classList.add('is-seeking'); seekTo(e); });
-  document.addEventListener('mousemove', function (e) { if (seeking) seekTo(e); });
-  document.addEventListener('mouseup', function () { seeking = false; const w = $('videoWrap'); if (w) w.classList.remove('is-seeking'); });
-  seek.addEventListener('touchstart', function (e) { seeking = true; seekTo(e); e.preventDefault(); }, { passive: false });
-  seek.addEventListener('touchmove', function (e) { if (seeking) seekTo(e); e.preventDefault(); }, { passive: false });
-  document.addEventListener('touchend', function () { seeking = false; });
-
-  const vr = $('volRange'), vb = $('volBtn');
-  const volIcon = function (muted) { vb.innerHTML = '<i class="fas fa-volume-' + (muted ? 'xmark' : 'high') + '"></i>'; };
-  vr.oninput = function () { const v = +vr.value; ytPlayer.setVolume(v); if (!v) { ytPlayer.mute(); volIcon(true); } else { ytPlayer.unMute(); lastVol = v; volIcon(false); } };
-  vb.onclick = function () {
-    if (ytPlayer.isMuted() || !ytPlayer.getVolume()) { ytPlayer.unMute(); ytPlayer.setVolume(lastVol || 100); vr.value = lastVol || 100; volIcon(false); }
-    else { lastVol = ytPlayer.getVolume(); ytPlayer.mute(); vr.value = 0; volIcon(true); }
-  };
-  $('rateBtn').onclick = function () { rateIdx = (rateIdx + 1) % RATES.length; ytPlayer.setPlaybackRate(RATES[rateIdx]); this.textContent = RATES[rateIdx] + 'x'; };
-  setupFullscreen();
-}
-
-function setupFullscreen() {
-  const wrap = $('videoWrap'), btn = $('fsBtn');
-  const isFs = function () { return !!(document.fullscreenElement || document.webkitFullscreenElement); };
-  btn.onclick = function () {
-    if (!isFs()) { (wrap.requestFullscreen || wrap.webkitRequestFullscreen || function () {}).call(wrap); }
-    else { (document.exitFullscreen || document.webkitExitFullscreen).call(document); }
-  };
-  const change = function () {
-    btn.innerHTML = '<i class="fas fa-' + (isFs() ? 'compress' : 'expand') + '"></i>';
-    btn.setAttribute('aria-label', isFs() ? 'تصغير الفيديو' : 'تكبير الفيديو');
-    if (screen.orientation) { try { isFs() ? screen.orientation.lock('landscape').catch(function () {}) : screen.orientation.unlock(); } catch (e) {} }
-  };
-  document.addEventListener('fullscreenchange', change); document.addEventListener('webkitfullscreenchange', change);
-}
-
-/* ضغط مزدوج = ±10 ثوانٍ، ضغط مطوّل = تسريع ×2، ضغطة واحدة = إظهار/إخفاء الأدوات */
-function setupGestures() {
-  const c = $('catcher'), wrap = $('videoWrap');
-  let tapT = null, lastT = 0, lastSide = null, pressT = null, boost = false, prevRate = 1, sx = 0, sy = 0;
-  c.addEventListener('pointerdown', function (e) {
-    sx = e.clientX; sy = e.clientY; boost = false;
-    pressT = setTimeout(function () { boost = true; prevRate = ytPlayer.getPlaybackRate(); ytPlayer.setPlaybackRate(2); wrap.classList.add('speed-boost-active'); }, 400);
-  });
-  c.addEventListener('pointermove', function (e) { if (pressT && (Math.abs(e.clientX - sx) > 12 || Math.abs(e.clientY - sy) > 12)) { clearTimeout(pressT); pressT = null; } });
-  c.addEventListener('pointerup', function (e) {
-    clearTimeout(pressT); pressT = null;
-    if (boost) { boost = false; wrap.classList.remove('speed-boost-active'); ytPlayer.setPlaybackRate(prevRate || 1); return; }
-    const r = c.getBoundingClientRect(), side = (e.clientX || sx) - r.left > r.width / 2 ? 'right' : 'left', now = Date.now();
-    if (now - lastT < 320 && side === lastSide) {
-      clearTimeout(tapT); lastT = 0; lastSide = null;
-      if (side === 'right') { seekBy(10); flashSeek('fwd'); } else { seekBy(-10); flashSeek('back'); }
-    } else {
-      lastT = now; lastSide = side; clearTimeout(tapT);
-      tapT = setTimeout(function () { Date.now() - playbackStartedAt < 700 ? showBar() : toggleBar(); lastT = 0; lastSide = null; }, 320);
-    }
-  });
-  c.addEventListener('pointercancel', function () { clearTimeout(pressT); pressT = null; if (boost) ytPlayer.setPlaybackRate(prevRate || 1); boost = false; wrap.classList.remove('speed-boost-active'); });
-}
-
-function onState(e) {
-  const pp = $('ppBtn'), ov = $('endOv'), S = YT.PlayerState;
-  if (pp) pp.innerHTML = '<i class="fas fa-' + (e.data === S.PLAYING ? 'pause' : 'play') + '"></i>';
-  if (ov) { if (e.data === S.ENDED) ov.classList.add('show'); else if (e.data === S.PLAYING) ov.classList.remove('show'); }
-  if (e.data === S.PLAYING) showBar(); else { const w = $('videoWrap'); if (w) w.classList.remove('controls-hidden'); clearTimeout(hideTimer); }
-}
-function updateProgress() {
-  if (!ytReady || seeking) return;
-  const f = $('seekFill'), t = $('timeEl'); if (!f || !t) return;
-  const dur = ytPlayer.getDuration() || 0, cur = ytPlayer.getCurrentTime() || 0, pct = dur ? cur / dur * 100 : 0;
-  f.style.width = pct + '%'; $('seekBar').style.setProperty('--p', pct + '%'); t.textContent = fmtTime(cur) + ' / ' + fmtTime(dur);
-  trackProgress();
 }
 
 /* ===== التعليقات (القراءة للجميع، والرد للمسؤول فقط) ===== */
