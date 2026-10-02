@@ -202,3 +202,78 @@ window.AttGuard = (function () {
   }
   return { msg: msg, refresh: refresh, userSnap: userSnap };
 })();
+
+/* ===== رسالة الحظر العائمة (بديل alert) ===== */
+(function () {
+  var G = window.AttGuard; if (!G) return;
+  var CSS = '.bkx{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(6,14,30,.62);-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px);font-family:"IBM Plex Sans Arabic","Cairo",sans-serif;direction:rtl;animation:bkf .25s ease}'
+    + '.bkx *{box-sizing:border-box}'
+    + '.bkc{--ac:#E5484D;--acb:#FDECEC;width:min(440px,100%);max-height:94vh;overflow:auto;background:var(--card-bg,#fff);color:var(--text,#0F1B33);border-radius:22px;box-shadow:0 30px 80px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.06);animation:bku .38s cubic-bezier(.2,.9,.3,1.15);text-align:center}'
+    + '.bkc.abs{--ac:#D9822B;--acb:#FFF3DF}.bkc.pay{--ac:#E5484D;--acb:#FDECEC}.bkc.man{--ac:#2F5FD0;--acb:#EAF0FF}'
+    + '[data-theme=dark] .bkc.abs{--acb:#33240F}[data-theme=dark] .bkc.pay{--acb:#34171A}[data-theme=dark] .bkc.man{--acb:#16264A}'
+    + '.bkh{padding:30px 26px 18px;background:linear-gradient(180deg,var(--acb),transparent);border-radius:22px 22px 0 0}'
+    + '.bki{width:84px;height:84px;margin:0 auto 16px;border-radius:50%;display:grid;place-items:center;background:var(--card-bg,#fff);color:var(--ac);box-shadow:0 0 0 8px var(--acb),0 10px 26px rgba(0,0,0,.14);animation:bkp 2.4s ease-in-out infinite}'
+    + '.bki svg{width:40px;height:40px}'
+    + '.bkc h2{margin:0 0 6px;font:800 22px "Cairo","IBM Plex Sans Arabic",sans-serif;color:var(--text,#0F1B33)}'
+    + '.bkn{margin:0;font-size:14px;color:var(--text-muted,#5B6B86)}.bkn b{color:var(--text,#0F1B33)}'
+    + '.bkb{padding:4px 24px 24px}'
+    + '.bkm{margin:12px 0 16px;font-size:14.5px;line-height:1.9;color:var(--text,#0F1B33)}'
+    + '.bkr{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}.bkr span{display:inline-flex;align-items:center;gap:6px;padding:6px 13px;border-radius:99px;background:var(--acb);color:var(--ac);font-weight:700;font-size:12.5px}'
+    + '.bks{text-align:start;background:var(--cream,#F0F4FA);border-radius:14px;padding:14px 16px;margin-bottom:18px}.bks h4{margin:0 0 8px;font:800 13.5px "Cairo",sans-serif;color:var(--text,#0F1B33)}'
+    + '.bks div{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;line-height:1.7;color:var(--text,#0F1B33);margin-top:6px}.bks i{flex:0 0 22px;height:22px;border-radius:50%;background:var(--ac);color:#fff;display:grid;place-items:center;font:800 12px "Cairo",sans-serif;font-style:normal;margin-top:2px}'
+    + '.bkt{min-height:20px;margin:-6px 0 12px;font-size:13px;font-weight:700;color:var(--ac)}.bkt.ok{color:#12A150}'
+    + '.bka{display:flex;flex-direction:column;gap:9px}'
+    + '.bkp1,.bkp2{font:700 15px "IBM Plex Sans Arabic","Cairo",sans-serif;border-radius:13px;padding:13px 18px;cursor:pointer;border:1.5px solid transparent;transition:.15s;min-height:48px}'
+    + '.bkp1{background:linear-gradient(135deg,#2563EB,#1E40AF);color:#fff;box-shadow:0 8px 20px rgba(37,99,235,.32)}.bkp1:hover{transform:translateY(-1px)}.bkp1:disabled{opacity:.6;cursor:wait;transform:none}'
+    + '.bkp2{background:transparent;color:var(--text-muted,#5B6B86);border-color:var(--border,#DFE5EF)}.bkp2:hover{background:var(--cream,#F0F4FA);color:var(--text,#0F1B33)}'
+    + '.bkc.sh{animation:bks .4s}'
+    + '@keyframes bkf{from{opacity:0}to{opacity:1}}@keyframes bku{from{opacity:0;transform:translateY(26px) scale(.94)}to{opacity:1;transform:none}}@keyframes bkp{0%,100%{box-shadow:0 0 0 8px var(--acb),0 10px 26px rgba(0,0,0,.14)}50%{box-shadow:0 0 0 14px var(--acb),0 10px 26px rgba(0,0,0,.14)}}@keyframes bks{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}'
+    + '@media(max-width:480px){.bkx{align-items:flex-end;padding:0}.bkc{border-radius:22px 22px 0 0;width:100%}.bkh{padding-top:26px}}'
+    + '@media(prefers-reduced-motion:reduce){.bkx,.bkc,.bki{animation:none!important}}';
+  var IC = {
+    absence: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="3"/><path d="M8 2.5v4M16 2.5v4M3 9.5h18M9.5 13.5l5 5M14.5 13.5l-5 5"/></svg>',
+    payment: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M2.5 10h19M6.5 15h4"/><circle cx="17" cy="15" r="1.2" fill="currentColor"/></svg>',
+    manual: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3M12 14.5v2.5"/></svg>'
+  };
+  var T = {
+    absence: { cls: 'abs', ic: 'absence', title: 'حسابك متوقف مؤقتًا', why: 'غياب حصتين متتاليتين', msg: 'اتوقف حسابك بسبب الغياب عن حصتين ورا بعض. مفيش حاجة تعملها غير إنك تحضر الحصة الجاية، وهيتفتح حسابك لوحده.', steps: ['احضر الحصة الجاية في ميعادها.', 'بمجرد تسجيل حضورك بيتفتح الحساب تلقائيًا.', 'اضغط «تحديث الحالة» وادخل على طول.'] },
+    payment: { cls: 'pay', ic: 'payment', title: 'اشتراك الشهر لسه ما اتدفعش', why: 'عدم دفع الاشتراك الشهري', msg: 'اتوقف حسابك مؤقتًا لأن اشتراك الشهر ما اتسجلش. أول ما تدفع وبيتسجل الدفع، حسابك بيتفتح تلقائيًا.', steps: ['ادفع الاشتراك للمسئول في السنتر.', 'بعد تسجيل الدفع بيتفتح الحساب تلقائيًا.', 'اضغط «تحديث الحالة» وكمّل مذاكرتك.'] },
+    both: { cls: 'pay', ic: 'payment', title: 'حسابك متوقف مؤقتًا', why: 'غياب متواصل + اشتراك غير مدفوع', msg: 'اتوقف حسابك بسبب الغياب المتواصل وعدم دفع الاشتراك. اتواصل مع المسئول علشان يتم فتح الحساب.', steps: ['ادفع الاشتراك للمسئول في السنتر.', 'احضر الحصة الجاية.', 'اضغط «تحديث الحالة» بعد ما يتسجل.'] },
+    manual: { cls: 'man', ic: 'manual', title: 'تم إيقاف حسابك', why: 'إيقاف من المسئول', msg: 'تم إيقاف حسابك من المنصة بواسطة المسئول. اتواصل معاه علشان يتم فتح الحساب.', steps: ['اتواصل مع المسئول في السنتر.', 'بعد ما يفتح الحساب اضغط «تحديث الحالة».'] }
+  };
+  function pick(u) { var r = (u && u.blockReason) || ''; return r === 'absence' ? T.absence : r === 'payment' ? T.payment : r === 'absence+payment' ? T.both : T.manual; }
+  function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  G.show = function (uid, u) {
+    if (document.getElementById('bkx')) return;
+    try { if (window.auth) auth.signOut(); } catch (e) {}
+    var t = pick(u), st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st);
+    var since = u && u.blockedAt ? new Date(u.blockedAt).toLocaleDateString('ar-EG', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+    var first = ((u && u.name) || '').trim().split(' ').slice(0, 2).join(' ');
+    var o = el('div', 'bkx'); o.id = 'bkx';
+    var c = el('div', 'bkc ' + t.cls); c.setAttribute('role', 'alertdialog'); c.setAttribute('aria-modal', 'true'); c.setAttribute('aria-labelledby', 'bkT'); c.setAttribute('aria-describedby', 'bkM');
+    c.innerHTML = '<div class="bkh"><div class="bki">' + IC[t.ic] + '</div><h2 id="bkT">' + t.title + '</h2>' + (first ? '<p class="bkn">يا <b>' + esc(first) + '</b></p>' : '') + '</div>'
+      + '<div class="bkb"><p class="bkm" id="bkM">' + t.msg + '</p><div class="bkr"><span>' + t.why + '</span>' + (since ? '<span>من ' + since + '</span>' : '') + '</div>'
+      + '<div class="bks"><h4>إزاي يتفتح حسابك؟</h4>' + t.steps.map(function (x, i) { return '<div><i>' + (i + 1) + '</i><span>' + x + '</span></div>'; }).join('') + '</div>'
+      + '<div class="bkt" id="bkS" role="status" aria-live="polite"></div>'
+      + '<div class="bka"><button class="bkp1" id="bkR">تحديث الحالة</button><button class="bkp2" id="bkO">رجوع لصفحة الدخول</button></div></div>';
+    o.appendChild(c); document.body.appendChild(o);
+    var prev = document.body.style.overflow; document.body.style.overflow = 'hidden';
+    var R = c.querySelector('#bkR'), S = c.querySelector('#bkS');
+    c.querySelector('#bkO').onclick = function () { document.body.style.overflow = prev; location.href = 'index.html'; };
+    R.onclick = function () {
+      R.disabled = true; R.textContent = 'جاري التحقق...'; S.className = 'bkt'; S.textContent = '';
+      db.ref('users/' + uid).once('value').then(function (s) { return G.refresh(uid, s.val()); }).then(function (x) {
+        if (x && x.blocked !== true) {
+          S.className = 'bkt ok'; S.textContent = 'تم فتح حسابك — جاري الدخول...';
+          try { CenterAuth.login(uid); } catch (e) {}
+          setTimeout(function () { location.href = 'home.html'; }, 700);
+        } else {
+          R.disabled = false; R.textContent = 'تحديث الحالة'; S.textContent = 'الحساب لسه متوقف. تأكد إن المسئول سجّل حضورك أو دفعك.';
+          c.classList.remove('sh'); void c.offsetWidth; c.classList.add('sh');
+        }
+      }).catch(function () { R.disabled = false; R.textContent = 'تحديث الحالة'; S.textContent = 'تعذر الاتصال، تأكد من الإنترنت وحاول تاني.'; });
+    };
+    setTimeout(function () { try { R.focus(); } catch (e) {} }, 60);
+  };
+})();

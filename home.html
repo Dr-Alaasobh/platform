@@ -189,9 +189,9 @@
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-<script src="firebase-config.js?v=11"></script>
+<script src="firebase-config.js?v=12"></script>
 <script src="icons.js?v=3"></script>
-<script src="app-shell.js?v=8"></script>
+<script src="app-shell.js?v=9"></script>
 <script>
 (function () {
   const content = document.getElementById('content');
@@ -334,7 +334,7 @@
       const ud = snap.val();
       if (!ud || !ud.name) { window.location.href = 'register.html'; return Promise.reject(new Error('redirect')); }
       window.__ud = ud;
-      if (ud.blocked === true) { alert(AttGuard.msg(ud)); auth.signOut().then(function () { window.location.href = 'index.html'; }); return Promise.reject(new Error('blocked')); }
+      if (ud.blocked === true) { AttGuard.show(user.uid, ud); return Promise.reject(new Error('blocked')); }
       renderAppHeader(user, ud, { showPoints: true });
       renderFooter();
       return Promise.all([db.ref('competitions').once('value'), db.ref('userEnrollments/' + user.uid).once('value'), db.ref('userProgress/' + user.uid).once('value')]);

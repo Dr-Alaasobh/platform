@@ -419,7 +419,7 @@ function requireAuth(onReady) {
     AttGuard.userSnap(user.uid).then(function (snap) {
       const data = snap.val();
       if (!data || !data.name) { window.location.href = 'register.html'; return; }
-      if (data.blocked === true) { alert(AttGuard.msg(data)); auth.signOut().then(function(){ window.location.href = 'index.html'; }); return; }
+      if (data.blocked === true) { AttGuard.show(user.uid, data); return; }
       user.displayName = data.name;
       onReady(user, data);
     }).catch(function (err) {

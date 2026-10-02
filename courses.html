@@ -24,9 +24,9 @@
 <footer class="ft" id="siteFooter"></footer>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-<script src="firebase-config.js?v=11"></script>
+<script src="firebase-config.js?v=12"></script>
 <script src="icons.js?v=3"></script>
-<script src="app-shell.js?v=8"></script>
+<script src="app-shell.js?v=9"></script>
 <script>
 (function(){
  var $=function(i){return document.getElementById(i)},F='all',Q='',D={},EN={},PR={};
@@ -58,7 +58,7 @@
   if(!user){location.href='index.html';return}
   AttGuard.userSnap(user.uid).then(function(s){var u=s.val();
    if(!u||!u.name){location.href='register.html';return Promise.reject(new Error('redirect'))}
-   window.__ud=u;if(u.blocked===true){alert(AttGuard.msg(u));auth.signOut().then(function(){location.href='index.html'});return Promise.reject(new Error('blocked'))}
+   window.__ud=u;if(u.blocked===true){AttGuard.show(user.uid,u);return Promise.reject(new Error('blocked'))}
    renderAppHeader(user,u,{showPoints:true});renderFooter();
    $('gName').textContent='أهلًا يا '+u.name.trim()+' 👋';$('gSub').textContent='طالب سنتر '+(u.centerName||'');
    return Promise.all([db.ref('competitions').once('value'),db.ref('userEnrollments/'+user.uid).once('value'),db.ref('userProgress/'+user.uid).once('value')])})
