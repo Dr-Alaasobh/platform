@@ -19,18 +19,39 @@ const db = firebase.database();
 
 /* ===== "المصادقة": كود السنتر محفوظ في الجهاز، وهو نفسه uid الطالب ===== */
 (function () {
-  var SES = 'asb_session_v2';
+  var SES = 'asb_session_v2', OK = /^[0-9A-Za-z_-]{4,40}$/;
   var cbs = [];
-  function currentUser() { var c = localStorage.getItem(SES); return c ? { uid: c, displayName: '', email: '' } : null; }
+  /* الجلسة بتتخزن في 3 أماكن (localStorage + sessionStorage + كوكي سنة) علشان لو المتصفح مسح واحد منهم
+     (متصفحات فيسبوك/واتساب، سفاري، تنظيف الذاكرة) الطالب ما يتطردش لصفحة الدخول */
+  function wr(v) {
+    try { localStorage.setItem(SES, v); } catch (e) {}
+    try { sessionStorage.setItem(SES, v); } catch (e) {}
+    try { document.cookie = 'asb_s=' + v + '; max-age=31536000; path=/; SameSite=Lax'; } catch (e) {}
+  }
+  function rd() {
+    var v = null;
+    try { v = localStorage.getItem(SES); } catch (e) {}
+    if (!v) { try { v = sessionStorage.getItem(SES); } catch (e) {} }
+    if (!v) { try { var m = document.cookie.match(/(?:^|; )asb_s=([^;]+)/); v = m ? decodeURIComponent(m[1]) : null; } catch (e) {} }
+    if (v && OK.test(v)) { try { if (localStorage.getItem(SES) !== v) wr(v); } catch (e) {} return v; }
+    return null;
+  }
+  function clr() {
+    try { localStorage.removeItem(SES); } catch (e) {}
+    try { sessionStorage.removeItem(SES); } catch (e) {}
+    try { document.cookie = 'asb_s=; max-age=0; path=/'; } catch (e) {}
+  }
+  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
+  function currentUser() { var c = rd(); return c ? { uid: c, displayName: '', email: '' } : null; }
   window.auth = {
     get currentUser() { return currentUser(); },
     onAuthStateChanged: function (cb) { setTimeout(function () { cb(currentUser()); }, 0); return function () {}; },
-    signOut: function () { localStorage.removeItem(SES); return Promise.resolve(); }
+    signOut: function () { clr(); return Promise.resolve(); }
   };
 
   window.CenterAuth = {
-    session: function () { return localStorage.getItem(SES); },
-    login: function (code) { localStorage.setItem(SES, code); },
+    session: function () { return rd(); },
+    login: function (code) { wr(String(code)); },
     /* بيرجّع: هل الكود موجود؟ هل الطالب سجّل بياناته؟ واسم السنتر (من أول 4 أرقام) */
     lookup: function (code) {
       return Promise.all([

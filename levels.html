@@ -6,98 +6,42 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 <title>المستوى — منصة د.علاء صبح</title>
 <link rel="stylesheet" href="style.css?v=11">
+<link rel="stylesheet" href="theme.css?v=3">
+<link rel="stylesheet" href="shell.css?v=1">
+<link rel="stylesheet" href="pages.css?v=1">
 </head>
 <body>
-
-<header class="app-header" id="appHeader"></header>
-
-<main class="page">
-  <div class="home-hero">
-    <div class="hero-greet">
-      <div class="hero-greet-text">
-        <h1 id="lvTitle">مستواك في المذاكرة</h1>
-        <p id="lvSub"></p>
-      </div>
-    </div>
-  </div>
-
-  <section class="dashboard-section">
-    <div style="max-width:380px; margin:0 auto;">
-      <div class="progress-card">
-        <div class="progress-pill-wrap">
-          <div class="progress-pill">
-            <span class="progress-pill-value" id="lvPct">0%</span>
-            <div class="progress-pill-fill" id="lvFill"></div>
-          </div>
-        </div>
-        <h4 id="lvNext">—</h4>
-        <p>التقدم الكلي في كل الكورسات المشترك فيها.</p>
-      </div>
-    </div>
-  </section>
-
-  <div class="content-head"><h2 class="section-title">تفاصيل تقدمك</h2></div>
-  <div class="stats-grid" id="statsGrid"></div>
-
-  <div class="content-head"><h2 class="section-title">تقدمك في كل كورس</h2></div>
-  <div id="courseBars"></div>
+<header class="nv" id="appHeader"></header>
+<main class="sp">
+  <section class="sp-hero"><div class="sp-lv"><div class="sp-ring"><svg viewBox="0 0 160 160"><circle class="t" cx="80" cy="80" r="70"/><circle class="f" id="rf" cx="80" cy="80" r="70"/></svg><b id="pct">0%</b></div>
+   <div><span class="sp-rank" id="rank"></span><h1>مستواك في المذاكرة</h1><p id="sub"></p><p id="nx" style="margin-top:8px;color:#fff;font-weight:700"></p></div></div></section>
+  <div class="sp-ks" id="ks"></div>
+  <div class="sp-sec"><h2>تقدمك في كل كورس</h2></div>
+  <div id="cb"></div>
 </main>
-
-<footer class="site-footer" id="siteFooter"></footer>
-
+<footer class="ft" id="siteFooter"></footer>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-<script src="firebase-config.js?v=9"></script>
+<script src="firebase-config.js?v=10"></script>
 <script src="icons.js?v=3"></script>
-<script src="app-shell.js?v=6"></script>
+<script src="app-shell.js?v=7"></script>
 <script>
-  requireAuth(function (user, userData) {
-    renderAppHeader(user, userData);
-    renderFooter();
-    document.getElementById('lvSub').textContent = 'طالب سنتر ' + (userData.centerName || '');
-
-    Promise.all([
-      db.ref('competitions').once('value'),
-      db.ref('userEnrollments/' + user.uid).once('value'),
-      db.ref('userProgress/' + user.uid).once('value')
-    ]).then(function (r) {
-      const comps = r[0].val() || {}, enr = r[1].val() || {}, prog = r[2].val() || {};
-      const ids = Object.keys(enr).filter(function (id) { return comps[id]; });
-      let videos = 0, exams = 0, scoreSum = 0, scoreN = 0, pctSum = 0;
-      const rows = ids.map(function (id) {
-        const lessons = comps[id].lessons || {}, p = prog[id] || {};
-        const pct = computeCourseProgress(lessons, p);
-        pctSum += pct;
-        Object.keys(p).forEach(function (lid) {
-          const lp = p[lid] || {};
-          Object.keys(lp.videos || {}).forEach(function (v) { if (lp.videos[v].watched) videos++; });
-          Object.keys(lp.exams || {}).forEach(function (e) {
-            const x = lp.exams[e]; if (x.completed) { exams++; if (x.totalQuestions) { scoreSum += x.score / x.totalQuestions * 100; scoreN++; } }
-          });
-        });
-        return { title: comps[id].title || 'كورس', pct: pct };
-      });
-      const total = ids.length ? Math.round(pctSum / ids.length) : 0;
-      document.getElementById('lvPct').textContent = total + '%';
-      requestAnimationFrame(function () { document.getElementById('lvFill').style.height = total + '%'; });
-      document.getElementById('lvNext').textContent = ids.length ? (total >= 100 ? 'خلصت كل المحتوى، ممتاز' : 'كمّل مذاكرتك، باقي ' + (100 - total) + '% لإنهاء كل كورساتك') : 'لسه ما اشتركتش في أي كورس';
-
-      const stat = function (num, label, ic) {
-        return '<div class="stat-card"><div class="stat-info"><div class="stat-num">' + num + '</div><div class="stat-label">' + label + '</div></div>' +
-          '<div class="stat-icon completed">' + icon(ic, 'icon-md') + '</div></div>';
-      };
-      document.getElementById('statsGrid').innerHTML =
-        stat(ids.length, 'كورس مشترك فيه', 'bookOpen') +
-        stat(videos, 'فيديو تمت مشاهدته', 'play') +
-        stat(exams, 'اختبار تم حله', 'listCheck') +
-        stat((scoreN ? Math.round(scoreSum / scoreN) : 0) + '%', 'متوسط نتائج الاختبارات', 'chartSimple');
-
-      document.getElementById('courseBars').innerHTML = rows.length ? rows.map(function (x) {
-        return '<div style="background:var(--card-bg); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px; margin-bottom:12px; box-shadow:var(--shadow);"><h4 style="margin:0 0 10px; color:var(--text);">' + escapeHtml(x.title) + '</h4>' +
-          '<div class="card-progress-wrap"><div class="card-progress-bar"><div class="card-progress-fill" style="width:' + x.pct + '%;"></div></div><span class="card-progress-pct">' + x.pct + '%</span></div></div>';
-      }).join('') : '<div class="empty-state"><p>اشترك في كورس علشان يظهر تقدمك هنا</p></div>';
-    });
-  });
+requireAuth(function(user,u){
+ renderAppHeader(user,u);renderFooter();var $=function(i){return document.getElementById(i)};
+ $('sub').textContent='طالب سنتر '+(u.centerName||'');
+ Promise.all([db.ref('competitions').once('value'),db.ref('userEnrollments/'+user.uid).once('value'),db.ref('userProgress/'+user.uid).once('value')]).then(function(r){
+  var C=r[0].val()||{},E=r[1].val()||{},P=r[2].val()||{},ids=Object.keys(E).filter(function(i){return C[i]}),vid=0,ex=0,sS=0,sN=0,sum=0;
+  var rows=ids.map(function(id){var L=C[id].lessons||{},p=P[id]||{},pc=computeCourseProgress(L,p),n=Object.keys(L).length,d=Object.keys(L).filter(function(l){return p[l]&&p[l].completed}).length;sum+=pc;
+   Object.values(p).forEach(function(lp){lp=lp||{};Object.values(lp.videos||{}).forEach(function(v){if(v&&v.watched)vid++});
+    Object.values(lp.exams||{}).forEach(function(x){if(x&&x.completed){ex++;if(x.totalQuestions){sS+=x.score/x.totalQuestions*100;sN++}}})});
+   return{id:id,t:C[id].title||'كورس',pc:pc,n:n,d:d}}).sort(function(a,b){return b.pc-a.pc});
+  var tot=ids.length?Math.round(sum/ids.length):0,avg=sN?Math.round(sS/sN):0,rk=tot>=100?'خبير':tot>=70?'متميز':tot>=35?'متقدم':'مبتدئ';
+  $('pct').textContent=tot+'%';$('rank').innerHTML=icon('medal','icon-sm')+' '+rk;
+  requestAnimationFrame(function(){$('rf').style.strokeDashoffset=440*(1-tot/100)});
+  $('nx').textContent=ids.length?(tot>=100?'خلصت كل المحتوى، ممتاز!':'باقي '+(100-tot)+'% لإنهاء كل كورساتك'):'لسه ما اشتركتش في أي كورس';
+  var k=function(ic,n,l){return '<div class="sp-k"><span class="sp-ki">'+icon(ic,'icon-md')+'</span><div><b>'+n+'</b><small>'+l+'</small></div></div>'};
+  $('ks').innerHTML=k('bookOpen',ids.length,'كورس مشترك فيه')+k('play',vid,'فيديو تمت مشاهدته')+k('listCheck',ex,'اختبار تم حله')+k('chartSimple',avg+'%','متوسط نتائج الاختبارات');
+  $('cb').innerHTML=rows.length?rows.map(function(x){return '<a class="sp-lc" href="competition.html?id='+encodeURIComponent(x.id)+'"><div class="n"><h4>'+escapeHtml(x.t)+'</h4><small>'+x.d+' من '+x.n+' محاضرة</small><div class="sp-pr" style="margin-top:8px"><div class="sp-pb"><i style="width:'+x.pc+'%"></i></div><b>'+x.pc+'%</b></div></div><span class="sp-st '+(x.pc>=100?'d':'')+'">'+(x.pc>=100?'مكتمل':'قيد الدراسة')+'</span></a>'}).join(''):'<div class="sp-empty">اشترك في كورس علشان يظهر تقدمك هنا</div>'})});
 </script>
 </body>
 </html>

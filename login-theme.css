@@ -1,0 +1,15 @@
+/* هوية صفحات الدخول والتسجيل: كحلي ملكي + زمردي */
+:root{
+--primary:#0B2447;--primary-dark:#06142B;--primary-deep:#06142B;--teal:#0F9F82;
+--ink:#0F1B33;--slate:#5B6B86;--slate-light:#8FA0BC;--line:#DFE5EF;
+--surface:#FFFFFF;--surface-soft:#F3F6FB;--danger:#E5484D;--success:#12A150;
+--radius-lg:18px;--radius-md:14px;--radius-sm:10px;
+--shadow-soft:0 1px 2px rgba(11,36,71,.06),0 10px 30px rgba(11,36,71,.08);
+--shadow-lift:0 8px 22px rgba(29,78,216,.30);
+}
+html,body{font-family:'IBM Plex Sans Arabic','Cairo',sans-serif!important}
+body{background:radial-gradient(90% 70% at 100% 0%,rgba(29,78,216,.10),transparent 60%),radial-gradient(70% 60% at 0% 100%,rgba(15,159,130,.09),transparent 60%),var(--surface-soft)!important}
+h1,h2,h3,.display{font-family:'Cairo','IBM Plex Sans Arabic',sans-serif!important;font-weight:800;letter-spacing:-.2px}
+input{border-radius:10px!important;border:1.5px solid var(--line)!important}
+input:focus{outline:0!important;border-color:#1D4ED8!important;box-shadow:0 0 0 4px rgba(29,78,216,.16)!important}
+button[type=submit],.btn,.btn-primary,.submit-btn{background:linear-gradient(135deg,#1D4ED8,#0B2447)!important;color:#fff!important;border:0!important;border-radius:10px!important;font-weight:700;box-shadow:0 8px 20px rgba(29,78,216,.30)}

@@ -6,6 +6,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 <title>منتدى الأسئلة — منصة د.علاء صبح</title>
 <link rel="stylesheet" href="style.css?v=11">
+<link rel="stylesheet" href="theme.css?v=3">
+<link rel="stylesheet" href="shell.css?v=1">
 <style>
   /* إضافة دعم للأسطر الجديدة في نصوص الأسئلة والردود */
   .preserve-linebreaks {
@@ -16,7 +18,7 @@
 </head>
 <body>
 
-<header class="app-header" id="appHeader"></header>
+<header class="nv" id="appHeader"></header>
 
 <main class="page forum-page">
   <a class="back-link" id="backLink" href="competition.html">
@@ -29,12 +31,12 @@
   </div>
 </main>
 
-<footer class="site-footer" id="siteFooter"></footer>
+<footer class="ft" id="siteFooter"></footer>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-<script src="firebase-config.js?v=9"></script>
+<script src="firebase-config.js?v=10"></script>
 <script src="icons.js?v=3"></script>
-<script src="app-shell.js?v=6"></script>
+<script src="app-shell.js?v=7"></script>
 <script>
   const params = new URLSearchParams(window.location.search);
   const compId = params.get('id');
@@ -84,8 +86,8 @@
 
     let html =
       '<div class="forum-cover">' +
-        (compData.coverUrl
-          ? '<img class="forum-cover-img" src="' + escapeHtml(compData.coverUrl) + '" alt="">'
+        ((compData.coverUrl || compData.image)
+          ? '<img class="forum-cover-img" src="' + escapeHtml((compData.coverUrl || compData.image)) + '" alt="">'
           : '<div class="forum-cover-img forum-cover-placeholder">' + icon(isCourse ? 'bookOpen' : 'trophy', 'icon-xl') + '</div>') +
         '<div class="forum-cover-shade"></div>' +
         '<div class="forum-cover-info">' +

@@ -464,6 +464,17 @@ function getShortName(fullName, wordsCount) {
 }
 window.getShortName = getShortName;
 
+function shellMark(size) {
+  return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 48 48" role="img" aria-label="شعار د.علاء صبح" xmlns="http://www.w3.org/2000/svg">' +
+    '<defs><linearGradient id="nvg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1D4ED8"/><stop offset="1" stop-color="#06142B"/></linearGradient></defs>' +
+    '<rect width="48" height="48" rx="14" fill="url(#nvg)"/>' +
+    '<rect x=".75" y=".75" width="46.5" height="46.5" rx="13.3" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="1.5"/>' +
+    '<path d="M24 35c-5-4-11-5-15-4V19c4-1 10 0 15 4z" fill="#fff"/>' +
+    '<path d="M24 35c5-4 11-5 15-4V19c-4-1-10 0-15 4z" fill="#34D3A8"/>' +
+    '<circle cx="24" cy="14" r="3.2" fill="#34D3A8"/></svg>';
+}
+window.shellMark = shellMark;
+
 function renderAppHeader(user, userData, opts) {
   const header = document.getElementById('appHeader');
   if (!header) return;
@@ -477,33 +488,59 @@ function renderAppHeader(user, userData, opts) {
     ['account.html', 'حسابي', 'user']
   ];
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const name = (userData && userData.name) || '', short = getShortName(name, 2);
+  const center = userData && userData.centerName ? 'سنتر ' + userData.centerName : 'طالب';
+  const initial = name.trim().charAt(0) || '؟';
+  const showBnav = cur !== 'exam.html';
 
+  header.className = 'nv';
   header.innerHTML =
-    '<div class="header-inner" id="headerInnerNormal">' +
-      '<a class="brand-block" href="home.html" aria-label="الذهاب للرئيسية">' +
-        '<span class="brand-mark">' + (window.brandLogo ? brandLogo(44) : '') + '</span><div class="brand-text"><h2>د.علاء صبح</h2><small>منصة طلاب السناتر</small></div>' +
+    '<div class="nv-in" id="headerInnerNormal">' +
+      '<a class="nv-brand" href="home.html" aria-label="الذهاب للرئيسية">' +
+        '<span class="nv-mark">' + shellMark(44) + '</span>' +
+        '<span class="nv-bt"><b>د.علاء صبح</b><small>منصة طلاب السناتر</small></span>' +
       '</a>' +
-      '<nav class="main-nav" aria-label="التنقل">' +
+      '<nav class="nv-nav" aria-label="التنقل">' +
         links.map(function (l) {
-          return '<a href="' + l[0] + '" class="' + (l[0] === active ? 'active' : '') + '">' + icon(l[2], 'icon-sm') + '<span>' + l[1] + '</span></a>';
+          const on = l[0] === active;
+          return '<a class="nv-link' + (on ? ' active' : '') + '" href="' + l[0] + '"' + (on ? ' aria-current="page"' : '') + '>' + icon(l[2], 'icon') + '<span>' + l[1] + '</span></a>';
         }).join('') +
       '</nav>' +
-      '<div class="header-right">' +
-        '<button type="button" class="theme-btn" id="themeBtn" aria-label="تبديل الوضع النهاري / الليلي">' + icon(isDark ? 'sun' : 'moon', 'icon-md') + '</button>' +
-        '<button type="button" class="theme-btn logout-btn" id="logoutBtn" title="تسجيل الخروج" aria-label="تسجيل الخروج">' + icon('logout', 'icon-md') + '</button>' +
+      '<div class="nv-end">' +
+        '<a class="nv-user" href="account.html" aria-label="حسابي"><span class="nv-av">' + escapeHtml(initial) + '</span>' +
+          '<span class="nv-un"><b>' + escapeHtml(short || 'مستخدم') + '</b><small>' + escapeHtml(center) + '</small></span></a>' +
+        '<button type="button" class="nv-btn" id="themeBtn" aria-label="تبديل الوضع النهاري / الليلي">' + icon(isDark ? 'sun' : 'moon', 'icon') + '</button>' +
+        '<button type="button" class="nv-btn out" id="logoutBtn" title="تسجيل الخروج" aria-label="تسجيل الخروج">' + icon('logout', 'icon') + '</button>' +
       '</div>' +
-    '</div>';
+    '</div>' +
+    (showBnav ? '<nav class="nv-bn" aria-label="التنقل السفلي">' + links.map(function (l) {
+      return '<a href="' + l[0] + '" class="' + (l[0] === active ? 'active' : '') + '">' + icon(l[2], 'icon') + '<span>' + l[1] + '</span></a>';
+    }).join('') + '</nav>' : '');
+  if (showBnav) document.body.classList.add('has-bnav');
 
-  document.getElementById('logoutBtn').addEventListener('click', function () {
-    if (!confirm('تأكيد تسجيل الخروج؟')) return;
-    auth.signOut().catch(function () {}).then(function () { window.location.href = 'index.html'; });
-  });
+  /* نافذة تأكيد الخروج */
+  let dlg = document.getElementById('nvDlg');
+  if (!dlg) {
+    dlg = document.createElement('div'); dlg.id = 'nvDlg'; dlg.className = 'nv-dlg';
+    dlg.setAttribute('role', 'dialog'); dlg.setAttribute('aria-modal', 'true');
+    dlg.innerHTML = '<div class="nv-dlg-c"><div class="nv-dlg-i">' + icon('logout', 'icon') + '</div><h3>تسجيل الخروج</h3><p>متأكد إنك عايز تخرج من حسابك؟</p>' +
+      '<div class="nv-dlg-a"><button type="button" id="nvStay">إلغاء</button><button type="button" class="go" id="nvGo">خروج</button></div></div>';
+    document.body.appendChild(dlg);
+  }
+  const closeDlg = function () { dlg.classList.remove('open'); };
+  dlg.onclick = function (e) { if (e.target === dlg) closeDlg(); };
+  document.getElementById('nvStay').onclick = closeDlg;
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeDlg(); });
+  document.getElementById('nvGo').onclick = function () {
+    clearLocalSession(user).then(function () { return auth.signOut(); }).catch(function () {}).then(function () { window.location.href = 'index.html'; });
+  };
+  document.getElementById('logoutBtn').addEventListener('click', function () { dlg.classList.add('open'); });
 
   document.getElementById('themeBtn').addEventListener('click', function () {
     const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
     localStorage.setItem('asb_theme', next);
     document.documentElement.setAttribute('data-theme', next);
-    this.innerHTML = icon(next === 'dark' ? 'sun' : 'moon', 'icon-md');
+    this.innerHTML = icon(next === 'dark' ? 'sun' : 'moon', 'icon');
   });
 }
 window.renderAppHeader = renderAppHeader;
@@ -641,20 +678,26 @@ window.checkAndNotifyReleasedLessons = checkAndNotifyReleasedLessons;
 function renderFooter() {
   const footer = document.getElementById('siteFooter');
   if (!footer) return;
+  footer.className = 'ft';
   footer.innerHTML =
-    '<div class="footer-inner footer-cols">' +
-      '<div class="footer-col footer-col-brand">' +
-        '<div class="footer-brand-text"><h4>د.علاء صبح</h4><p class="footer-tagline">منصة طلاب السناتر</p></div>' +
-      '</div>' +
-      '<div class="footer-col footer-col-pages">' +
-        '<h4 class="footer-col-title">الصفحات</h4>' +
-        '<div class="footer-list">' +
-          '<a href="home.html">الرئيسية</a><a href="levels.html">المستوى</a><a href="courses.html">الكورسات</a><a href="account.html">حسابي</a>' +
+    '<div class="ft-in">' +
+      '<div class="ft-grid">' +
+        '<div class="ft-brand">' +
+          '<div class="ft-logo">' + shellMark(52) + '<div><b>د.علاء صبح</b><small>منصة طلاب السناتر</small></div></div>' +
+          '<p>منصة تعليمية متكاملة لطلاب السناتر: شرح بالفيديو، اختبارات تطبيقية، ومتابعة دقيقة لتقدمك خطوة بخطوة.</p>' +
+        '</div>' +
+        '<div class="ft-nav">' +
+          '<h4 class="ft-h">الصفحات</h4>' +
+          '<div class="ft-list">' +
+            '<a href="home.html">' + icon('mosque', 'icon') + 'الرئيسية</a>' +
+            '<a href="levels.html">' + icon('rankingStar', 'icon') + 'المستوى</a>' +
+            '<a href="courses.html">' + icon('bookOpen', 'icon') + 'الكورسات</a>' +
+            '<a href="account.html">' + icon('user', 'icon') + 'حسابي</a>' +
+          '</div>' +
         '</div>' +
       '</div>' +
-    '</div>' +
-    '<div class="footer-bottom"><p class="footer-copyright">جميع الحقوق محفوظة لمنصة د.علاء صبح © 2026</p>' +
-      '<p class="footer-copyright footer-dev" dir="ltr" style="margin-top:6px;">Developed by Khaled Mohamed</p></div>';
+      '<div class="ft-bot"><span>جميع الحقوق محفوظة لمنصة د.علاء صبح © 2026</span><span dir="ltr">Developed by <em>Khaled Mohamed</em></span></div>' +
+    '</div>';
 }
 window.renderFooter = renderFooter;
 
@@ -921,7 +964,7 @@ function checkSession(user) {
     const data = snap.val();
     if (!data) return { valid: false, reason: 'no_session' };
     const localSessionId = localStorage.getItem('asb_session_id');
-    if (!localSessionId || data.sessionId !== localSessionId) {
+    if (!localSessionId || localSessionId.indexOf(user.uid + '_') !== 0 || data.sessionId !== localSessionId) {
       return { valid: false, reason: 'session_mismatch' };
     }
     db.ref('sessions/' + user.uid + '/lastActive').set(firebase.database.ServerValue.TIMESTAMP);
@@ -929,6 +972,47 @@ function checkSession(user) {
   });
 }
 window.checkSession = checkSession;
+
+/* يتأكد إن الجلسة المحلية تخص الطالب الحالي وإنها هي الجلسة المعتمدة.
+   - لو الجلسة المحفوظة قديمة أو تخص طالب تاني على نفس المتصفح أو اتمسحت من القاعدة: بنفتح جلسة جديدة بهدوء.
+   - الرسالة بتظهر بس لو فيه جهاز تاني فعلاً بيحل اختبار دلوقتي (آخر نشاط له من أقل من 30 ثانية). */
+var SESSION_FRESH_MS = 30000;
+function ensureSession(user) {
+  return Promise.all([
+    db.ref('sessions/' + user.uid).once('value'),
+    db.ref('.info/serverTimeOffset').once('value').catch(function () { return { val: function () { return 0; } }; })
+  ]).then(function (r) {
+    const data = r[0].val();
+    const offset = r[1].val() || 0;
+    const localId = localStorage.getItem('asb_session_id');
+    const mine = !!localId && localId.indexOf(user.uid + '_') === 0;
+
+    if (data && mine && data.sessionId === localId) {
+      db.ref('sessions/' + user.uid + '/lastActive').set(firebase.database.ServerValue.TIMESTAMP);
+      return { valid: true };
+    }
+    const age = data && data.lastActive ? (Date.now() + offset) - data.lastActive : Infinity;
+    if (data && age < SESSION_FRESH_MS) {
+      return { valid: false, reason: 'active_elsewhere' };
+    }
+    return startSession(user, navigator.userAgent).then(function (id) {
+      localStorage.setItem('asb_session_id', id);
+      return { valid: true, renewed: true };
+    });
+  });
+}
+window.ensureSession = ensureSession;
+
+function clearLocalSession(user) {
+  const localId = localStorage.getItem('asb_session_id');
+  localStorage.removeItem('asb_session_id');
+  if (!user || !localId) return Promise.resolve();
+  return db.ref('sessions/' + user.uid).once('value').then(function (snap) {
+    const d = snap.val();
+    if (d && d.sessionId === localId) return db.ref('sessions/' + user.uid).remove();
+  }).catch(function () {});
+}
+window.clearLocalSession = clearLocalSession;
 
 function endSession(user) {
   return db.ref('sessions/' + user.uid).remove();

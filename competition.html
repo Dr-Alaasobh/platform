@@ -4,440 +4,374 @@
 <meta charset="UTF-8">
 <script>document.documentElement.setAttribute("data-theme",localStorage.getItem("asb_theme")||"light")</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-<title>تفاصيل المحتوى — منصة د.علاء صبح</title>
+<title>محتوى الكورس — منصة د.علاء صبح</title>
 <link rel="stylesheet" href="style.css?v=11">
-<!-- Font Awesome للأيقونات -->
+<link rel="stylesheet" href="theme.css?v=3">
+<link rel="stylesheet" href="shell.css?v=1">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
-  /* إضافة دعم للأسطر الجديدة في النصوص */
-  .preserve-linebreaks {
-    white-space: pre-wrap;
-    word-wrap: break-word;
-  }
-  .chv-info-card p {
-    white-space: pre-wrap;
-    word-wrap: break-word;
-  }
-  .accordion-body .content-item .ci-left {
-    white-space: pre-wrap;
-    word-wrap: break-word;
-  }
-  .enroll-lock-card p {
-    white-space: pre-wrap;
-    word-wrap: break-word;
-  }
+/* صفحة محتوى الكورس — مبنية من الصفر، كل الكلاسات بادئة بـ cp- ومعزولة عن الستايل القديم */
+.cp{--gap:20px;max-width:1120px;margin:0 auto;padding-bottom:40px}
+.cp *{box-sizing:border-box}
+.cp-back{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--text-muted);text-decoration:none;margin-bottom:14px}
+.cp-back:hover{color:var(--primary-light)}
+
+/* رأس الصفحة */
+.cp-head{padding:6px 0 22px}
+.cp-kind{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--teal-dark);background:var(--teal-pale);padding:4px 12px;border-radius:999px;margin-bottom:12px}
+.cp-title{margin:0 0 10px;font-family:'Cairo',sans-serif;font-weight:800;font-size:clamp(24px,4vw,34px);line-height:1.35;color:var(--text)}
+.cp-desc{margin:0;max-width:70ch;font-size:14.5px;line-height:1.9;color:var(--text-muted);white-space:pre-wrap;word-wrap:break-word}
+.cp-more{background:none;border:0;padding:0;margin-top:6px;font:inherit;font-size:13px;font-weight:700;color:var(--primary-light);cursor:pointer}
+.cp-facts{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:18px;font-size:13px;font-weight:600;color:var(--text-muted)}
+.cp-facts span{display:inline-flex;align-items:center;gap:7px}
+.cp-facts i{color:var(--teal)}
+
+/* التخطيط */
+.cp-grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:var(--gap);align-items:start}
+.cp-side{position:sticky;top:84px;display:flex;flex-direction:column;gap:14px}
+.cp-card{background:var(--card-bg);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+.cp-cover{aspect-ratio:16/9;background:var(--gradient-primary);display:flex;align-items:center;justify-content:center;color:#fff;font-size:42px}
+.cp-cover img{width:100%;height:100%;object-fit:cover;display:block}
+.cp-pad{padding:18px}
+
+/* زر الاشتراك + التقدم */
+.cp-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px 16px;border:0;border-radius:12px;font:inherit;font-size:15px;font-weight:800;cursor:pointer;text-decoration:none;transition:transform .15s,box-shadow .2s}
+.cp-btn-main{background:var(--gradient-gold);color:#04251D;box-shadow:0 8px 20px rgba(15,159,130,.28)}
+.cp-btn-main:hover{transform:translateY(-1px);box-shadow:0 12px 26px rgba(15,159,130,.4)}
+.cp-btn-ghost{background:transparent;border:1.5px solid var(--border);color:var(--primary);margin-top:10px}
+.cp-btn-ghost:hover{border-color:var(--primary-light);background:var(--primary-tint)}
+.cp-prog-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;font-size:13px;font-weight:700;color:var(--text-muted)}
+.cp-prog-top b{font-family:'Cairo',sans-serif;font-size:26px;color:var(--text)}
+.cp-bar{height:8px;border-radius:999px;background:var(--cream-deep);overflow:hidden}
+.cp-bar>i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--primary-light),var(--teal));transition:width .5s}
+.cp-next{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--primary-tint);color:var(--primary);font-size:13.5px;font-weight:700;text-decoration:none}
+.cp-next small{display:block;font-size:11.5px;font-weight:600;color:var(--text-muted)}
+
+/* المعلم + المشتملات */
+.cp-teacher{display:flex;align-items:center;gap:12px}
+.cp-teacher img,.cp-teacher .cp-av{width:46px;height:46px;border-radius:50%;object-fit:cover;flex-shrink:0;background:var(--teal-pale);color:var(--teal-dark);display:flex;align-items:center;justify-content:center}
+.cp-teacher strong{display:block;font-size:14.5px;color:var(--text)}
+.cp-teacher span{font-size:12px;color:var(--text-muted)}
+.cp-inc{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;font-size:13.5px;color:var(--text)}
+.cp-inc li{display:flex;gap:10px;align-items:center}
+.cp-inc i{color:var(--teal);width:16px;text-align:center}
+
+/* المحاضرات */
+.cp-h2{margin:0 0 14px;font-family:'Cairo',sans-serif;font-weight:800;font-size:19px;color:var(--text)}
+.cp-lessons{display:flex;flex-direction:column;gap:12px}
+.cp-lesson{background:var(--card-bg);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;transition:border-color .2s}
+.cp-lesson.open{border-color:color-mix(in srgb,var(--primary-light) 40%,var(--border))}
+.cp-lh{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:14px;width:100%;padding:16px 18px;cursor:pointer}
+.cp-lh:focus-visible{outline:3px solid color-mix(in srgb,var(--primary-light) 45%,transparent);outline-offset:-3px}
+.cp-lh[disabled]{cursor:not-allowed;opacity:.72}
+.cp-num{flex-shrink:0;width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:'Cairo',sans-serif;font-weight:800;font-size:16px;background:var(--primary-tint);color:var(--primary-light)}
+.cp-lesson.done .cp-num{background:var(--success);color:#fff}
+.cp-lesson.locked .cp-num{background:var(--cream-deep);color:var(--text-muted)}
+.cp-lm{flex:1;min-width:0}
+.cp-lt{margin:0;font-size:16px;font-weight:800;line-height:1.5;color:var(--text)}
+.cp-ls{margin-top:3px;font-size:12.5px;color:var(--text-muted);line-height:1.7}
+.cp-ls .cp-lock{color:var(--danger);font-weight:700}
+.cp-lbar{height:4px;border-radius:999px;background:var(--cream-deep);margin-top:9px;overflow:hidden;max-width:260px}
+.cp-lbar>i{display:block;height:100%;background:var(--teal);border-radius:999px}
+.cp-chev{flex-shrink:0;color:var(--text-muted);font-size:13px;transition:transform .2s}
+.cp-lesson.open .cp-chev{transform:rotate(180deg)}
+.cp-lb{display:none;border-top:1px solid var(--border);padding:8px 12px 14px;background:color-mix(in srgb,var(--bg) 55%,var(--card-bg))}
+.cp-lesson.open .cp-lb{display:block}
+.cp-sec{margin:12px 6px 6px;font-size:12.5px;font-weight:800;color:var(--teal-dark)}
+.cp-item{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:10px;text-decoration:none;color:var(--text);font-size:14px;font-weight:600;transition:background .15s}
+a.cp-item:hover{background:var(--card-bg)}
+.cp-item.off{opacity:.6}
+.cp-ico{flex-shrink:0;width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;background:var(--primary-tint);color:var(--primary-light)}
+.cp-item.exam .cp-ico{background:#EFE9FF;color:#6D4AE0}
+.cp-item.file .cp-ico{background:#FDEBEC;color:var(--danger)}
+:root[data-theme="dark"] .cp-item.exam .cp-ico{background:#241B45;color:#A99BFF}
+:root[data-theme="dark"] .cp-item.file .cp-ico{background:#3A1A1D}
+.cp-it{flex:1;min-width:0;overflow-wrap:anywhere;white-space:pre-wrap}
+.cp-it small{color:var(--text-muted);font-weight:600}
+.cp-st{flex-shrink:0;font-size:12px;font-weight:700;color:var(--text-muted);display:inline-flex;align-items:center;gap:6px}
+.cp-st.ok{color:var(--success)}
+.cp-empty,.cp-locked{text-align:center;padding:44px 20px;background:var(--card-bg);border:1px dashed var(--border);border-radius:16px;color:var(--text-muted)}
+.cp-locked i{font-size:34px;color:var(--teal);margin-bottom:12px}
+.cp-locked h3{margin:0 0 6px;color:var(--text);font-size:17px}
+.cp-locked p{margin:0;font-size:13.5px;line-height:1.8}
+
+/* النوافذ */
+.cp-ov{position:fixed;inset:0;background:rgba(6,20,43,.55);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:18px;z-index:200}
+.cp-ov.open{display:flex}
+.cp-md{position:relative;background:var(--card-bg);color:var(--text);border-radius:18px;padding:24px;width:100%;max-width:480px;max-height:85vh;overflow:auto;box-shadow:var(--shadow-lift)}
+.cp-md h3{margin:0 28px 10px 0;font-family:'Cairo',sans-serif;font-size:18px}
+.cp-md p{margin:0;font-size:14px;line-height:1.9;white-space:pre-wrap;word-wrap:break-word}
+.cp-x{position:absolute;top:14px;left:14px;width:32px;height:32px;border-radius:50%;border:0;background:var(--primary-tint);color:var(--primary);cursor:pointer}
+.cp-row{display:flex;gap:10px;margin-top:20px}
+.cp-row .cp-btn{margin:0}
+
+@media (max-width:860px){
+  .cp-grid{grid-template-columns:1fr}
+  .cp-side{position:static;order:-1}
+  .cp-cover{aspect-ratio:21/9}
+}
+@media (max-width:520px){
+  .cp-lh{padding:14px;gap:12px}.cp-num{width:36px;height:36px}
+  .cp-item{padding:10px 8px;gap:10px;flex-wrap:wrap}
+  .cp-st{width:100%;padding-inline-start:44px;margin-top:-4px}
+}
+@media (prefers-reduced-motion:reduce){.cp *{transition:none!important}}
 </style>
 </head>
 <body>
+<header class="nv" id="appHeader"></header>
 
-<header class="app-header" id="appHeader"></header>
-
-<main class="page">
-  <a class="back-link" href="home.html">
-    <i class="fas fa-arrow-right"></i> كل المحتوى
-  </a>
-
-  <div id="courseHero"></div>
-
-  <h2 style="font-family:'Amiri',serif; color:var(--primary-dark); font-size:19px; margin:0 0 14px;">
-    <i class="fas fa-book-open" style="color:var(--teal);"></i> المحاضرات
-  </h2>
-
-  <div id="lessonsWrap">
-    <div class="center-loading"><div class="loader"></div></div>
+<main class="page"><div class="cp">
+  <a class="cp-back" href="home.html"><i class="fas fa-arrow-right"></i> كل المحتوى</a>
+  <div id="cpHead"></div>
+  <div class="cp-grid">
+    <section>
+      <h2 class="cp-h2">المحاضرات</h2>
+      <div id="cpLessons"><div class="center-loading"><div class="loader"></div></div></div>
+    </section>
+    <aside class="cp-side" id="cpSide"></aside>
   </div>
-</main>
+</div></main>
 
-<!-- نافذة الوصف الكامل -->
-<div class="modal-overlay" id="descModal">
-  <div class="modal">
-    <button class="modal-close" id="closeDescModal">
-      <i class="fas fa-times"></i>
-    </button>
-    <h3 id="descModalTitle" style="font-family:'Amiri',serif; color:var(--primary-dark);"></h3>
-    <p id="descModalBody" style="font-size:14px; line-height:1.8; color:var(--text); white-space:pre-wrap; word-wrap:break-word;"></p>
+<div class="cp-ov" id="descModal"><div class="cp-md" role="dialog" aria-modal="true">
+  <button class="cp-x" id="closeDescModal" aria-label="إغلاق"><i class="fas fa-times"></i></button>
+  <h3 id="descModalTitle"></h3><p id="descModalBody"></p>
+</div></div>
+
+<div class="cp-ov" id="subscribeModal"><div class="cp-md" style="max-width:400px;text-align:center" role="dialog" aria-modal="true">
+  <h3 id="subscribeModalTitle" style="margin-inline:0"></h3>
+  <p id="subscribeModalBody"></p>
+  <div class="cp-row">
+    <button type="button" class="cp-btn cp-btn-main" id="confirmSubscribeBtn">تأكيد الاشتراك</button>
+    <button type="button" class="cp-btn cp-btn-ghost" id="cancelSubscribeBtn">إلغاء</button>
   </div>
-</div>
+</div></div>
 
-<!-- نافذة تأكيد الاشتراك -->
-<div class="modal-overlay" id="subscribeModal">
-  <div class="modal" style="max-width:400px; text-align:center;">
-    <h3 id="subscribeModalTitle" style="font-family:'Amiri',serif; color:var(--primary-dark);">تأكيد الاشتراك</h3>
-    <p id="subscribeModalBody" style="font-size:14px; line-height:1.8; color:var(--text); margin:0 0 22px; white-space:pre-wrap; word-wrap:break-word;">هل تريد تأكيد الاشتراك؟</p>
-    <div style="display:flex; gap:10px;">
-      <button type="button" class="btn btn-primary" id="confirmSubscribeBtn" style="flex:1;">نعم</button>
-      <button type="button" class="btn btn-outline" id="cancelSubscribeBtn" style="flex:1;">لا</button>
-    </div>
-  </div>
-</div>
-
-<footer class="site-footer" id="siteFooter"></footer>
+<footer class="ft" id="siteFooter"></footer>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-<script src="firebase-config.js?v=9"></script>
+<script src="firebase-config.js?v=10"></script>
 <script src="icons.js?v=3"></script>
-<script src="app-shell.js?v=6"></script>
+<script src="app-shell.js?v=7"></script>
 <script>
-  const params = new URLSearchParams(window.location.search);
-  const compId = params.get('id');
-  if (!compId) window.location.href = 'home.html';
+const params = new URLSearchParams(location.search);
+const compId = params.get('id');
+if (!compId) location.href = 'home.html';
 
-  let compData = null;
-  let progressData = {};
-  let isEnrolled = false;
-  let currentUser = null;
+let compData = null, progressData = {}, isEnrolled = false, currentUser = null;
+const $ = function (id) { return document.getElementById(id); };
+const qs = encodeURIComponent;
+const openLessons = {};   // حالة فتح/قفل المحاضرات بتتحفظ عبر إعادة الرسم
+let autoOpened = false;
 
-  requireAuth(function (user, userData) {
-    currentUser = user;
-    window.__ud = userData;
-    renderAppHeader(user, userData, { showPoints: true });
-    renderFooter();
-
-    db.ref('userProgress/' + user.uid + '/' + compId).on('value', function (snap) {
-      progressData = snap.val() || {};
-      if (compData) render();
-    });
-
-    db.ref('userEnrollments/' + user.uid + '/' + compId).on('value', function (snap) {
-      isEnrolled = snap.exists();
-      if (compData) render();
-    });
-
-    db.ref('competitions/' + compId).on('value', function (snap) {
-      if (!snap.exists()) { window.location.href = 'home.html'; return; }
-      compData = snap.val();
-      if (window.__ud && !isCourseVisibleForUser(compData, window.__ud)) { window.location.href = 'home.html'; return; }
-      render();
-    });
+requireAuth(function (user, userData) {
+  currentUser = user; window.__ud = userData;
+  renderAppHeader(user, userData, { showPoints: true });
+  renderFooter();
+  db.ref('userProgress/' + user.uid + '/' + compId).on('value', function (s) { progressData = s.val() || {}; if (compData) render(); });
+  db.ref('userEnrollments/' + user.uid + '/' + compId).on('value', function (s) { isEnrolled = s.exists(); if (compData) render(); });
+  db.ref('competitions/' + compId).on('value', function (s) {
+    if (!s.exists()) { location.href = 'home.html'; return; }
+    compData = s.val();
+    if (window.__ud && !isCourseVisibleForUser(compData, window.__ud)) { location.href = 'home.html'; return; }
+    render();
   });
+});
 
-  function render() {
-    renderHero();
-    renderLessons();
+function render() { renderHead(); renderSide(); renderLessons(); }
+function isCourse() { return compData.type !== 'competition'; }
+
+/* ===== الاشتراك ===== */
+function subscribe() {
+  const now = firebase.database.ServerValue.TIMESTAMP, u = {};
+  u['enrollments/' + compId + '/' + currentUser.uid] = now;
+  u['userEnrollments/' + currentUser.uid + '/' + compId] = now;
+  return db.ref().update(u);
+}
+function toggleModal(id, on) { $(id).classList.toggle('open', on); }
+$('cancelSubscribeBtn').onclick = function () { toggleModal('subscribeModal', false); };
+$('closeDescModal').onclick = function () { toggleModal('descModal', false); };
+['subscribeModal', 'descModal'].forEach(function (id) { $(id).addEventListener('click', function (e) { if (e.target === this) toggleModal(id, false); }); });
+document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { toggleModal('subscribeModal', false); toggleModal('descModal', false); } });
+$('confirmSubscribeBtn').onclick = function () {
+  const b = this; b.disabled = true; b.textContent = 'جارٍ الاشتراك...';
+  subscribe().then(function () { toggleModal('subscribeModal', false); })
+    .catch(function (err) { alert('تعذر تسجيل الاشتراك: ' + err.message); })
+    .then(function () { b.disabled = false; b.textContent = 'تأكيد الاشتراك'; });
+};
+
+/* ===== الإحصائيات ===== */
+function counts() {
+  const L = compData.lessons || {}, ids = Object.keys(L);
+  return {
+    lessons: ids.length,
+    videos: ids.reduce(function (n, i) { return n + Object.keys(L[i].videos || {}).length; }, 0),
+    exams: ids.reduce(function (n, i) { return n + Object.keys(L[i].exams || {}).length; }, 0)
+  };
+}
+
+/* ===== رأس الصفحة ===== */
+const DESC_LIMIT = 220;
+function renderHead() {
+  const c = counts(), desc = compData.description || '', long = desc.length > DESC_LIMIT;
+  $('cpHead').innerHTML =
+    '<div class="cp-head">' +
+      '<span class="cp-kind"><i class="fas ' + (isCourse() ? 'fa-book-open' : 'fa-trophy') + '"></i> ' + (isCourse() ? 'كورس' : 'مسابقة') + '</span>' +
+      '<h1 class="cp-title">' + escapeHtml(compData.title || 'بدون عنوان') + '</h1>' +
+      (desc ? '<p class="cp-desc">' + escapeHtml(long ? desc.slice(0, DESC_LIMIT).trim() + '…' : desc) + '</p>' : '') +
+      (long ? '<button type="button" class="cp-more" id="descMoreBtn">قراءة الوصف كاملًا</button>' : '') +
+      '<div class="cp-facts">' +
+        '<span><i class="fas fa-layer-group"></i> ' + c.lessons + ' محاضرة</span>' +
+        '<span><i class="fas fa-circle-play"></i> ' + c.videos + ' فيديو</span>' +
+        '<span><i class="fas fa-list-check"></i> ' + c.exams + ' اختبار</span>' +
+      '</div>' +
+    '</div>';
+  if (long) $('descMoreBtn').onclick = function () {
+    $('descModalTitle').textContent = compData.title || '';
+    $('descModalBody').textContent = desc;
+    toggleModal('descModal', true);
+  };
+}
+
+/* ===== العمود الجانبي ===== */
+function firstOpenTarget() {
+  /* أول محاضرة متاحة غير مكتملة، عشان زر "كمّل من حيث وقفت" */
+  const L = compData.lessons || {}, now = Date.now(), ids = getSortedLessonIds(L);
+  for (let i = 0; i < ids.length; i++) {
+    const l = L[ids[i]];
+    if (l.releaseAt && l.releaseAt > now) continue;
+    if ((progressData[ids[i]] || {}).completed) continue;
+    if (!getLessonAccessState(L, progressData, ids[i]).allowed) continue;
+    return { id: ids[i], title: l.title || 'محاضرة' };
+  }
+  return null;
+}
+
+function renderSide() {
+  const cover = compData.coverUrl || compData.image, pct = isEnrolled ? computeCourseProgress(compData.lessons || {}, progressData) : 0;
+  const label = isCourse() ? 'اشتراك في الكورس' : 'انضمام للمسابقة';
+  let top;
+  if (isEnrolled) {
+    const t = firstOpenTarget();
+    top = '<div class="cp-prog-top"><span>تقدّمك في المحتوى</span><b>' + pct + '%</b></div>' +
+      '<div class="cp-bar"><i style="width:' + pct + '%"></i></div>' +
+      (t ? '<a class="cp-next" href="#" id="cpContinue"><span><small>' + (pct ? 'كمّل من حيث وقفت' : 'ابدأ من هنا') + '</small>' + escapeHtml(t.title) + '</span><i class="fas fa-arrow-left"></i></a>'
+         : (pct >= 100 ? '<div class="cp-next"><span>أنهيت كل المحاضرات</span><i class="fas fa-circle-check"></i></div>' : ''));
+  } else {
+    top = '<button type="button" class="cp-btn cp-btn-main" id="subscribeBtn"><i class="fas fa-gem"></i> ' + label + ' — مجانًا</button>';
+  }
+  const t = firstOpenTarget();
+  $('cpSide').innerHTML =
+    '<div class="cp-card">' +
+      '<div class="cp-cover">' + (cover ? '<img src="' + escapeHtml(cover) + '" alt="">' : '<i class="fas ' + (isCourse() ? 'fa-book-open' : 'fa-trophy') + '"></i>') + '</div>' +
+      '<div class="cp-pad">' + top +
+        (compData.forumEnabled === true ? '<a class="cp-btn cp-btn-ghost" href="forum.html?id=' + qs(compId) + '"><i class="fas fa-comments"></i> منتدى الأسئلة</a>' : '') +
+      '</div>' +
+    '</div>' +
+    (compData.instructorName ?
+      '<div class="cp-card cp-pad"><div class="cp-teacher">' +
+        (compData.instructorPhotoUrl ? '<img src="' + escapeHtml(compData.instructorPhotoUrl) + '" alt="">' : '<span class="cp-av"><i class="fas fa-graduation-cap"></i></span>') +
+        '<div><strong>' + escapeHtml(compData.instructorName) + '</strong><span>معلم المادة</span></div></div></div>' : '');
+
+  if (!isEnrolled) $('subscribeBtn').onclick = function () {
+    $('subscribeModalTitle').textContent = label;
+    $('subscribeModalBody').textContent = isCourse() ? 'هل تريد تأكيد الاشتراك في هذا الكورس؟' : 'هل تريد تأكيد الانضمام لهذه المسابقة؟';
+    toggleModal('subscribeModal', true);
+  };
+  const go = $('cpContinue');
+  if (go && t) go.onclick = function (e) {
+    e.preventDefault(); openLessons[t.id] = true; renderLessons();
+    const el = document.querySelector('[data-lesson="' + t.id + '"]'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+}
+
+/* ===== المحاضرات ===== */
+function itemRow(it, lessonId, lp, now, ctr) {
+  const d = it.data;
+  if (it.kind === 'exam' && d.releaseAt && d.releaseAt > now) return null;
+  const title = function (fallback) { return escapeHtml(d.title || fallback); };
+  if (it.kind === 'exam') ctr.e++; if (it.kind === 'video') ctr.v++;
+  if (it.locked) {
+    const t = it.kind === 'exam' ? (d.title || 'الاختبار ' + ctr.e) : (d.title || 'فيديو الشرح ' + ctr.v);
+    return '<div class="cp-item off"><span class="cp-ico"><i class="fas fa-lock"></i></span><span class="cp-it">' + escapeHtml(t) + '</span><span class="cp-st">يُفتح بعد حل الاختبار الإجباري</span></div>';
+  }
+  if (it.kind === 'video') {
+    const w = !!(lp.videos && lp.videos[it.id] && lp.videos[it.id].watched);
+    ctr.total++; if (w) ctr.done++;
+    return '<a class="cp-item" href="video.html?comp=' + qs(compId) + '&lesson=' + qs(lessonId) + '&video=' + qs(it.id) + '"><span class="cp-ico"><i class="fas fa-play"></i></span><span class="cp-it">' + title('فيديو الشرح ' + ctr.v) + '</span><span class="cp-st' + (w ? ' ok' : '') + '">' + (w ? '<i class="fas fa-check"></i> تمت المشاهدة' : 'مشاهدة') + '</span></a>';
+  }
+  if (it.kind === 'pdf') {
+    return '<a class="cp-item file" href="' + escapeHtml(d.url) + '" target="_blank" rel="noopener"><span class="cp-ico"><i class="fas fa-file-pdf"></i></span><span class="cp-it">' + title('ملف PDF') + '</span><span class="cp-st"><i class="fas fa-arrow-up-right-from-square"></i> فتح</span></a>';
+  }
+  const ep = lp.exams && lp.exams[it.id], done = !!(ep && ep.completed), q = d.questions ? Object.keys(d.questions).length : 0;
+  ctr.total++; if (done) ctr.done++;
+  return '<a class="cp-item exam" href="exam.html?comp=' + qs(compId) + '&lesson=' + qs(lessonId) + '&exam=' + qs(it.id) + '"><span class="cp-ico"><i class="fas fa-list-check"></i></span><span class="cp-it">' + title('الاختبار ' + ctr.e) + (d.mustPass === true ? ' <small>(إجباري)</small>' : '') + '</span><span class="cp-st' + (done ? ' ok' : '') + '">' + (done ? '<i class="fas fa-check"></i> ' + (ep.essayStatus === 'pending' ? 'جاري التصحيح' : 'تم الحل') : q + ' سؤال · ابدأ') + '</span></a>';
+}
+
+function renderLessons() {
+  const wrap = $('cpLessons'), L = compData.lessons || {}, ids = getSortedLessonIds(L);
+  if (!ids.length) { wrap.innerHTML = '<div class="cp-empty">لا توجد محاضرات مضافة بعد.</div>'; return; }
+  if (!isEnrolled) {
+    wrap.innerHTML = '<div class="cp-locked"><i class="fas fa-lock"></i><h3>المحتوى مقفول</h3><p>' + (isCourse() ? 'اشترك في الكورس' : 'انضم للمسابقة') + ' لتفتح المحاضرات والفيديوهات والاختبارات.</p></div>';
+    return;
+  }
+  const now = Date.now();
+  const visible = ids.filter(function (i) { return !L[i].releaseAt || L[i].releaseAt <= now; });
+  if (!visible.length) { wrap.innerHTML = '<div class="cp-empty">لا توجد محاضرات متاحة الآن.</div>'; return; }
+
+  if (!autoOpened) {                       // أول زيارة: افتح المحاضرة الحالية
+    autoOpened = true;
+    const t = firstOpenTarget(); if (t) openLessons[t.id] = true;
   }
 
-  /* ===== الاشتراك ===== */
-  function subscribe() {
-    const now = firebase.database.ServerValue.TIMESTAMP;
-    const updates = {};
-    updates['enrollments/' + compId + '/' + currentUser.uid] = now;
-    updates['userEnrollments/' + currentUser.uid + '/' + compId] = now;
-    return db.ref().update(updates);
-  }
-
-  document.getElementById('cancelSubscribeBtn').addEventListener('click', function () {
-    document.getElementById('subscribeModal').classList.remove('open');
-  });
-  document.getElementById('subscribeModal').addEventListener('click', function (e) {
-    if (e.target === this) this.classList.remove('open');
-  });
-  document.getElementById('confirmSubscribeBtn').addEventListener('click', function () {
-    const btn = this;
-    btn.disabled = true;
-    btn.textContent = 'جارٍ الاشتراك...';
-    subscribe().then(function () {
-      document.getElementById('subscribeModal').classList.remove('open');
-    }).catch(function (err) {
-      alert('تعذر تسجيل الاشتراك: ' + err.message);
-    }).finally(function () {
-      btn.disabled = false;
-      btn.textContent = 'نعم';
+  wrap.innerHTML = '<div class="cp-lessons">' + visible.map(function (lessonId, idx) {
+    const lesson = L[lessonId], lp = progressData[lessonId] || {}, done = !!lp.completed;
+    const access = getLessonAccessState(L, progressData, lessonId), locked = !access.allowed;
+    const secs = lesson.sections || {}, ctr = { e: 0, v: 0, total: 0, done: 0 };
+    const bySec = {}, count = {};
+    getLessonItems(lesson, lp).forEach(function (it) {
+      const row = itemRow(it, lessonId, lp, now, ctr); if (!row) return;
+      const k = it.sectionId && secs[it.sectionId] ? it.sectionId : '';
+      bySec[k] = (bySec[k] || '') + row; count[k] = (count[k] || 0) + 1;
     });
-  });
-
-  /* ===== عرض الهيرو (المعلومات الأساسية) ===== */
-  const DESC_LIMIT = 160;
-
-  function renderHero() {
-    const hero = document.getElementById('courseHero');
-    const desc = compData.description || '';
-    const isLong = desc.length > DESC_LIMIT;
-    const shownDesc = isLong ? desc.slice(0, DESC_LIMIT).trim() + '…' : desc;
-    const isCourse = compData.type !== 'competition';
-    const subscribeLabel = isCourse ? 'اشتراك في الكورس' : 'انضمام للمسابقة';
-    const lessons = compData.lessons || {};
-    const lessonsCount = Object.keys(lessons).length;
-    const videosCount = Object.keys(lessons).reduce(function (sum, id) { return sum + Object.keys(lessons[id].videos || {}).length; }, 0);
-    const examsCount = Object.keys(lessons).reduce(function (sum, id) { return sum + Object.keys(lessons[id].exams || {}).length; }, 0);
-    const coursePct = isEnrolled ? computeCourseProgress(lessons, progressData) : 0;
-
-    hero.innerHTML =
-      '<div class="course-hero-v2">' +
-
-        '<div class="chv-media-card">' +
-          '<div class="chv-cover">' +
-            (compData.coverUrl ? '<img class="chv-cover-img" src="' + escapeHtml(compData.coverUrl) + '" alt="">' : '<div class="chv-cover-img chv-cover-placeholder">' + icon(isCourse ? 'bookOpen' : 'trophy', 'icon-xl') + '</div>') +
-            '<span class="content-type-badge ' + (isCourse ? 'course' : 'competition') + '">' + icon(isCourse ? 'bookOpen' : 'trophy', 'icon-sm') + ' ' + (isCourse ? 'كورس' : 'مسابقة') + '</span>' +
-            '<span class="chv-ribbon ' + (isCourse ? 'course' : 'competition') + '">' + icon(isCourse ? 'graduationCap' : 'trophy', 'icon-sm') + ' ' + escapeHtml(compData.title || (isCourse ? 'كورس' : 'مسابقة')) + '</span>' +
-          '</div>' +
-
-          (isEnrolled
-            ? '<span class="chv-cta chv-cta-done"><span>' + icon('circleCheck', 'icon-sm') + ' أنت مشترك بالفعل</span></span>'
-            : '<button type="button" class="chv-cta" id="subscribeBtn">' + icon('gem', 'icon-sm') + ' ' + subscribeLabel + ' — مجانًا</button>'
-          ) +
-
-          (compData.forumEnabled === true ? '<a class="chv-forum-btn" href="forum.html?id=' + encodeURIComponent(compId) + '">' + icon('commentDots', 'icon-sm') + ' منتدى الأسئلة</a>' : '') +
-
-          '<div class="chv-includes">' +
-            '<h4>' + icon('listCheck', 'icon-sm') + ' يشمل هذا المحتوى</h4>' +
-            '<ul>' +
-              '<li>' + icon('circleCheck', 'icon-sm') + ' ' + lessonsCount + ' محاضرة</li>' +
-              '<li>' + icon('circleCheck', 'icon-sm') + ' ' + videosCount + ' فيديو شرح</li>' +
-              '<li>' + icon('circleCheck', 'icon-sm') + ' ' + examsCount + ' اختبار تفاعلي</li>' +
-              '<li>' + icon('circleCheck', 'icon-sm') + ' وصول كامل مجانًا</li>' +
-              (compData.forumEnabled === true ? '<li>' + icon('circleCheck', 'icon-sm') + ' منتدى أسئلة يرد عليه المسؤول</li>' : '') +
-            '</ul>' +
-          '</div>' +
-        '</div>' +
-
-        '<div class="chv-info-card">' +
-          '<h1>' + escapeHtml(compData.title || 'بدون عنوان') + '</h1>' +
-          (desc ? '<p class="preserve-linebreaks">' + escapeHtml(shownDesc) + '</p>' : '') +
-          (isLong ? '<button type="button" class="desc-more-btn" id="descMoreBtn">عرض المزيد <i class="fas fa-chevron-left"></i></button>' : '') +
-
-          (isEnrolled ?
-            '<div class="chv-progress-wrap">' +
-              '<div class="chv-progress-head"><span>تقدّمك في المحتوى</span><span>' + coursePct + '%</span></div>' +
-              '<div class="chv-progress-bar"><div class="chv-progress-fill" style="width:' + coursePct + '%;"></div></div>' +
-            '</div>' : ''
-          ) +
-
-          (compData.instructorName ?
-            '<div class="chv-teacher">' +
-              (compData.instructorPhotoUrl
-                ? '<img class="chv-teacher-avatar" src="' + escapeHtml(compData.instructorPhotoUrl) + '" alt="' + escapeHtml(compData.instructorName) + '">'
-                : '<span class="chv-teacher-avatar chv-teacher-avatar-placeholder">' + icon('graduationCap', 'icon-md') + '</span>') +
-              '<div class="chv-teacher-info">' +
-                '<strong>' + escapeHtml(compData.instructorName) + '</strong>' +
-                '<span>' + icon('mosque', 'icon-sm') + ' معلم المادة</span>' +
-              '</div>' +
-            '</div>' : ''
-          ) +
-        '</div>' +
-
-      '</div>';
-
-    if (isLong) {
-      document.getElementById('descMoreBtn').addEventListener('click', function () {
-        document.getElementById('descModalTitle').textContent = compData.title || '';
-        document.getElementById('descModalBody').textContent = desc; // سيتم عرضها مع white-space: pre-wrap
-        document.getElementById('descModal').classList.add('open');
-      });
+    const secKeys = Object.keys(secs).sort(function (a, b) { return (secs[a].order || 0) - (secs[b].order || 0); });
+    let body = bySec[''] || '';
+    secKeys.forEach(function (k) { if (bySec[k]) body += '<div class="cp-sec">' + escapeHtml(secs[k].title || 'قسم') + '</div>' + bySec[k]; });
+    const mats = lesson.materials || {}, mids = Object.keys(mats);
+    if (mids.length) {
+      body += '<div class="cp-sec">المرفقات</div>' + mids.map(function (m) {
+        const x = mats[m], pdf = x.type === 'pdf';
+        return '<a class="cp-item file" href="' + escapeHtml(x.url) + '" target="_blank" rel="noopener"><span class="cp-ico"><i class="fas fa-' + (pdf ? 'file-pdf' : 'image') + '"></i></span><span class="cp-it">' + escapeHtml(x.name || 'مرفق') + '</span><span class="cp-st"><i class="fas fa-arrow-up-right-from-square"></i> فتح</span></a>';
+      }).join('');
     }
+    if (!body) body = '<p class="cp-ls" style="padding:10px 8px;margin:0">لا يوجد محتوى في هذه المحاضرة بعد.</p>';
 
-    if (!isEnrolled) {
-      document.getElementById('subscribeBtn').addEventListener('click', function () {
-        document.getElementById('subscribeModalTitle').textContent = subscribeLabel;
-        document.getElementById('subscribeModalBody').textContent = isCourse
-          ? 'هل تريد تأكيد الاشتراك في هذا الكورس؟'
-          : 'هل تريد تأكيد الانضمام لهذه المسابقة؟';
-        document.getElementById('subscribeModal').classList.add('open');
-      });
-    }
-  }
+    const d = (lesson.description || '').trim();
+    let sub;
+    if (locked) sub = access.reason === 'release'
+      ? '<span class="cp-lock"><i class="fas fa-clock"></i> يُنشر في ' + formatArabicDate(lesson.releaseAt) + '</span>'
+      : '<span class="cp-lock"><i class="fas fa-lock"></i> أكمِل المحاضرة السابقة أولًا</span>';
+    else sub = d ? escapeHtml(d.length > 90 ? d.slice(0, 90).trim() + '…' : d)
+                 : (Object.keys(lesson.videos || {}).length + ' فيديو · ' + (ctr.e) + ' اختبار');
+    const pct = ctr.total ? Math.round(ctr.done / ctr.total * 100) : 0;
+    const isOpen = !locked && openLessons[lessonId];
 
-  /* ===== عرض قائمة المحاضرات ===== */
-  function renderLessons() {
-    const wrap = document.getElementById('lessonsWrap');
-    const lessons = compData.lessons || {};
-    const ids = getSortedLessonIds(lessons);
+    return '<div class="cp-lesson' + (done ? ' done' : '') + (locked ? ' locked' : '') + (isOpen ? ' open' : '') + '" data-lesson="' + lessonId + '">' +
+      '<button type="button" class="cp-lh" ' + (locked ? 'disabled' : 'aria-expanded="' + !!isOpen + '"') + '>' +
+        '<span class="cp-num">' + (done ? '<i class="fas fa-check"></i>' : locked ? '<i class="fas fa-lock" style="font-size:14px"></i>' : idx + 1) + '</span>' +
+        '<span class="cp-lm"><h3 class="cp-lt">' + escapeHtml(lesson.title || 'محاضرة') + '</h3><div class="cp-ls">' + sub + '</div>' +
+          (!locked && ctr.total ? '<div class="cp-lbar"><i style="width:' + pct + '%"></i></div>' : '') + '</span>' +
+        (locked ? '' : '<i class="fas fa-chevron-down cp-chev"></i>') +
+      '</button>' + (locked ? '' : '<div class="cp-lb">' + body + '</div>') + '</div>';
+  }).join('') + '</div>';
 
-    if (ids.length === 0) {
-      wrap.innerHTML =
-        '<div class="empty-state"><div class="empty-state-icon">' + icon('video', 'icon-xl') + '</div><p>لا توجد محاضرات مضافة بعد</p></div>';
-      return;
-    }
-
-    if (!isEnrolled) {
-      const isCourse = compData.type !== 'competition';
-      wrap.innerHTML =
-        '<div class="enroll-lock-card">' +
-          '<div class="big-icon"><i class="fas fa-lock" style="font-size:46px;"></i></div>' +
-          '<h3>المحتوى مقفول</h3>' +
-          '<p>' + (isCourse ? 'اشترك في الكورس أولاً' : 'انضم للمسابقة أولاً') + ' للوصول إلى المحاضرات والفيديوهات والاختبارات.</p>' +
-        '</div>';
-      return;
-    }
-
-    const now = Date.now();
-    // المحاضرات اللي لسه معادها ما جاش (releaseAt في المستقبل) تتخفي تمامًا من القائمة،
-    // وتظهر تلقائيًا لما يجي معادها (من غير ما نعرضها مقفولة بمعاد النشر)
-    const visibleIds = ids.filter(function (lessonId) {
-      const lesson = lessons[lessonId];
-      return !lesson.releaseAt || lesson.releaseAt <= now;
-    });
-
-    if (visibleIds.length === 0) {
-      wrap.innerHTML =
-        '<div class="empty-state"><div class="empty-state-icon">' + icon('video', 'icon-xl') + '</div><p>لا توجد محاضرات متاحة الآن</p></div>';
-      return;
-    }
-
-    let html = '';
-    visibleIds.forEach(function (lessonId, index) {
-      const lesson = lessons[lessonId];
-      const lessonProgress = progressData[lessonId] || {};
-      const done = !!lessonProgress.completed;
-      const access = getLessonAccessState(lessons, progressData, lessonId);
-      const isLocked = !access.allowed;
-
-      const videos = lesson.videos || {};
-      const exams = lesson.exams || {};
-      const videoIds = Object.keys(videos);
-      const examIds = Object.keys(exams);
-
-      let lockNote = '';
-      if (access.reason === 'release') {
-        lockNote = '<span class="lesson-lock-msg"><i class="fas fa-clock"></i> يُنشر في ' + formatArabicDate(lesson.releaseAt) + '</span>';
-      } else if (access.reason === 'sequence') {
-        lockNote = '<span class="lesson-lock-msg"><i class="fas fa-lock"></i> أكمِل المحاضرة السابقة أولاً</span>';
-      }
-
-      const lItems = getLessonItems(lesson, lessonProgress);
-      const secs = lesson.sections || {};
-      const secHtml = {};
-      let visibleExamCount = 0, vi = 0, ei = 0;
-      const qs = function (x) { return encodeURIComponent(x); };
-      lItems.forEach(function (it) {
-        const d = it.data;
-        let html = '';
-        if (it.kind === 'exam') {
-          if (d.releaseAt && d.releaseAt > now) return;
-          visibleExamCount++; ei++;
-        }
-        if (it.kind === 'video') vi++;
-        const icoCls = it.kind === 'exam' ? 'fa-list-check' : (it.kind === 'pdf' ? 'fa-file-pdf' : 'fa-play');
-        const title = it.kind === 'exam' ? (d.title || ('الاختبار ' + ei)) : (d.title || (it.kind === 'pdf' ? 'ملف PDF' : ('فيديو الشرح ' + vi)));
-        if (it.locked) {
-          html = '<div class="content-item disabled"><span class="ci-left"><span class="ci-icon"><i class="fas fa-lock"></i></span>' + escapeHtml(title) + '</span><span class="ci-right">يُفتح بعد حل الاختبار الإجباري</span></div>';
-        } else if (it.kind === 'video') {
-          const watched = !!(lessonProgress.videos && lessonProgress.videos[it.id] && lessonProgress.videos[it.id].watched);
-          html = '<a class="content-item video-item" href="video.html?comp=' + qs(compId) + '&lesson=' + qs(lessonId) + '&video=' + qs(it.id) + '"><span class="ci-left"><span class="ci-icon"><i class="fas fa-play"></i></span>' + escapeHtml(title) + '</span><span class="ci-right">' + (watched ? '<i class="fas fa-check"></i> تمت المشاهدة' : 'مشاهدة') + '</span></a>';
-        } else if (it.kind === 'pdf') {
-          html = '<a class="content-item material-item" href="' + escapeHtml(d.url) + '" target="_blank" rel="noopener"><span class="ci-left"><span class="ci-icon"><i class="fas fa-file-pdf"></i></span>' + escapeHtml(title) + '</span><span class="ci-right"><i class="fas fa-external-link-alt"></i> فتح</span></a>';
-        } else {
-          const ep = lessonProgress.exams && lessonProgress.exams[it.id];
-          const done = !!(ep && ep.completed);
-          const qCount = d.questions ? Object.keys(d.questions).length : 0;
-          const tag = (d.mustPass === true ? ' <small>(إجباري)</small>' : '');
-          const state = done ? ('<i class="fas fa-check"></i> ' + (ep.essayStatus === 'pending' ? 'جاري التصحيح' : 'تم الحل')) : (qCount + ' سؤال · ابدأ');
-          html = '<a class="content-item exam-item" href="exam.html?comp=' + qs(compId) + '&lesson=' + qs(lessonId) + '&exam=' + qs(it.id) + '"><span class="ci-left"><span class="ci-icon"><i class="fas fa-list-check"></i></span>' + escapeHtml(title) + tag + '</span><span class="ci-right">' + state + '</span></a>';
-        }
-        const key = it.sectionId && secs[it.sectionId] ? it.sectionId : '';
-        secHtml[key] = (secHtml[key] || '') + html;
-        secHtml['__n' + key] = (secHtml['__n' + key] || 0) + 1;
-      });
-
-      const materials = lesson.materials || {};
-      const materialIds = Object.keys(materials);
-      let materialsHtml = '';
-      materialIds.forEach(function (mid) {
-        const m = materials[mid];
-        const isPdf = m.type === 'pdf';
-        materialsHtml +=
-          '<a class="content-item material-item ' + (isPdf ? '' : 'image-type') + '" href="' + escapeHtml(m.url) + '" target="_blank" rel="noopener">' +
-            '<span class="ci-left"><span class="ci-icon"><i class="fas fa-' + (isPdf ? 'file-pdf' : 'image') + '"></i></span>' + escapeHtml(m.name || 'مرفق') + '</span>' +
-            '<span class="ci-right"><i class="fas fa-external-link-alt"></i> فتح</span>' +
-          '</a>';
-      });
-
-      function lessonGroup(label, itemsHtml, count) {
-        if (!count) return '';
-        return (
-          '<div class="lesson-group">' +
-            '<button class="lesson-group-header" type="button">' +
-              '<span class="lg-toggle"><i class="fas fa-chevron-down"></i><span class="lg-toggle-text">عرض</span></span>' +
-              '<span class="lg-title">' + label + '</span>' +
-            '</button>' +
-            '<div class="lesson-group-body"><div class="lesson-group-body-inner">' + itemsHtml + '</div></div>' +
-          '</div>'
-        );
-      }
-
-      const secKeys = Object.keys(secs).sort(function (x, y) { return (secs[x].order || 0) - (secs[y].order || 0); });
-      let groupsHtml = lessonGroup(secKeys.length ? 'المحتوى العام' : 'محتوى المحاضرة', secHtml[''] || '', secHtml['__n'] || 0);
-      secKeys.forEach(function (k) { groupsHtml += lessonGroup(escapeHtml(secs[k].title || 'قسم'), secHtml[k] || '', secHtml['__n' + k] || 0); });
-      groupsHtml += lessonGroup('المرفقات', materialsHtml, materialIds.length);
-      if (!groupsHtml) {
-        groupsHtml = '<p class="muted" style="font-size:12.5px; padding:8px 4px;">لا يوجد محتوى في هذه المحاضرة بعد.</p>';
-      }
-
-      const itemsCount = lItems.length - (examIds.length - visibleExamCount) + materialIds.length;
-
-      /* لو فيه وصف للمحاضرة، يظهر مختصرًا مع "عرض المزيد" بيفتح جوه نفس مكانه */
-      const desc = (lesson.description || '').trim();
-      const DESC_LIMIT = 70;
-      let subHtml;
-      if (desc) {
-        const isLong = desc.length > DESC_LIMIT;
-        const shortDesc = isLong ? desc.slice(0, DESC_LIMIT).trim() + '…' : desc;
-        subHtml =
-          '<span class="lesson-desc" data-full="' + escapeHtml(desc) + '" data-short="' + escapeHtml(shortDesc) + '" data-expanded="0">' +
-            '<span class="lesson-desc-text">' + escapeHtml(shortDesc) + '</span>' +
-            (isLong ? ' <span class="lesson-more" data-role="desc-toggle">عرض المزيد</span>' : '') +
-          '</span>';
-      } else {
-        subHtml =
-          '<span class="lesson-sub-text">' + videoIds.length + ' فيديو · ' + visibleExamCount + ' اختبار' + (done ? ' · تم الإنجاز' : '') + '</span>';
-      }
-
-      html +=
-        '<div class="accordion-lesson" data-lesson="' + lessonId + '">' +
-          '<button class="accordion-header" ' + (isLocked ? 'disabled' : '') + '>' +
-            '<span class="lesson-main">' +
-              '<h4 class="lesson-title">' + escapeHtml(lesson.title || 'محاضرة') + '</h4>' +
-              '<span class="lesson-sub">' + (isLocked ? lockNote : subHtml) + '</span>' +
-            '</span>' +
-            '<span class="lesson-side">' +
-              '<span class="lesson-badge ' + (done ? 'done' : (isLocked ? 'locked' : 'active')) + '">' +
-                (done ? '<i class="fas fa-check"></i>' : (isLocked ? '<i class="fas fa-lock"></i>' : '<i class="fas fa-chevron-down chevron"></i>')) +
-              '</span>' +
-              (isLocked ? '' : '<span class="lesson-count">(' + itemsCount + ')</span>') +
-            '</span>' +
-          '</button>' +
-          (isLocked ? '' : '<div class="accordion-body"><div class="accordion-body-inner">' + groupsHtml + '</div></div>') +
-        '</div>';
-    });
-
-    wrap.innerHTML = html;
-
-    wrap.querySelectorAll('.accordion-header:not([disabled])').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        btn.closest('.accordion-lesson').classList.toggle('open');
-      });
-    });
-
-    /* تبديل مجموعات المحتوى (الشرح / الامتحان / المرفقات) كل واحدة لوحدها */
-    wrap.querySelectorAll('.lesson-group-header').forEach(function (btn) {
-      btn.addEventListener('click', function (e) {
-        e.stopPropagation();
-        const group = btn.closest('.lesson-group');
-        group.classList.toggle('open');
-        btn.querySelector('.lg-toggle-text').textContent = group.classList.contains('open') ? 'إخفاء' : 'عرض';
-      });
-    });
-
-    /* عرض المزيد/عرض أقل لوصف المحاضرة، بيفتح جوه نفس مكانه */
-    wrap.querySelectorAll('[data-role="desc-toggle"]').forEach(function (el) {
-      el.addEventListener('click', function (e) {
-        e.stopPropagation();
-        const holder = el.closest('.lesson-desc');
-        const textEl = holder.querySelector('.lesson-desc-text');
-        const expanded = holder.getAttribute('data-expanded') === '1';
-        textEl.textContent = expanded ? holder.getAttribute('data-short') : holder.getAttribute('data-full');
-        el.textContent = expanded ? 'عرض المزيد' : 'عرض أقل';
-        holder.setAttribute('data-expanded', expanded ? '0' : '1');
-      });
-    });
-  }
-
-  /* ===== إغلاق نافذة الوصف ===== */
-  document.getElementById('closeDescModal').addEventListener('click', function () {
-    document.getElementById('descModal').classList.remove('open');
+  wrap.querySelectorAll('.cp-lh:not([disabled])').forEach(function (b) {
+    b.onclick = function () {
+      const el = b.closest('.cp-lesson'), on = el.classList.toggle('open');
+      openLessons[el.dataset.lesson] = on; b.setAttribute('aria-expanded', on);
+    };
   });
-  document.getElementById('descModal').addEventListener('click', function (e) {
-    if (e.target === this) this.classList.remove('open');
-  });
+}
 </script>
 </body>
 </html>

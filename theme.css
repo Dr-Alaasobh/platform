@@ -1,0 +1,174 @@
+/* ===== هوية جديدة: كحلي ملكي + زمردي — نظيفة وحادة ===== */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Cairo:wght@600;700;800&display=swap');
+:root{
+--primary:#0B2447;--primary-dark:#06142B;--primary-light:#1D4ED8;--primary-tint:#EAF0FF;
+--teal:#0F9F82;--teal-light:#34D3A8;--teal-dark:#0B7A64;--teal-pale:#E4F7F1;
+--bg:#F3F6FB;--card-bg:#FFFFFF;--text:#0F1B33;--text-muted:#5B6B86;--border:#DFE5EF;
+--danger:#E5484D;--success:#12A150;
+--radius-sm:8px;--radius:12px;--radius-lg:16px;
+--shadow:0 1px 2px rgba(11,36,71,.06),0 4px 14px rgba(11,36,71,.06);
+--shadow-lift:0 2px 4px rgba(11,36,71,.08),0 18px 40px rgba(11,36,71,.14);
+--shadow-gold:0 8px 22px rgba(15,159,130,.30);
+--gradient-primary:radial-gradient(120% 140% at 100% 0%,#2A5BD7 0%,transparent 55%),linear-gradient(135deg,#123A7A 0%,#06142B 100%);
+--gradient-gold:linear-gradient(135deg,#34D3A8 0%,#0F9F82 100%);
+--pattern-ink:rgba(11,36,71,.04);--cream:#F0F4FA;--cream-deep:#E1E9F5;--ink:#0B2447;
+}
+:root[data-theme="dark"]{
+--bg:#0A1220;--card-bg:#111C30;--text:#E8EEFB;--text-muted:#93A3BF;--border:#1F2E4A;
+--primary:#7AA2FF;--primary-dark:#DCE7FF;--primary-light:#3B6BFF;--primary-tint:#162544;
+--teal:#34D3A8;--teal-light:#6EE7C5;--teal-pale:#0F2A27;--cream:#14233D;--cream-deep:#1B2E4F;
+--gradient-primary:radial-gradient(120% 140% at 100% 0%,#1F4FC4 0%,transparent 55%),linear-gradient(135deg,#0F2A5C 0%,#060D1B 100%);
+--shadow:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.35);
+}
+html,body{font-family:'IBM Plex Sans Arabic','Cairo',sans-serif!important;-webkit-font-smoothing:antialiased}
+body{background-image:none!important;background:var(--bg)}
+h1,h2,h3,h4{font-family:'Cairo','IBM Plex Sans Arabic',sans-serif;letter-spacing:-.2px;font-weight:800}
+::selection{background:var(--primary-light);color:#fff}
+/* الهيدر */
+.app-header{background:color-mix(in srgb,var(--card-bg) 92%,transparent)!important;border-bottom:1px solid var(--border)!important;box-shadow:0 1px 0 rgba(11,36,71,.04)}
+.app-header::after{background:linear-gradient(90deg,transparent,var(--primary-light) 35%,var(--teal) 65%,transparent)!important;opacity:.7!important}
+.main-nav a{border-radius:8px!important;font-weight:600;transition:background .18s,color .18s}
+.main-nav a:hover{background:var(--primary-tint)!important}
+.main-nav a.active{background:var(--primary)!important;color:#fff!important;box-shadow:0 4px 12px rgba(11,36,71,.25)}
+:root[data-theme="dark"] .main-nav a.active{color:#06142B!important}
+/* الأزرار */
+.btn{border-radius:10px!important;font-weight:700;letter-spacing:.1px;transition:transform .15s,box-shadow .2s,background .2s}
+.btn-primary{background:linear-gradient(135deg,#1D4ED8,#0B2447)!important;color:#fff!important;border:0!important;box-shadow:0 6px 16px rgba(29,78,216,.30)}
+.btn-primary:hover{box-shadow:0 12px 26px rgba(29,78,216,.40)!important}
+.btn-gold{background:var(--gradient-gold)!important;color:#04251D!important;border:0!important}
+.btn-outline{background:transparent;border:1.5px solid var(--border)!important;color:var(--primary)!important}
+.btn-outline:hover{border-color:var(--primary-light)!important;background:var(--primary-tint)!important}
+/* البطاقات */
+.comp-card,.stat-card,.progress-card,.tier-card,.enrolled-card,.content-item,.comment-card,.auth-card,.box,.ccard,.chv-media-card,.chv-info-card,.admin-comp-card,.review-item,.info-row{
+background:var(--card-bg)!important;border:1px solid var(--border)!important;border-radius:14px!important;box-shadow:var(--shadow)!important}
+.comp-card,.ccard,.tier-card{transition:transform .22s cubic-bezier(.2,.8,.2,1),box-shadow .22s,border-color .22s;overflow:hidden}
+.comp-card:hover,.ccard:hover,.tier-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lift)!important;border-color:color-mix(in srgb,var(--primary-light) 45%,var(--border))!important}
+.cc-cover,.cimg{aspect-ratio:16/9;background:var(--gradient-primary);display:flex;align-items:center;justify-content:center;color:#fff;background-size:cover;background-position:center}
+.cc-cover img{width:100%;height:100%;object-fit:cover;display:block}
+.cc-ribbon,.content-type-badge,.chv-ribbon,.cc-new-badge{border-radius:999px!important;font-weight:700;backdrop-filter:blur(6px)}
+.cc-pill,.chip,.lesson-badge{border-radius:999px!important;font-weight:600}
+/* الهيرو */
+.home-hero,.course-hero,.course-hero-v2,.hero-mini-tier{background:var(--gradient-primary)!important;color:#fff;border-radius:18px!important;border:0!important;box-shadow:0 20px 50px rgba(6,20,43,.28)!important;position:relative;overflow:hidden}
+.home-hero::before,.course-hero::before{content:'';position:absolute;inset:0;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.05) 40% 41%,transparent 41%),linear-gradient(115deg,transparent 60%,rgba(255,255,255,.04) 60% 61%,transparent 61%);pointer-events:none}
+/* الدروس */
+.accordion-lesson,.lesson-group{border:1px solid var(--border)!important;border-radius:12px!important;overflow:hidden;background:var(--card-bg)}
+.accordion-header{font-weight:700;transition:background .18s}
+.accordion-header:hover{background:var(--primary-tint)}
+/* الحقول */
+input[type=text],input[type=password],input[type=tel],input[type=number],input[type=search],input[type=email],input[type=url],select,textarea,.field input{
+background:var(--card-bg);border:1.5px solid var(--border)!important;border-radius:10px!important;color:var(--text);transition:border-color .18s,box-shadow .18s}
+input:focus,select:focus,textarea:focus{outline:0!important;border-color:var(--primary-light)!important;box-shadow:0 0 0 4px color-mix(in srgb,var(--primary-light) 18%,transparent)!important}
+/* تقدّم */
+.progress-track,.card-progress-bar{height:8px;border-radius:999px;background:var(--cream-deep)}
+.card-progress-fill,.progress-fill{border-radius:999px;background:linear-gradient(90deg,#1D4ED8,#0F9F82)!important}
+/* اختبارات */
+.quiz-option,.option-row{border:1.5px solid var(--border)!important;border-radius:12px!important;transition:border-color .15s,background .15s}
+.quiz-option:hover,.option-row:hover{border-color:var(--primary-light)!important;background:var(--primary-tint)}
+.toast{border-radius:12px!important;box-shadow:var(--shadow-lift)}
+.site-footer{background:#06142B!important;color:#C9D6EE}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--text-muted) 40%,transparent);border-radius:10px;border:2px solid var(--bg)}
+
+/* =====================================================================
+   طبقة التظبيط v2 — توحيد التصميم على هوية (كحلي + زمردي)
+   بتشيل بقايا الثيم القديم (بني/بنفسجي) اللي كانت بتعمل تضارب في الألوان
+   ===================================================================== */
+:root{--ink-border:1px solid var(--border)}
+
+/* ----- هيرو صفحة المستوى ----- */
+.home-hero{padding:26px 30px!important;margin-bottom:22px}
+.home-hero .hero-greet{margin-bottom:0!important}
+.home-hero::after{display:none!important}
+.home-hero .hero-greet-text h1{color:#fff!important;font-family:'Cairo','IBM Plex Sans Arabic',sans-serif!important;font-weight:800;font-size:26px}
+.home-hero .hero-greet-text p{color:rgba(255,255,255,.78)!important}
+.home-hero .hero-greet-text p:empty{display:none}
+
+/* ----- بطاقات الإحصائيات ----- */
+.stat-card{padding:20px 18px 18px!important}
+.stat-card::before{background:linear-gradient(90deg,var(--primary-light),var(--teal))!important}
+.stat-icon{width:50px!important;height:50px!important;border-radius:14px!important}
+.stat-icon.completed{background:var(--teal-pale)!important;color:var(--teal-dark)!important}
+.stat-icon.current{background:var(--primary-tint)!important;color:var(--primary-light)!important}
+.stat-icon.videos{background:#EFE9FF!important;color:#6D4AE0!important}
+:root[data-theme="dark"] .stat-icon.videos{background:#241B45!important;color:#A99BFF!important}
+.stat-card .stat-num{color:var(--text)!important}
+
+/* ----- كارت النشاط ----- */
+.activity-card{border:1px solid var(--border)!important;border-radius:14px!important;background:var(--card-bg)}
+.activity-head h4{color:var(--text)!important}
+
+/* ----- كارت التقدّم (كان أبيض والنص أبيض = مش باين) ----- */
+.progress-card{background:var(--gradient-primary)!important;border:0!important;color:#fff;border-radius:16px!important;box-shadow:0 14px 34px rgba(6,20,43,.25)!important;padding:26px 20px 22px!important}
+.progress-card::before{background-image:radial-gradient(circle at 1px 1px,rgba(255,255,255,.10) 1px,transparent 1.6px)!important;background-size:18px 18px!important}
+.progress-pill{width:76px!important;height:124px!important;background:rgba(255,255,255,.12)!important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.28)!important}
+.progress-pill-value{top:50%!important;transform:translateY(-50%);font-size:18px!important;text-shadow:0 1px 6px rgba(0,0,0,.45)}
+.progress-pill-fill{background:var(--gradient-gold)!important;box-shadow:0 0 18px rgba(52,211,168,.55)!important}
+.progress-card h4{color:#fff!important;font-family:'Cairo',sans-serif;font-size:15px!important}
+.progress-card p{color:rgba(255,255,255,.78)!important}
+.progress-card #startStudyBtn{background:var(--gradient-gold)!important;color:#04251D!important;box-shadow:0 8px 20px rgba(15,159,130,.35)!important}
+.progress-card #startStudyBtn:hover{box-shadow:0 12px 26px rgba(15,159,130,.5)!important}
+
+/* ----- كروت الكورسات ----- */
+.comp-card{background:var(--card-bg)!important;border-radius:16px!important;overflow:hidden!important;display:flex!important;flex-direction:column;text-decoration:none;color:inherit}
+.cc-media{padding:0!important}
+.cc-cover{height:auto!important;aspect-ratio:16/9;border:0!important;border-radius:0!important;background:var(--gradient-primary)!important}
+.cc-cover::before{background-image:radial-gradient(circle at 1px 1px,rgba(255,255,255,.12) 1px,transparent 1.6px)!important;background-size:16px 16px!important}
+.cc-cover::after{background:linear-gradient(0deg,rgba(6,20,43,.35),transparent 55%)!important}
+.cc-cover .cover-icon{color:#fff!important}
+.comp-card.is-enrolled .cc-cover{background:var(--gradient-primary)!important}
+.cc-ribbon{background:rgba(6,20,43,.62)!important;border:1px solid rgba(255,255,255,.2)!important;box-shadow:none!important;color:#fff!important}
+.cc-ribbon.competition{background:var(--teal-dark)!important;border-color:transparent!important}
+.cc-new-badge{background:var(--teal)!important;color:#04251D!important;border:0!important;border-radius:0 0 10px 10px!important}
+.cc-pill,.cc-pill.is-enrolled{background:var(--teal-pale)!important;color:var(--teal-dark)!important;border:1px solid color-mix(in srgb,var(--teal) 35%,transparent)!important}
+.cc-body{padding:16px 18px 18px!important;gap:10px!important}
+.cc-body h3{color:var(--text)!important;font-family:'Cairo',sans-serif}
+.cc-meta-item .icon{color:var(--teal)!important}
+.card-progress-bar{background:var(--cream-deep)!important}
+.card-progress-pct{color:var(--teal-dark)!important}
+.cc-details{display:none!important}
+.cc-body>.cc-cta{margin-top:auto!important}
+.cc-body>:nth-last-child(2){margin-bottom:6px}
+.cc-cta{border-radius:10px!important;border:0!important;box-shadow:none!important;padding:11px 16px!important;font-size:14px!important}
+.cc-cta.btn-outline{border:1.5px solid var(--border)!important;color:var(--primary)!important;background:transparent!important}
+.comp-card:hover .cc-cta.btn-outline{border-color:var(--primary-light)!important;background:var(--primary-tint)!important}
+
+/* ----- صفحة الكورس: الهيرو ----- */
+.course-hero-v2{background:none!important;box-shadow:none!important;border-radius:0!important;overflow:visible!important;color:inherit!important;align-items:start!important}
+.chv-media-card,.chv-info-card{background:var(--card-bg)!important;border:1px solid var(--border)!important;border-radius:16px!important;box-shadow:var(--shadow)!important}
+.chv-cover{height:auto!important;aspect-ratio:16/10;border-bottom:0!important;background:var(--gradient-primary)!important}
+.chv-cover-placeholder{background:var(--gradient-primary)!important;color:#fff!important}
+.chv-cover::after{background:linear-gradient(0deg,rgba(6,20,43,.7),transparent 55%)!important}
+.chv-ribbon{background:none!important;border:0!important;color:#fff!important;box-shadow:none!important;font-family:'Cairo','IBM Plex Sans Arabic',sans-serif!important;font-size:15px!important;font-weight:800!important;padding:0!important}
+.chv-info-card h1{font-family:'Cairo','IBM Plex Sans Arabic',sans-serif!important;color:var(--text)!important}
+.chv-progress-bar{background:var(--cream-deep)!important}
+.chv-cta{background:var(--gradient-gold)!important;color:#04251D!important;border:0!important;border-radius:10px!important}
+.chv-cta-done{background:var(--teal-pale)!important;color:var(--teal-dark)!important;border:1px solid color-mix(in srgb,var(--teal) 35%,transparent)!important}
+.chv-forum-btn{border-radius:10px!important;border:1.5px solid var(--border)!important;background:var(--card-bg)!important;color:var(--primary)!important}
+.chv-includes h4 .icon,.chv-includes li .icon{color:var(--teal)!important}
+
+/* ----- المحاضرات (أكورديون) ----- */
+.accordion-lesson{background:var(--card-bg)!important;border-radius:14px!important;box-shadow:var(--shadow)}
+.accordion-lesson.is-done{border-inline-start:4px solid var(--success)!important}
+.accordion-lesson.is-active{border-inline-start:4px solid var(--teal)!important}
+.accordion-lesson.open .accordion-header{background:var(--primary)!important}
+:root[data-theme="dark"] .accordion-lesson.open .accordion-header{background:var(--primary-tint)!important}
+.accordion-header:not(:disabled):hover{background:var(--primary-tint)!important}
+.lesson-badge{width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%!important}
+.lesson-badge.active{background:var(--primary-tint)!important;color:var(--primary-light)!important;border-color:transparent!important}
+.lesson-badge.done{background:var(--success)!important;border-color:var(--success)!important;color:#fff!important}
+.lesson-badge.locked{background:var(--cream-deep)!important;color:var(--text-muted)!important}
+.lesson-count{background:var(--primary-tint)!important;color:var(--primary)!important;border:0!important}
+
+/* ----- موبايل ----- */
+@media (max-width:640px){
+  .home-hero{padding:20px 18px!important}
+  .home-hero .hero-greet-text h1{font-size:21px!important}
+  .stats-grid{grid-template-columns:repeat(3,1fr)!important;gap:10px!important}
+  .stat-card{padding:14px 6px 12px!important;gap:6px!important}
+  .stat-icon{width:38px!important;height:38px!important;border-radius:12px!important}
+  .stat-icon .icon{width:18px!important;height:18px!important}
+  .stat-card .stat-num{font-size:22px!important}
+  .stat-card .stat-label{font-size:11.5px!important;line-height:1.4}
+  .stat-card .stat-desc{display:none!important}
+  .activity-card{padding:16px 14px 14px!important}
+  .progress-card{padding:20px 16px 18px!important}
+}

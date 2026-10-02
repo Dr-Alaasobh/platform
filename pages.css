@@ -1,0 +1,46 @@
+/* تصميم جديد: صفحتا الكورسات والمستوى */
+.sp{max-width:1180px;margin:0 auto;padding:22px 18px 40px}
+.sp-hero{position:relative;overflow:hidden;border-radius:22px;padding:26px 26px;color:#fff;background:var(--gradient-primary);box-shadow:0 20px 50px rgba(6,20,43,.25);display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.sp-hero::after{content:'';position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(52,211,168,.28),transparent 65%);top:-120px;left:-80px;pointer-events:none}
+.sp-hero h1{margin:0 0 6px;font-size:28px;color:#fff}.sp-hero p{margin:0;color:rgba(255,255,255,.78);font-size:14.5px}
+.sp-hero>*{position:relative;z-index:1}
+.sp-mini{display:flex;gap:10px;flex-wrap:wrap}.sp-mini div{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:10px 16px;text-align:center;min-width:92px}
+.sp-mini b{display:block;font:800 22px Cairo,sans-serif}.sp-mini small{font-size:12px;opacity:.8}
+.sp-sec{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:28px 0 14px}.sp-sec h2{margin:0;font-size:21px;color:var(--text)}
+.sp-tabs{display:flex;gap:6px;background:var(--cream);padding:4px;border-radius:12px}
+.sp-tab{border:0;background:transparent;font:700 13.5px inherit;font-family:inherit;color:var(--text-muted);padding:8px 16px;border-radius:9px;cursor:pointer;transition:.15s}
+.sp-tab.on{background:var(--card-bg);color:var(--primary-light);box-shadow:var(--shadow)}
+/* متابعة */
+.sp-resume{display:flex;align-items:center;gap:18px;margin-top:18px;padding:16px 18px;background:var(--card-bg);border:1px solid var(--border);border-inline-start:5px solid var(--teal);border-radius:16px;box-shadow:var(--shadow);text-decoration:none;color:var(--text);transition:.2s;flex-wrap:wrap}
+.sp-resume:hover{transform:translateY(-2px);box-shadow:var(--shadow-lift)}
+.sp-resume small{color:var(--teal);font-weight:800;font-size:12px}.sp-resume h3{margin:2px 0 8px;font-size:18px}.sp-resume>div{flex:1;min-width:200px}
+/* بطاقات */
+.sp-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(285px,1fr));gap:18px}
+.sp-c{display:flex;flex-direction:column;background:var(--card-bg);border:1px solid var(--border);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);text-decoration:none;color:var(--text);transition:transform .22s,box-shadow .22s}
+.sp-c:hover{transform:translateY(-5px);box-shadow:var(--shadow-lift)}
+.sp-cv{position:relative;aspect-ratio:16/9;background:var(--gradient-primary);display:grid;place-items:center;overflow:hidden}
+.sp-cv img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.sp-cv>span.ini{font:800 56px Cairo,sans-serif;color:rgba(255,255,255,.85)}
+.sp-bg{position:absolute;top:10px;inset-inline-start:10px;z-index:1;font-size:11.5px;font-weight:700;padding:4px 11px;border-radius:99px;background:rgba(6,20,43,.7);color:#fff;display:flex;gap:4px;align-items:center}
+.sp-bg.new{background:var(--teal);color:#04251D;inset-inline-start:auto;inset-inline-end:10px}
+.sp-cb{padding:15px 16px 16px;display:flex;flex-direction:column;gap:9px;flex:1}.sp-cb h3{margin:0;font-size:17px;line-height:1.4}
+.sp-cb p{margin:0;color:var(--text-muted);font-size:13px;line-height:1.6;min-height:42px}
+.sp-mt{display:flex;gap:14px;font-size:12.5px;color:var(--text-muted)}.sp-mt span{display:flex;align-items:center;gap:5px}
+.sp-pr{display:flex;align-items:center;gap:10px}.sp-pb{flex:1;height:8px;border-radius:99px;background:var(--cream-deep);overflow:hidden}.sp-pb i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#1D4ED8,#0F9F82);transition:width .8s}.sp-pr b{font:800 13px Cairo,sans-serif;min-width:38px}
+.sp-cta{margin-top:auto;text-align:center;padding:11px;border-radius:11px;font-weight:800;font-size:14px;background:linear-gradient(135deg,#1D4ED8,#0B2447);color:#fff}
+.sp-cta.o{background:var(--primary-tint);color:var(--primary-light)}
+.sp-empty{grid-column:1/-1;text-align:center;padding:50px 16px;color:var(--text-muted)}
+/* المستوى */
+.sp-lv{display:grid;grid-template-columns:auto 1fr;gap:26px;align-items:center}
+.sp-ring{position:relative;width:170px;height:170px}.sp-ring svg{transform:rotate(90deg) scaleX(-1);width:100%;height:100%}
+.sp-ring circle{fill:none;stroke-width:13;stroke-linecap:round}.sp-ring .t{stroke:rgba(255,255,255,.18)}.sp-ring .f{stroke:var(--teal-light);stroke-dasharray:440;stroke-dashoffset:440;transition:stroke-dashoffset 1.2s ease}
+.sp-ring b{position:absolute;inset:0;display:grid;place-items:center;font:800 38px Cairo,sans-serif}
+.sp-rank{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.14);padding:5px 14px;border-radius:99px;font-weight:800;font-size:13px;margin-bottom:10px}
+.sp-ks{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-top:18px}
+.sp-k{display:flex;align-items:center;gap:12px;background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:var(--shadow)}
+.sp-ki{width:46px;height:46px;border-radius:13px;display:grid;place-items:center;background:var(--primary-tint);color:var(--primary-light)}
+.sp-k b{display:block;font:800 25px Cairo,sans-serif;line-height:1.1}.sp-k small{color:var(--text-muted);font-size:12.5px}
+.sp-lc{display:flex;align-items:center;gap:16px;background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin-bottom:12px;box-shadow:var(--shadow);text-decoration:none;color:var(--text);transition:.2s}
+.sp-lc:hover{border-color:var(--primary-light);transform:translateX(-3px)}
+.sp-lc .n{flex:1;min-width:0}.sp-lc h4{margin:0 0 3px;font-size:16px}.sp-lc small{color:var(--text-muted)}
+.sp-st{font-size:12px;font-weight:700;padding:4px 12px;border-radius:99px;background:var(--primary-tint);color:var(--primary-light);white-space:nowrap}.sp-st.d{background:var(--teal-pale);color:var(--teal)}
+@media(max-width:640px){.sp{padding:14px 12px 30px}.sp-hero{padding:20px 16px}.sp-hero h1{font-size:22px}.sp-lv{grid-template-columns:1fr;justify-items:center;text-align:center}.sp-ring{width:140px;height:140px}.sp-ring b{font-size:30px}.sp-mini div{flex:1;min-width:0}.sp-st{display:none}}

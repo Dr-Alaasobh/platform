@@ -6,1408 +6,844 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 <title>الاختبار — منصة د.علاء صبح</title>
 <link rel="stylesheet" href="style.css?v=11">
-<!-- Font Awesome للأيقونات -->
+<link rel="stylesheet" href="theme.css?v=3">
+<link rel="stylesheet" href="shell.css?v=1">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
-  /* ===== الأنماط الأساسية ===== */
-  .exam-container {
-    background: var(--card-bg);
-    border-radius: 4px 28px 4px 28px;
-    padding: 24px;
-    box-shadow: var(--shadow-lift);
-    border: 1px solid var(--border);
-    border-top: 4px solid var(--teal);
-  }
-  .exam-timer {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--primary-dark);
-    background: var(--teal-pale);
-    padding: 10px 18px;
-    border-radius: var(--radius-sm);
-    margin-bottom: 20px;
-  }
-  .exam-timer i { color: var(--teal); }
-  .exam-timer #timerDisplay {
-    font-weight: 800;
-    color: var(--teal);
-    direction: ltr;
-  }
-  .violation-warning {
-    background: #FBEAE6;
-    border: 1px solid var(--danger);
-    color: var(--danger);
-    padding: 8px 14px;
-    border-radius: var(--radius-sm);
-    font-size: 13px;
-    font-weight: 600;
-    margin-bottom: 16px;
-    display: none;
-  }
-  .violation-warning.show { display: block; }
-  .violation-warning.reload-info { background: var(--teal-pale); border-color: var(--teal); color: var(--teal-dark); }
-  .violation-type-badge {
-    display: inline-block;
-    padding: 2px 10px;
-    border-radius: 999px;
-    font-size: 11px;
-    font-weight: 700;
-    margin-inline-start: 6px;
-  }
-  .violation-type-badge.tab { background: #FFF3CD; color: #856404; }
-  .violation-type-badge.blur { background: #F8D7DA; color: #721C24; }
+/* =====================================================================
+   صفحة الاختبار — تصميم جديد (كل الأنماط بادئتها ex- عشان متتعارضش مع باقي المنصة)
+   ===================================================================== */
+:root{--hdr:72px}
+.ex-page{max-width:1080px}
+.ex-back{display:inline-flex;align-items:center;gap:8px;margin-bottom:14px;color:var(--text-muted);font-weight:700;font-size:14px;text-decoration:none}
+.ex-back:hover{color:var(--primary-light)}
+.ex-card{background:var(--card-bg);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow)}
 
-  /* ===== شريط التنقل بين الأسئلة ===== */
-  .exam-nav {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 24px;
-    justify-content: center;
-  }
-  .exam-nav .q-btn {
-    width: 40px;
-    height: 40px;
-    border-radius: 30% 70% 65% 35% / 45% 35% 65% 55%;
-    border: 2px solid var(--border);
-    background: var(--card-bg);
-    color: var(--text-muted);
-    font-weight: 700;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .exam-nav .q-btn:hover { transform: scale(1.05); }
-  .exam-nav .q-btn.active {
-    border-color: var(--primary);
-    background: var(--primary);
-    color: #FFFFFF;
-    box-shadow: 0 4px 12px rgba(57, 18, 99,0.3);
-  }
-  .exam-nav .q-btn.answered {
-    border-color: var(--success);
-    background: #E6F2EA;
-    color: var(--success);
-  }
-  .exam-nav .q-btn.viewed {
-    border-color: var(--teal);
-    background: var(--teal-pale);
-    color: var(--teal);
-  }
-  .exam-nav .q-btn.unseen {
-    border-color: var(--border);
-    background: var(--bg);
-    color: var(--text-muted);
-  }
+/* الأزرار */
+.ex-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 22px;border:0;border-radius:12px;font:inherit;font-weight:800;font-size:15px;cursor:pointer;text-decoration:none;background:linear-gradient(135deg,#1D4ED8,#0B2447);color:#fff;box-shadow:0 8px 20px rgba(29,78,216,.28);transition:transform .15s,box-shadow .2s,opacity .2s}
+.ex-btn:hover{transform:translateY(-1px)}
+.ex-btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+.ex-btn.ghost{background:transparent;color:var(--primary);border:1.5px solid var(--border);box-shadow:none}
+.ex-btn.ghost:hover:not(:disabled){border-color:var(--primary-light);background:var(--primary-tint)}
+.ex-btn.green{background:var(--gradient-gold);color:#04251D;box-shadow:var(--shadow-gold)}
+.ex-btn.sm{padding:9px 16px;font-size:14px;border-radius:10px}
 
-  /* ===== منطقة السؤال ===== */
-  .exam-question-area {
-    background: var(--bg);
-    border-radius: var(--radius);
-    padding: 20px 24px;
-    margin-bottom: 20px;
-    border: 1px solid var(--border);
-  }
-  .exam-question-area .q-text {
-    font-size: 17px;
-    font-weight: 700;
-    color: var(--primary-dark);
-    margin-bottom: 16px;
-  }
-  .exam-question-area .q-text i { color: var(--teal); margin-left: 8px; }
+/* بطاقة الرسائل (قفل / تحميل / خطأ) */
+.ex-gate{text-align:center;padding:44px 24px}
+.ex-gate h2{margin:14px 0 8px;font-size:21px;color:var(--text)}
+.ex-gate p{margin:0 auto 22px;max-width:460px;color:var(--text-muted);line-height:1.8}
+.ex-gate-ic{width:76px;height:76px;margin:0 auto;border-radius:50%;display:grid;place-items:center;font-size:30px;background:var(--teal-pale);color:var(--teal)}
+.ex-gate-ic.bad{background:color-mix(in srgb,var(--danger) 12%,var(--card-bg));color:var(--danger)}
+.ex-gate-ic.blue{background:var(--primary-tint);color:var(--primary-light)}
 
-  .quiz-options {
-    display: grid;
-    gap: 10px;
-  }
-  .quiz-option {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: var(--card-bg);
-    cursor: pointer;
-    transition: all 0.15s ease;
-  }
-  .quiz-option:hover { border-color: var(--primary-light); }
-  .quiz-option input[type="radio"] {
-    width: 18px;
-    height: 18px;
-    accent-color: var(--primary);
-    flex-shrink: 0;
-  }
-  .quiz-option .opt-label { font-size: 14.5px; color: var(--text); }
+/* شاشة البداية */
+.ex-intro{overflow:hidden}
+.ex-intro-hero{background:var(--gradient-primary);color:#fff;padding:30px 28px;display:flex;gap:18px;align-items:center}
+.ex-intro-hero .ic{width:66px;height:66px;border-radius:18px;background:rgba(255,255,255,.14);display:grid;place-items:center;font-size:28px;flex-shrink:0}
+.ex-intro-hero h1{margin:0 0 4px;font-size:clamp(20px,3vw,27px);color:#fff;line-height:1.4}
+.ex-intro-hero p{margin:0;opacity:.8;font-size:14px}
+.ex-intro-body{padding:24px 28px 28px}
+.ex-chips{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:22px}
+.ex-chip{display:flex;align-items:center;gap:12px;padding:14px 16px;border:1px solid var(--border);border-radius:14px;background:var(--bg)}
+.ex-chip i{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--primary-tint);color:var(--primary-light);font-size:17px;flex-shrink:0}
+.ex-chip b{display:block;font-size:19px;color:var(--text);line-height:1.2}
+.ex-chip small{color:var(--text-muted);font-size:12.5px}
+.ex-two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.ex-box{border:1px solid var(--border);border-radius:14px;padding:16px 18px}
+.ex-box h3{margin:0 0 12px;font-size:15.5px;display:flex;align-items:center;gap:8px;color:var(--text)}
+.ex-box.warn{border-color:color-mix(in srgb,var(--danger) 35%,var(--border));background:color-mix(in srgb,var(--danger) 5%,var(--card-bg))}
+.ex-box.warn h3{color:var(--danger)}
+.ex-list{margin:0;padding:0;list-style:none;display:grid;gap:9px;font-size:13.5px;line-height:1.75;color:var(--text)}
+.ex-list li{display:flex;gap:10px;align-items:flex-start}
+.ex-list li::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--teal);margin-top:9px;flex-shrink:0}
+.ex-box.warn .ex-list li::before{background:var(--danger)}
+.ex-agree{display:flex;gap:12px;align-items:flex-start;margin:20px 0 16px;padding:14px 16px;border:1.5px dashed var(--border);border-radius:12px;cursor:pointer;font-weight:600;font-size:14px;line-height:1.7}
+.ex-agree input{width:20px;height:20px;margin-top:2px;accent-color:var(--teal);flex-shrink:0}
+.ex-start{width:100%;padding:15px;font-size:17px}
 
-  /* ===== أزرار التنقل ===== */
-  .exam-actions {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-top: 10px;
-  }
-  .exam-actions .btn { width: auto; min-width: 100px; }
+/* شريط الاختبار العلوي */
+.ex-bar{position:sticky;top:var(--hdr);z-index:30;display:grid;grid-template-columns:1fr minmax(160px,300px) auto;gap:18px;align-items:center;padding:12px 18px;margin-bottom:14px;background:color-mix(in srgb,var(--card-bg) 94%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow)}
+.ex-bar-title b{display:block;font-family:'Cairo',sans-serif;font-size:16px;color:var(--text);line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ex-bar-title small{color:var(--text-muted);font-size:12.5px}
+.ex-prog{height:8px;border-radius:999px;background:var(--cream-deep);overflow:hidden}
+.ex-prog i{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,#1D4ED8,#0F9F82);transition:width .35s}
+.ex-bar-prog small{display:block;margin-top:5px;font-size:12px;color:var(--text-muted);text-align:center}
+.ex-timer{display:inline-flex;align-items:center;gap:9px;padding:9px 16px;border-radius:12px;background:var(--teal-pale);color:var(--teal-dark);font-weight:800;font-size:18px;direction:ltr;font-variant-numeric:tabular-nums}
+:root[data-theme="dark"] .ex-timer{color:var(--teal)}
+.ex-timer.warn{background:#FFF4DB;color:#8A5A00}
+.ex-timer.danger{background:#FDE7E8;color:var(--danger);animation:exPulse 1s infinite}
+@keyframes exPulse{50%{opacity:.6}}
+.ex-bar-submit{display:none}
 
-  /* ===== زر التسليم ===== */
-  .submit-btn-wrapper {
-    margin-top: 16px;
-    display: flex;
-    justify-content: center;
-  }
-  .btn-submit-final {
-    background: linear-gradient(135deg, var(--teal-light), var(--teal));
-    color: #FFFFFF;
-    border: none;
-    padding: 14px 40px;
-    border-radius: var(--radius-sm);
-    font-size: 17px;
-    font-weight: 800;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 6px 20px rgba(184, 97, 20,0.3);
-  }
-  .btn-submit-final:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 28px rgba(184, 97, 20,0.4);
-  }
-  .btn-submit-final:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-  }
+/* التنبيهات */
+.ex-alert{display:flex;gap:10px;align-items:center;padding:11px 16px;margin-bottom:12px;border-radius:12px;font-size:13.5px;font-weight:700}
+.ex-alert[hidden]{display:none}
+.ex-alert.warn{background:color-mix(in srgb,var(--danger) 9%,var(--card-bg));border:1px solid color-mix(in srgb,var(--danger) 40%,var(--border));color:var(--danger)}
+.ex-alert.info{background:var(--teal-pale);border:1px solid color-mix(in srgb,var(--teal) 35%,var(--border));color:var(--teal-dark)}
+:root[data-theme="dark"] .ex-alert.info{color:var(--teal)}
 
-  /* ===== نافذة تأكيد التسليم (Custom) ===== */
-  .confirm-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 300;
-    background: rgba(36, 10, 64,0.65);
-    backdrop-filter: blur(4px);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
-  .confirm-overlay.open { display: flex; }
-  .confirm-box {
-    background: var(--card-bg);
-    border-radius: var(--radius-lg);
-    max-width: 400px;
-    width: 100%;
-    padding: 30px 28px;
-    box-shadow: var(--shadow-lift);
-    text-align: center;
-  }
-  .confirm-box .icon-big {
-    font-size: 48px;
-    color: var(--teal);
-    margin-bottom: 12px;
-  }
-  .confirm-box h3 {
-    font-family: 'Amiri', serif;
-    color: var(--primary-dark);
-    margin: 0 0 8px;
-    font-size: 20px;
-  }
-  .confirm-box p {
-    color: var(--text-muted);
-    font-size: 14px;
-    margin: 0 0 20px;
-    line-height: 1.7;
-  }
-  .confirm-box .confirm-actions {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-  }
-  .confirm-box .confirm-actions .btn { width: auto; min-width: 80px; }
+/* التخطيط */
+.ex-layout{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:18px;align-items:start}
+.ex-main{padding:24px 26px}
+.ex-side{position:sticky;top:calc(var(--hdr) + 92px)}
+.ex-pal{padding:18px}
+.ex-pal h4{margin:0 0 12px;font-size:15px;display:flex;align-items:center;gap:8px;color:var(--text)}
+.ex-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.ex-n{position:relative;aspect-ratio:1;border:1.5px solid var(--border);border-radius:10px;background:var(--card-bg);color:var(--text-muted);font:inherit;font-weight:800;font-size:14px;cursor:pointer;transition:transform .12s,border-color .15s,background .15s}
+.ex-n:hover{border-color:var(--primary-light);transform:translateY(-1px)}
+.ex-n.ans{background:var(--teal-pale);border-color:color-mix(in srgb,var(--teal) 55%,var(--border));color:var(--teal-dark)}
+:root[data-theme="dark"] .ex-n.ans{color:var(--teal)}
+.ex-n.cur{background:var(--primary);border-color:var(--primary);color:#fff;box-shadow:0 4px 12px rgba(11,36,71,.3)}
+:root[data-theme="dark"] .ex-n.cur{color:#06142B}
+.ex-n.flag::after{content:"";position:absolute;top:-4px;left:-4px;width:12px;height:12px;border-radius:50%;background:#F59E0B;border:2px solid var(--card-bg)}
+.ex-legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin:14px 0 16px;font-size:12px;color:var(--text-muted)}
+.ex-legend span{display:inline-flex;align-items:center;gap:6px}
+.ex-legend i{width:12px;height:12px;border-radius:4px;border:1.5px solid var(--border)}
+.ex-legend .a{background:var(--teal-pale);border-color:var(--teal)}
+.ex-legend .c{background:var(--primary);border-color:var(--primary)}
+.ex-legend .f{background:#F59E0B;border-color:#F59E0B;border-radius:50%}
+.ex-pal .ex-btn{width:100%}
 
-  /* ===== نتيجة الاختبار (صفحة التسليم) ===== */
-  .exam-result {
-    margin-top: 24px;
-    padding: 24px;
-    background: var(--teal-pale);
-    border-radius: var(--radius);
-    border: 1px solid var(--teal-light);
-    text-align: center;
-  }
-  .exam-result .score {
-    font-size: 38px;
-    font-weight: 800;
-    color: var(--teal);
-    font-family: 'Amiri', serif;
-  }
-  .exam-result .details {
-    margin-top: 12px;
-    font-size: 15px;
-    color: var(--text);
-  }
-  .exam-result .details span { font-weight: 700; color: var(--primary-dark); }
-  .exam-result .submitted-badge {
-    display: inline-block;
-    background: var(--success);
-    color: #FFFFFF;
-    padding: 6px 18px;
-    border-radius: 999px;
-    font-size: 13px;
-    font-weight: 700;
-    margin-top: 8px;
-  }
-  .exam-result .already-submitted {
-    background: #FFF3CD;
-    border: 1px solid #FFC107;
-    color: #856404;
-  }
-  .exam-result .already-submitted .submitted-badge {
-    background: #FFC107;
-    color: #856404;
-  }
+/* السؤال */
+.ex-qhead{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:16px}
+.ex-qnum{font-weight:800;color:var(--primary-light);font-size:14px}
+.ex-tag{padding:4px 12px;border-radius:999px;background:var(--primary-tint);color:var(--primary);font-size:12px;font-weight:700}
+.ex-tag.pts{background:var(--teal-pale);color:var(--teal-dark)}
+:root[data-theme="dark"] .ex-tag.pts{color:var(--teal)}
+.ex-flagbtn{margin-inline-start:auto;display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border:1.5px solid var(--border);border-radius:10px;background:transparent;color:var(--text-muted);font:inherit;font-weight:700;font-size:13px;cursor:pointer;transition:all .15s}
+.ex-flagbtn:hover{border-color:#F59E0B;color:#B45309}
+.ex-flagbtn.on{background:#FEF3C7;border-color:#F59E0B;color:#92400E}
+.ex-q{font-family:'Cairo','IBM Plex Sans Arabic',sans-serif;font-size:clamp(18px,2.4vw,22px);font-weight:700;line-height:1.85;color:var(--text);margin:0 0 22px;white-space:pre-wrap;user-select:none;-webkit-user-select:none}
+.ex-opts{display:grid;gap:12px;user-select:none;-webkit-user-select:none}
+.ex-opt{display:block;cursor:pointer}
+.ex-opt input{position:absolute;opacity:0;pointer-events:none}
+.ex-opt-in{display:flex;align-items:center;gap:14px;padding:14px 16px;border:1.5px solid var(--border);border-radius:14px;background:var(--card-bg);transition:border-color .15s,background .15s,box-shadow .15s,transform .12s}
+.ex-opt:hover .ex-opt-in{border-color:var(--primary-light);background:var(--primary-tint)}
+.ex-let{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;flex-shrink:0;background:var(--cream);color:var(--text-muted);font-weight:800;font-size:15px;transition:all .15s}
+.ex-opt-t{flex:1;font-size:16px;line-height:1.7;color:var(--text)}
+.ex-opt input:checked + .ex-opt-in{border-color:var(--primary-light);background:var(--primary-tint);box-shadow:0 0 0 3px color-mix(in srgb,var(--primary-light) 20%,transparent)}
+.ex-opt input:checked + .ex-opt-in .ex-let{background:var(--primary-light);color:#fff}
+.ex-opt input:focus-visible + .ex-opt-in{outline:2px solid var(--primary-light);outline-offset:2px}
+.ex-essay{width:100%;min-height:210px;padding:16px;border:1.5px solid var(--border);border-radius:14px;background:var(--bg);color:var(--text);font:inherit;font-size:16px;line-height:1.9;resize:vertical}
+.ex-essay-meta{display:flex;justify-content:space-between;margin-top:8px;font-size:12.5px;color:var(--text-muted)}
+.ex-nav{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:26px;padding-top:20px;border-top:1px dashed var(--border)}
+.ex-nav .sp{flex:1}
+.ex-clear{background:none;border:0;color:var(--text-muted);font:inherit;font-weight:700;font-size:13px;cursor:pointer;text-decoration:underline;padding:6px}
+.ex-clear:hover{color:var(--danger)}
 
-  /* ===== شاشة تأكيد بدء الاختبار ===== */
-  .exam-start-screen {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 30px 26px;
-    box-shadow: var(--shadow-lift);
-    text-align: center;
-    animation: startFadeIn .35s ease;
-  }
-  @keyframes startFadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .exam-start-screen .start-icon {
-    width: 72px; height: 72px;
-    margin: 0 auto 14px;
-    border-radius: 30% 70% 65% 35% / 45% 35% 65% 55%;
-    background: var(--teal-pale);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 30px; color: var(--teal);
-  }
-  .exam-start-screen h2 {
-    font-family: 'Amiri', serif;
-    color: var(--primary-dark);
-    margin: 0 0 8px;
-    font-size: 22px;
-  }
-  .exam-start-screen .start-sub {
-    color: var(--text-muted);
-    font-size: 14px;
-    margin: 0 0 22px;
-    line-height: 1.7;
-  }
-  .start-info-grid {
-    display: flex; flex-wrap: wrap; gap: 10px;
-    justify-content: center; margin-bottom: 22px;
-  }
-  .start-info-grid .info-chip {
-    display: flex; align-items: center; gap: 8px;
-    background: var(--teal-pale);
-    color: var(--teal-dark);
-    padding: 8px 16px; border-radius: 999px;
-    font-weight: 700; font-size: 13.5px;
-  }
-  .start-info-grid .info-chip i { color: var(--teal); }
-  .start-section {
-    text-align: right;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 16px 18px;
-    margin-bottom: 16px;
-  }
-  .start-section h3 {
-    font-size: 15px;
-    color: var(--primary-dark);
-    margin: 0 0 10px;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .start-section h3 i { color: var(--teal); }
-  .start-list {
-    margin: 0; padding-inline-start: 18px;
-    display: flex; flex-direction: column; gap: 8px;
-  }
-  .start-list li {
-    font-size: 13.5px;
-    color: var(--text);
-    line-height: 1.7;
-  }
-  .violations-box {
-    background: #FBEAE6;
-    border-color: var(--danger);
-  }
-  .violations-box h3, .violations-box h3 i { color: var(--danger); }
-  .violations-note {
-    font-size: 13px;
-    color: var(--danger);
-    font-weight: 700;
-    margin: 0 0 10px;
-    line-height: 1.7;
-  }
-  .violations-list { padding-inline-start: 0; list-style: none; }
-  .violations-list li {
-    display: flex; align-items: flex-start; gap: 8px;
-    color: #7A2E22;
-    background: #FFFFFF;
-    border: 1px solid rgba(193, 63, 82,0.25);
-    border-radius: var(--radius-sm);
-    padding: 9px 12px;
-  }
-  .violations-list li i { color: var(--danger); margin-top: 2px; }
-  .start-agree {
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    font-size: 13.5px; color: var(--text);
-    margin: 6px 0 18px;
-    cursor: pointer;
-  }
-  .start-agree input {
-    width: 17px; height: 17px;
-    accent-color: var(--primary);
-    cursor: pointer;
-  }
-  .btn-start-exam {
-    width: auto; min-width: 220px;
-    padding: 13px 34px;
-    font-size: 16px;
-  }
-  .btn-start-exam:disabled { opacity: 0.5; cursor: not-allowed; }
+/* النتيجة */
+.ex-res{padding:30px 24px;text-align:center;overflow:hidden;position:relative}
+.ex-res::before{content:"";position:absolute;inset:0 0 auto 0;height:5px;background:linear-gradient(90deg,#1D4ED8,#0F9F82)}
+.ex-res h2{margin:0 0 4px;font-size:22px;color:var(--text)}
+.ex-res .sub{color:var(--text-muted);font-size:14px;margin:0 0 18px}
+.ex-ring{position:relative;width:176px;height:176px;margin:6px auto 10px}
+.ex-ring svg{transform:rotate(-90deg);width:100%;height:100%}
+.ex-ring circle{fill:none;stroke-width:11;stroke-linecap:round}
+.ex-ring .bg{stroke:var(--cream-deep)}
+.ex-ring .fg{stroke:var(--ring,#1D4ED8);transition:stroke-dashoffset 1.1s cubic-bezier(.2,.8,.2,1)}
+.ex-ring .mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ex-ring b{font-family:'Cairo',sans-serif;font-size:38px;line-height:1.1;color:var(--text)}
+.ex-ring small{color:var(--text-muted);font-weight:700;font-size:13px}
+.ex-verdict{display:inline-block;padding:6px 18px;border-radius:999px;font-weight:800;font-size:14px;background:var(--primary-tint);color:var(--primary)}
+.ex-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:22px 0 4px}
+.ex-stat{padding:14px 10px;border:1px solid var(--border);border-radius:14px;background:var(--bg)}
+.ex-stat b{display:block;font-size:22px;font-family:'Cairo',sans-serif;line-height:1.3}
+.ex-stat small{color:var(--text-muted);font-size:12.5px;font-weight:600}
+.ex-stat.ok b{color:var(--success)} .ex-stat.bad b{color:var(--danger)} .ex-stat.none b{color:var(--text-muted)}
+.ex-note{margin:14px auto 0;max-width:560px;padding:11px 16px;border-radius:12px;font-size:13.5px;font-weight:700;line-height:1.7;background:var(--primary-tint);color:var(--primary)}
+.ex-note.warn{background:color-mix(in srgb,var(--danger) 9%,var(--card-bg));color:var(--danger)}
+.ex-note.pend{background:#FEF3C7;color:#92400E}
+.ex-res .ex-btn{margin-top:20px}
 
-  /* ===== حماية ===== */
-  .exam-protection-overlay {
-    position: fixed; inset: 0; z-index: 9999;
-    background: rgba(0, 0, 0,0.7);
-    display: none;
-    justify-content: center; align-items: center;
-    color: #FFFFFF; font-size: 18px; text-align: center;
-    padding: 20px;
-    backdrop-filter: blur(4px);
-  }
-  .exam-protection-overlay.show { display: flex; }
-  .exam-protection-overlay .content {
-    background: var(--primary-dark);
-    padding: 30px 40px;
-    border-radius: var(--radius-lg);
-    max-width: 500px;
-  }
-  .exam-protection-overlay .content i { font-size: 48px; color: var(--danger); display: block; margin-bottom: 16px; }
-  .exam-protection-overlay .violation-detail {
-    font-size: 13px;
-    opacity: 0.85;
-    margin-top: 8px;
-  }
+/* المراجعة */
+.ex-rev-h{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:28px 0 14px}
+.ex-rev-h h3{margin:0;font-size:19px;color:var(--text)}
+.ex-filters{display:flex;flex-wrap:wrap;gap:8px;margin-inline-start:auto}
+.ex-f{padding:7px 14px;border:1.5px solid var(--border);border-radius:999px;background:transparent;color:var(--text-muted);font:inherit;font-weight:700;font-size:13px;cursor:pointer}
+.ex-f.on{background:var(--primary);border-color:var(--primary);color:#fff}
+:root[data-theme="dark"] .ex-f.on{color:#06142B}
+.ex-rv{padding:18px 20px;margin-bottom:12px;border-inline-start:5px solid var(--border)}
+.ex-rv[data-st="ok"]{border-inline-start-color:var(--success)}
+.ex-rv[data-st="bad"]{border-inline-start-color:var(--danger)}
+.ex-rv[data-st="essay"]{border-inline-start-color:#F59E0B}
+.ex-rv.hide{display:none}
+.ex-rv-h{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px}
+.ex-rv-h p{margin:0;flex:1;font-weight:700;line-height:1.8;font-size:15.5px;color:var(--text);white-space:pre-wrap}
+.ex-pill{flex-shrink:0;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:800;background:var(--cream);color:var(--text-muted)}
+.ex-pill.ok{background:color-mix(in srgb,var(--success) 14%,var(--card-bg));color:var(--success)}
+.ex-pill.bad{background:color-mix(in srgb,var(--danger) 12%,var(--card-bg));color:var(--danger)}
+.ex-pill.pend{background:#FEF3C7;color:#92400E}
+.ex-ro{display:flex;align-items:center;gap:12px;padding:10px 14px;margin-top:8px;border:1.5px solid var(--border);border-radius:12px;font-size:14.5px;line-height:1.7}
+.ex-ro .ex-let{width:30px;height:30px;font-size:13px;border-radius:9px}
+.ex-ro span.t{flex:1}
+.ex-ro.ok{border-color:var(--success);background:color-mix(in srgb,var(--success) 9%,var(--card-bg))}
+.ex-ro.ok .ex-let{background:var(--success);color:#fff}
+.ex-ro.bad{border-color:var(--danger);background:color-mix(in srgb,var(--danger) 8%,var(--card-bg))}
+.ex-ro.bad .ex-let{background:var(--danger);color:#fff}
+.ex-ro i{font-size:15px}
+.ex-ro.ok i{color:var(--success)} .ex-ro.bad i{color:var(--danger)}
+.ex-ans{padding:12px 14px;border-radius:12px;background:var(--bg);border:1px solid var(--border);white-space:pre-wrap;line-height:1.9;font-size:14.5px}
 
-  /* ===== صفحة ممنوع إعادة الاختبار ===== */
-  .already-done-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 30px 24px;
-    text-align: center;
-    box-shadow: var(--shadow);
-  }
-  .already-done-card .big-icon { color: var(--success); margin-bottom: 10px; }
-  .already-done-card .big-icon i { font-size: 46px; }
+/* نوافذ منبثقة */
+.ex-modal{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(6,20,43,.55);backdrop-filter:blur(3px)}
+.ex-modal.show{display:flex}
+.ex-dialog{width:100%;max-width:440px;padding:28px 24px 22px;border-radius:20px;background:var(--card-bg);border:1px solid var(--border);box-shadow:var(--shadow-lift);text-align:center;animation:exPop .2s ease-out}
+@keyframes exPop{from{transform:scale(.94);opacity:0}}
+.ex-dialog-ic{width:62px;height:62px;margin:0 auto 12px;border-radius:50%;display:grid;place-items:center;font-size:25px;background:var(--primary-tint);color:var(--primary-light)}
+.ex-dialog-ic.bad{background:color-mix(in srgb,var(--danger) 12%,var(--card-bg));color:var(--danger)}
+.ex-dialog h3{margin:0 0 8px;font-size:19px;color:var(--text)}
+.ex-dialog-b{color:var(--text-muted);font-size:14.5px;line-height:1.85}
+.ex-dialog-b b{color:var(--text)}
+.ex-dialog-b .miss{margin-top:8px;padding:8px 12px;border-radius:10px;background:#FEF3C7;color:#92400E;font-weight:700;font-size:13px}
+.ex-dialog-a{display:flex;gap:10px;margin-top:20px}
+.ex-dialog-a .ex-btn{flex:1;padding:12px 10px}
+.ex-overlay{position:fixed;inset:0;z-index:300;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(120,10,16,.88);color:#fff;text-align:center}
+.ex-overlay.show{display:flex}
+.ex-overlay>div{max-width:420px}
+.ex-overlay i.big{font-size:54px;margin-bottom:14px}
+.ex-overlay h2{color:#fff;margin:0 0 8px}
+.ex-overlay p{margin:0 0 18px;opacity:.92;line-height:1.8}
+.ex-overlay .ex-btn{background:#fff;color:#7A0A12;box-shadow:none}
 
-  /* ===== وضع مراجعة الإجابات (بعد التسليم) ===== */
-  .review-summary {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 26px 24px;
-    text-align: center;
-    box-shadow: var(--shadow);
-    margin-bottom: 20px;
-  }
-  .review-summary .big-icon { color: var(--teal); margin-bottom: 8px; }
-  .review-summary .big-icon i { font-size: 40px; }
-  .review-summary .score { font-size: 24px; font-weight: 800; color: var(--primary-dark); margin: 6px 0; }
-  .review-summary .score i { color: var(--teal); margin-inline-start: 6px; }
-  .review-summary .details { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
-  .review-item {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 18px 20px;
-    margin-bottom: 14px;
-    box-shadow: var(--shadow);
-  }
-  .review-item .review-item-head {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 10px;
-    margin-bottom: 12px;
-  }
-  .review-item .q-text { font-weight: 700; font-size: 15px; color: var(--primary-dark); margin: 0; }
-  .review-status {
-    font-size: 12px;
-    font-weight: 700;
-    padding: 4px 12px;
-    border-radius: 999px;
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-  .review-status.correct { color: var(--success); background: #E6F2EA; }
-  .review-status.wrong { color: var(--danger); background: #FBEAE6; }
-  .review-status.unanswered { color: var(--text-muted); background: var(--teal-pale); }
-  .quiz-option.disabled { cursor: default; pointer-events: none; }
+/* الموبايل */
+@media(max-width:860px){
+  .ex-layout{grid-template-columns:1fr}
+  .ex-side{position:static;order:-1}
+  .ex-pal{padding:14px}
+  .ex-pal h4,.ex-legend,.ex-pal>.ex-btn{display:none}
+  .ex-grid{grid-template-columns:repeat(8,1fr);gap:6px}
+  .ex-n{font-size:12.5px;border-radius:8px}
+  .ex-bar{grid-template-columns:1fr auto;gap:10px 12px;padding:10px 14px}
+  .ex-bar-prog{grid-column:1/-1;order:3}
+  .ex-bar-submit{display:inline-flex}
+  .ex-main{padding:18px 16px}
+  .ex-two{grid-template-columns:1fr}
+  .ex-intro-hero{padding:22px 18px}
+  .ex-intro-body{padding:18px}
+}
+@media(max-width:480px){
+  .ex-grid{grid-template-columns:repeat(6,1fr)}
+  .ex-timer{font-size:16px;padding:8px 12px}
+  .ex-flagbtn span{display:none}
+  .ex-dialog-a{flex-direction:column}
+}
 </style>
 </head>
 <body>
 
-<header class="app-header" id="appHeader"></header>
+<header class="nv" id="appHeader"></header>
 
-<main class="page" style="max-width:760px;">
-  <a class="back-link" id="backLink" href="competition.html">
-    <i class="fas fa-arrow-right"></i> رجوع للمحاضرة
-  </a>
-  <h1 class="page-title" id="examTitle">جارٍ التحميل...</h1>
-
-  <div class="exam-timer" id="examTimer">
-    <i class="fas fa-hourglass-half"></i>
-    <span>المدة المتبقية: </span>
-    <span id="timerDisplay">00:00</span>
-  </div>
-
-  <div class="violation-warning" id="violationWarning">
-    ⚠️ تنبيه: عدد المخالفات <span id="violationCount">0</span> من <span id="maxViolations">3</span>. تجاوز الحد يؤدي إلى تسليم الاختبار تلقائياً.
-    <div style="font-size:12px; margin-top:4px; opacity:0.8;">
-      <span class="violation-type-badge tab">🔄 تغيير تبويب</span>
-      <span class="violation-type-badge blur">📱 تصغير/تطبيق آخر</span>
-    </div>
-  </div>
-
-  <div class="violation-warning reload-info" id="reloadWarning">
-    <i class="fas fa-rotate-right"></i> تم إعادة تحميل صفحة الاختبار <span id="reloadCountDisplay">0</span> من <span id="maxReloads">10</span> مرات مسموح بها. إجاباتك محفوظة تلقائيًا.
-  </div>
-
-  <div id="content">
-    <div class="center-loading"><div class="loader"></div></div>
-  </div>
+<main class="page ex-page">
+  <a class="ex-back" id="backLink" href="competition.html"><i class="fas fa-arrow-right"></i> الرجوع للمحاضرة</a>
+  <div id="app"><div class="center-loading"><div class="loader"></div></div></div>
 </main>
 
-<!-- ===== نافذة تأكيد التسليم ===== -->
-<div class="confirm-overlay" id="confirmOverlay">
-  <div class="confirm-box">
-    <div class="icon-big"><i class="fas fa-exclamation-triangle"></i></div>
-    <h3>تأكيد تسليم الاختبار</h3>
-    <p>هل أنت متأكد من تسليم الاختبار؟<br>لن تتمكن من تعديل إجاباتك بعد التسليم.</p>
-    <div class="confirm-actions">
-      <button class="btn btn-primary" id="confirmYesBtn"><i class="fas fa-check"></i> نعم</button>
-      <button class="btn btn-outline" id="confirmNoBtn"><i class="fas fa-times"></i> لا</button>
-    </div>
+<div class="ex-modal" id="exModal"></div>
+<div class="ex-overlay" id="exOverlay">
+  <div>
+    <i class="fas fa-triangle-exclamation big"></i>
+    <h2 id="ovTitle">تم رصد مخالفة</h2>
+    <p id="ovText">ارجع للاختبار فورًا.</p>
+    <button type="button" class="ex-btn" id="ovBtn">الرجوع للاختبار</button>
   </div>
 </div>
 
-<!-- ===== طبقة حماية (تظهر عند المخالفات) ===== -->
-<div class="exam-protection-overlay" id="protectionOverlay">
-  <div class="content">
-    <i class="fas fa-exclamation-triangle"></i>
-    <p id="protectionMsg">⚠️ تم اكتشاف مخالفة.</p>
-    <p class="violation-detail" id="protectionDetail">الرجاء العودة للاختبار فوراً.</p>
-    <button class="btn btn-primary" id="returnToExamBtn" style="width:auto; margin-top:12px;">العودة للاختبار</button>
-  </div>
-</div>
+<footer class="ft" id="siteFooter"></footer>
 
-<footer class="site-footer" id="siteFooter"></footer>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-<script src="firebase-config.js?v=9"></script>
+<script src="firebase-config.js?v=10"></script>
 <script src="icons.js?v=3"></script>
-<script src="app-shell.js?v=6"></script>
+<script src="app-shell.js?v=7"></script>
 <script>
-  // ============================================================
-  // exam.html — صفحة الاختبار مع منع إعادة المحاولة
-  // ============================================================
+(function () {
+  'use strict';
 
-  const params = new URLSearchParams(window.location.search);
-  const compId = params.get('comp');
-  const lessonId = params.get('lesson');
-  const examId = params.get('exam');
-  if (!compId || !lessonId || !examId) window.location.href = 'home.html';
+  /* ============================================================
+     الإعدادات والحالة
+     ============================================================ */
+  var params = new URLSearchParams(location.search);
+  var compId = params.get('comp'), lessonId = params.get('lesson'), examId = params.get('exam');
+  if (!compId || !lessonId || !examId) { location.href = 'home.html'; return; }
 
-  document.getElementById('backLink').href = 'competition.html?id=' + encodeURIComponent(compId);
+  var MAX_RELOADS = 10;          // أقصى عدد مرات إعادة تحميل الصفحة أثناء الاختبار
+  var FOCUS_COOLDOWN = 1500;     // منع تسجيل مخالفتين لنفس واقعة (تغيير تبويب + فقدان تركيز)
+  var LETTERS = ['أ', 'ب', 'ج', 'د', 'هـ', 'و', 'ز', 'ح'];
+  var BACK = 'competition.html?id=' + encodeURIComponent(compId);
 
-  let currentUser = null;
-  let currentUserData = null;
-  let compData = null;
-  let examData = null;
-  let lessonData = null;
-  let userAnswers = {};
-  let currentQuestionIndex = 0;
-  let questionIds = [];
-  let questionsData = [];
-  let timerInterval = null;
-  let startTime = Date.now();
-  let examDuration = 10;
-  let isSubmitted = false;
-  let isForceEnded = false;
-  let violationCount = 0;
-  const MAX_VIOLATIONS_KEY = 'maxViolations';
-  let maxViolations = 3;
-  let reloadCount = 0;
-  const MAX_RELOADS = 10;
-  let sessionCheckInterval = null;
-  let isTabActive = true;
+  var S = {
+    user: null, ud: null, comp: null, lesson: null, exam: null,
+    qs: [], answers: {}, flags: {}, idx: 0,
+    startedAt: 0, duration: 10, offset: 0,
+    violations: 0, maxViol: 3, reloads: 0,
+    active: false, done: false,
+    timer: null, sessTimer: null, sessMiss: 0
+  };
 
-  const confirmOverlay = document.getElementById('confirmOverlay');
-  const confirmYesBtn = document.getElementById('confirmYesBtn');
-  const confirmNoBtn = document.getElementById('confirmNoBtn');
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) { return escapeHtml(s == null ? '' : String(s)); };
+  var setApp = function (h) { $('app').innerHTML = h; };
+  var aref = function () { return db.ref('examAttempts/' + compId + '/' + lessonId + '/' + examId + '/' + S.user.uid); };
+  var pref = function () { return db.ref('userProgress/' + S.user.uid + '/' + compId + '/' + lessonId); };
+  var nowSrv = function () { return Date.now() + S.offset; };
+  var pts = function (q, def) { return q.points != null ? Number(q.points) : def; };
+  var isEssay = function (q) { return q.type === 'essay'; };
+  var isAnswered = function (q) {
+    var v = S.answers[q.id];
+    return isEssay(q) ? (typeof v === 'string' && v.trim().length > 0) : (typeof v === 'number' && v >= 0);
+  };
+  function fmtClock(sec) {
+    sec = Math.max(0, Math.floor(sec));
+    var h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60;
+    return (h ? h + ':' + String(m).padStart(2, '0') : String(m).padStart(2, '0')) + ':' + String(s).padStart(2, '0');
+  }
+  function fmtSpent(sec) {
+    sec = Math.max(0, Math.round(sec || 0));
+    var m = Math.floor(sec / 60), s = sec % 60;
+    return m ? m + ' د ' + (s ? s + ' ث' : '') : s + ' ث';
+  }
+  function num(n) { return Math.round(n * 100) / 100; }
 
-  function showConfirm() { confirmOverlay.classList.add('open'); }
-  function hideConfirm() { confirmOverlay.classList.remove('open'); }
+  $('backLink').href = BACK;
 
-  confirmNoBtn.addEventListener('click', hideConfirm);
-  confirmOverlay.addEventListener('click', function (e) {
-    if (e.target === this) hideConfirm();
-  });
+  /* ============================================================
+     نوافذ ورسائل
+     ============================================================ */
+  function gate(icon, title, text, tone, extra) {
+    setApp('<div class="ex-card ex-gate"><div class="ex-gate-ic ' + (tone || '') + '"><i class="fas fa-' + icon + '"></i></div>' +
+      '<h2>' + title + '</h2><p>' + text + '</p>' + (extra === false ? '' : (extra || '<a class="ex-btn" href="' + BACK + '"><i class="fas fa-arrow-right"></i> العودة للمحاضرة</a>')) + '</div>');
+  }
+  function modal(o) {
+    var m = $('exModal');
+    m.innerHTML = '<div class="ex-dialog"><div class="ex-dialog-ic ' + (o.tone || '') + '"><i class="fas fa-' + o.icon + '"></i></div>' +
+      '<h3>' + o.title + '</h3><div class="ex-dialog-b">' + (o.body || '') + '</div>' +
+      '<div class="ex-dialog-a">' + (o.actions || []).map(function (a, i) { return '<button type="button" class="ex-btn ' + (a.cls || '') + '" data-i="' + i + '">' + a.label + '</button>'; }).join('') + '</div></div>';
+    m.classList.add('show');
+    m.querySelectorAll('button[data-i]').forEach(function (b) { b.onclick = function () { o.actions[+b.dataset.i].fn(); }; });
+  }
+  function closeModal() { $('exModal').classList.remove('show'); }
+  function showOverlay(t, d) { $('ovTitle').textContent = t; $('ovText').textContent = d; $('exOverlay').classList.add('show'); }
+  function hideOverlay() { $('exOverlay').classList.remove('show'); }
+  $('ovBtn').onclick = function () { hideOverlay(); window.focus(); };
 
-  requireAuth(function (user, userData) {
-    currentUser = user;
-    currentUserData = userData;
-    renderAppHeader(user, userData, { showPoints: true });
+  /* ============================================================
+     الدخول والتحميل
+     ============================================================ */
+  requireAuth(function (user, ud) {
+    S.user = user; S.ud = ud;
+    renderAppHeader(user, ud, { showPoints: true });
     renderFooter();
-
-    db.ref('settings/' + MAX_VIOLATIONS_KEY).once('value').then(function(snap) {
-      if (snap.exists()) maxViolations = snap.val();
-      document.getElementById('maxViolations').textContent = maxViolations;
-    });
-
-    const savedSession = localStorage.getItem('asb_session_id');
-    if (!savedSession) {
-      // أول مرة يفتح فيها المستخدم اختبار على هذا الجهاز: لازم ننتظر إنشاء
-      // الجلسة وحفظها محليًا الأول، وبعدين نتحقق منها. لو استنينا واتحققنا
-      // في نفس الوقت (بدون انتظار) هيحصل تعارض توقيت وهيفشل التحقق ظلمًا
-      // ويطرد المستخدم برسالة "جهاز آخر" رغم إنه نفس الجهاز.
-      startSession(user, navigator.userAgent).then(function(newSessionId) {
-        localStorage.setItem('asb_session_id', newSessionId);
-        load();
-      }).catch(function(err) {
-        console.error(err);
-        window.location.href = 'home.html';
-      });
-    } else {
-      load();
-    }
+    var h = $('appHeader'); if (h) document.documentElement.style.setProperty('--hdr', h.offsetHeight + 'px');
+    Promise.all([
+      db.ref('.info/serverTimeOffset').once('value'),
+      db.ref('settings/maxViolations').once('value')
+    ]).then(function (r) {
+      S.offset = Number(r[0].val()) || 0;                       // الوقت بنحسبه من ساعة السيرفر مش ساعة جهاز الطالب
+      if (r[1].exists() && Number(r[1].val()) > 0) S.maxViol = Number(r[1].val());
+    }).catch(function () {}).then(boot);
   });
+
+  function boot() {
+    ensureSession(S.user).then(function (res) {
+      if (!res.valid) { alert('تم تسجيل الدخول من جهاز آخر. سيتم إنهاء الاختبار.'); location.href = 'home.html'; return; }
+      return load();
+    }).catch(function (err) { console.error(err); location.href = 'home.html'; });
+  }
 
   function load() {
-    checkSession(currentUser).then(function(result) {
-      if (!result.valid) {
-        alert('تم تسجيل الدخول من جهاز آخر. سيتم إنهاء الاختبار.');
-        window.location.href = 'home.html';
-        return;
-      }
-      return loadExamData();
-    }).catch(function(err) {
+    return db.ref('competitions/' + compId).once('value').then(function (snap) {
+      if (!snap.exists()) { location.href = 'home.html'; return; }
+      S.comp = snap.val();
+      S.lesson = (S.comp.lessons || {})[lessonId];
+      if (!S.lesson || !S.lesson.exams || !S.lesson.exams[examId]) { location.href = BACK; return; }
+      S.exam = S.lesson.exams[examId];
+      S.duration = Number(S.exam.duration) > 0 ? Number(S.exam.duration) : 10;
+
+      return db.ref('userEnrollments/' + S.user.uid + '/' + compId).once('value').then(function (e) {
+        if (!e.exists()) return gate('lock', 'لازم تشترك الأول', 'اشترك في هذا المحتوى من صفحته علشان تقدر تدخل الاختبار.', '', '<a class="ex-btn" href="' + BACK + '">الذهاب لصفحة المحتوى</a>');
+        return db.ref('userProgress/' + S.user.uid + '/' + compId).once('value').then(function (p) {
+          var prog = p.val() || {};
+          var access = getLessonAccessState(S.comp.lessons || {}, prog, lessonId);
+          if (!access.allowed) return gate('lock', 'الاختبار مقفول', access.reason === 'release' ? 'المحاضرة دي لسه معادها ما جاش.' : 'خلّص المحاضرة اللي قبلها الأول.');
+          if (isItemLocked(S.lesson, prog[lessonId] || {}, 'exam', examId)) return gate('lock', 'الاختبار مقفول', 'لازم تحل الاختبار الإجباري اللي قبله الأول.');
+          if (S.exam.releaseAt && S.exam.releaseAt > Date.now())
+            return gate('clock', 'الاختبار لسه ما اتفتحش', 'هيتاح في ' + (typeof formatArabicDate === 'function' ? formatArabicDate(S.exam.releaseAt) : 'موعد لاحق') + '.', 'blue');
+          return aref().once('value').then(function (as) {
+            var a = as.val();
+            if (!a) return showIntro();
+            if (a.submitted === true) return showFinished('تم تسليم هذا الاختبار قبل كده، ومينفعش تعيده.');
+            if (a.forceEnded === true) return showFinished('الاختبار اتقفل قبل كده بسبب مخالفات، ومينفعش تعيده.');
+            return restore(a);
+          });
+        });
+      });
+    }).catch(function (err) {
       console.error(err);
-      window.location.href = 'home.html';
+      gate('triangle-exclamation', 'حصلت مشكلة', 'تعذّر تحميل الاختبار. اتأكد من الإنترنت وجرّب تاني.', 'bad', '<button type="button" class="ex-btn" onclick="location.reload()">إعادة التحميل</button>');
     });
   }
 
-  function loadExamData() {
-    db.ref('competitions/' + compId).once('value').then(function (snap) {
-      if (!snap.exists()) { window.location.href = 'home.html'; return; }
-      compData = snap.val();
-      const lessons = compData.lessons || {};
-      lessonData = lessons[lessonId];
-      if (!lessonData || !lessonData.exams || !lessonData.exams[examId]) {
-        window.location.href = 'competition.html?id=' + encodeURIComponent(compId);
-        return;
-      }
-
-      return db.ref('userEnrollments/' + currentUser.uid + '/' + compId).once('value').then(function (eSnap) {
-        if (!eSnap.exists()) {
-          document.getElementById('examTitle').textContent = 'محتوى مغلق';
-          document.getElementById('content').innerHTML =
-            '<div class="already-done-card"><div class="big-icon" style="color:var(--teal);"><i class="fas fa-lock"></i></div>' +
-            '<h3 style="margin:10px 0 6px; color:var(--primary-dark);">لازم تشترك أولاً</h3>' +
-            '<p class="muted">اشترك في هذا المحتوى من صفحته للوصول لهذا الاختبار.</p>' +
-            '<a class="btn btn-primary btn-sm" style="width:auto; margin:14px auto 0;" href="competition.html?id=' + encodeURIComponent(compId) + '">الذهاب لصفحة المحتوى</a></div>';
-          return;
-        }
-        return loadWithAccess();
-      });
-    });
+  /* ============================================================
+     شاشة البداية
+     ============================================================ */
+  function showIntro() {
+    var bank = Object.keys(S.exam.questions || {}).map(function (k) { return S.exam.questions[k]; });
+    var n = Math.min(Number(S.exam.questionCount) || bank.length, bank.length);
+    var hasEssay = bank.some(isEssay);
+    setApp(
+      '<div class="ex-card ex-intro">' +
+        '<div class="ex-intro-hero"><div class="ic"><i class="fas fa-file-pen"></i></div><div><h1>' + esc(S.exam.title || 'الاختبار') + '</h1><p>' + esc(S.lesson.title || '') + '</p></div></div>' +
+        '<div class="ex-intro-body">' +
+          '<div class="ex-chips">' +
+            '<div class="ex-chip"><i class="fas fa-list-ol"></i><div><b>' + n + '</b><small>عدد الأسئلة</small></div></div>' +
+            '<div class="ex-chip"><i class="fas fa-hourglass-half"></i><div><b>' + S.duration + '</b><small>دقيقة</small></div></div>' +
+            '<div class="ex-chip"><i class="fas fa-shield-halved"></i><div><b>' + S.maxViol + '</b><small>مخالفات كحد أقصى</small></div></div>' +
+          '</div>' +
+          '<div class="ex-two">' +
+            '<div class="ex-box"><h3><i class="fas fa-circle-info" style="color:var(--primary-light)"></i> تعليمات</h3><ul class="ex-list">' +
+              '<li>العدّاد بيبدأ أول ما تضغط «ابدأ الاختبار» ومبيقفش، وبيتسلّم الاختبار أوتوماتيك لما الوقت يخلص.</li>' +
+              '<li>تقدر تتنقل بين الأسئلة وتغيّر إجابتك براحتك قبل التسليم، وتعلّم أي سؤال «للمراجعة».</li>' +
+              '<li>إجاباتك بتتحفظ أول بأول، وتقدر تعيد تحميل الصفحة لحد ' + MAX_RELOADS + ' مرات بس.</li>' +
+              '<li>بعد التسليم مينفعش تعدّل أو تدخل الاختبار تاني.</li>' +
+              '<li>كمّل من نفس الجهاز، ومتسجّلش دخول من جهاز تاني أثناء الاختبار.</li>' +
+              (hasEssay ? '<li>الاختبار فيه أسئلة مقالية بيصححها المدرس يدويًا.</li>' : '') +
+            '</ul></div>' +
+            '<div class="ex-box warn"><h3><i class="fas fa-ban"></i> مخالفات</h3><ul class="ex-list">' +
+              '<li>الخروج من الصفحة أو تغيير التبويب أو تصغير المتصفح.</li>' +
+              '<li>النسخ أو اللصق أو القص، واختصارات Ctrl+C / V / S / U.</li>' +
+              '<li>الضغط بزر الفأرة الأيمن، أو فتح أدوات المطوّر F12.</li>' +
+              '<li>تسجيل الدخول من جهاز تاني أثناء الاختبار.</li>' +
+              '<li>عند الوصول لـ ' + S.maxViol + ' مخالفات الاختبار بيتسلّم تلقائيًا ومفيش محاولة تانية.</li>' +
+            '</ul></div>' +
+          '</div>' +
+          '<label class="ex-agree" for="agree"><input type="checkbox" id="agree"><span>قرأت التعليمات والمخالفات وموافق أبدأ الاختبار دلوقتي.</span></label>' +
+          '<button type="button" class="ex-btn ex-start" id="startBtn" disabled><i class="fas fa-play"></i> ابدأ الاختبار</button>' +
+        '</div>' +
+      '</div>');
+    $('agree').onchange = function () { $('startBtn').disabled = !this.checked; };
+    $('startBtn').onclick = function () {
+      if (!$('agree').checked) return;
+      this.disabled = true; this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جارٍ التحضير...';
+      startNew();
+    };
   }
 
-  function loadWithAccess() {
-    db.ref('userProgress/' + currentUser.uid + '/' + compId).once('value').then(function (pSnap) {
-      const progressData = pSnap.val() || {};
-      const access = getLessonAccessState(compData.lessons || {}, progressData, lessonId);
-      const content = document.getElementById('content');
-      examData = lessonData.exams[examId];
-      document.getElementById('examTitle').textContent = examData.title || 'الاختبار';
-
-      if (!access.allowed) {
-        const reasonText = access.reason === 'release' ? 'هذه المحاضرة لم يحن معادها بعد.' : 'أكمِل المحاضرة السابقة أولاً.';
-        content.innerHTML = '<div class="already-done-card"><div class="big-icon" style="color:var(--teal);"><i class="fas fa-lock"></i></div>' +
-          '<h3 style="margin:10px 0 6px; color:var(--primary-dark);">هذا الاختبار مغلق</h3><p class="muted">' + reasonText + '</p></div>';
-        return;
-      }
-
-      if (isItemLocked(lessonData, progressData[lessonId] || {}, 'exam', examId)) {
-        content.innerHTML = '<div class="already-done-card"><div class="big-icon" style="color:var(--teal);"><i class="fas fa-lock"></i></div>' +
-          '<h3 style="margin:10px 0 6px; color:var(--primary-dark);">هذا الاختبار مغلق</h3><p class="muted">لازم تحل الاختبار الإجباري اللي قبله الأول.</p></div>';
-        return;
-      }
-
-      if (examData.releaseAt && examData.releaseAt > Date.now()) {
-        content.innerHTML = '<div class="already-done-card"><div class="big-icon" style="color:var(--teal);"><i class="fas fa-clock"></i></div>' +
-          '<h3 style="margin:10px 0 6px; color:var(--primary-dark);">هذا الاختبار مغلق</h3><p class="muted">هذا الاختبار لم يحن معاده بعد' +
-          (typeof formatArabicDate === 'function' ? '، يُتاح في ' + formatArabicDate(examData.releaseAt) : '') + '.</p></div>';
-        return;
-      }
-
-      // ✅ الخطوة الجديدة: التحقق من وجود محاولة سابقة (حتى لو منتهية)
-      // نمنع بدء محاولة جديدة إذا كان هناك أي محاولة سابقة
-      db.ref('examAttempts/' + compId + '/' + lessonId + '/' + examId + '/' + currentUser.uid).once('value')
-        .then(function(attemptSnap) {
-          const attempt = attemptSnap.val();
-          if (attempt) {
-            // إذا كانت المحاولة موجودة (سواء نشطة أو منتهية)
-            if (attempt.submitted === true) {
-              // تم تسليمها سابقاً
-              showAlreadySubmitted('لقد قمت بتسليم هذا الاختبار مسبقاً. لا يمكنك إعادة المحاولة.');
-              return;
-            }
-            if (attempt.forceEnded === true) {
-              // تم إنهاؤها قسرياً
-              showAlreadySubmitted('تم إنهاء هذا الاختبار مسبقاً بسبب مخالفات. لا يمكنك إعادة المحاولة.');
-              return;
-            }
-            // إذا كانت المحاولة نشطة (لم تنتهِ)، نستعيدها
-            return restoreExam(attempt);
-          } else {
-            // لا توجد محاولة سابقة، نعرض شاشة التأكيد والتعليمات أولاً
-            return showStartScreen();
-          }
-        })
-        .catch(function(err) {
-          console.error(err);
-          content.innerHTML = '<p class="muted">حدث خطأ أثناء التحقق من المحاولة.</p>';
+  function startNew() {
+    var count = Number(S.exam.questionCount) || Object.keys(S.exam.questions || {}).length;
+    getRandomQuestions(compId, lessonId, examId, count).then(function (sel) {
+      if (!sel || !sel.length) throw new Error('مفيش أسئلة في الاختبار ده لسه.');
+      return startExamAttempt(compId, lessonId, examId, S.user.uid, sel)
+        .then(function () { return aref().child('sessionId').set(localStorage.getItem('asb_session_id')); })
+        .then(function () { return aref().once('value'); })
+        .then(function (as) {
+          var a = as.val() || {};
+          S.qs = sel; S.answers = {}; S.flags = {}; S.violations = 0; S.reloads = 0;
+          S.startedAt = Number(a.startedAt) || nowSrv();      // وقت البداية من السيرفر
+          beginExam();
         });
+    }).catch(function (err) {
+      gate('triangle-exclamation', 'مش قادرين نبدأ الاختبار', esc(err.message || 'حصلت مشكلة، جرّب تاني.'), 'bad');
     });
   }
 
-  // دالة عرض رسالة "تم التسليم مسبقاً" + مراجعة الإجابات بالتفصيل
-  function showAlreadySubmitted(message) {
-    document.getElementById('examTimer').style.display = 'none';
-    document.getElementById('violationWarning').style.display = 'none';
-    const content = document.getElementById('content');
-    content.innerHTML = '<div class="center-loading"><div class="loader"></div></div>';
+  function restore(a) {
+    if (!a.questions || !a.questions.length) {    // محاولة ناقصة (مفيهاش أسئلة): بنمسحها ونبدأ من الأول
+      return aref().remove().catch(function () {}).then(showIntro);
+    }
+    S.qs = Array.isArray(a.questions) ? a.questions : Object.keys(a.questions).map(function (k) { return a.questions[k]; });
+    S.answers = a.answers || {};
+    S.flags = a.flags || {};
+    S.violations = Number(a.violations) || 0;
+    S.startedAt = Number(a.startedAt) || nowSrv();
+    S.reloads = (Number(a.reloadCount) || 0) + 1;
 
-    // ✅ مهم: نجيب الأسئلة من محاولة الاختبار الفعلية (examAttempts) مش من بنك الأسئلة الكامل،
-    // لأن كل محاولة بتاخد عدد محدد من الأسئلة (questionCount) بترتيب اختيارات عشوائي مختلف.
-    // لو جبنا بنك الأسئلة الكامل هيظهر أسئلة زيادة عن اللي اتعرضت فعلاً، وترتيب الاختيارات
-    // هيبقى مختلف عن اللي كانت عليه وقت الإجابة، فتظهر إجابات صحيحة على أنها غلط.
-    Promise.all([
-      db.ref('examAttempts/' + compId + '/' + lessonId + '/' + examId + '/' + currentUser.uid + '/questions').once('value'),
-      db.ref('userProgress/' + currentUser.uid + '/' + compId + '/' + lessonId + '/exams/' + examId).once('value')
-    ]).then(function (results) {
-      const attemptQuestions = results[0].val();
-      const progData = results[1].val();
-
-      if (attemptQuestions && attemptQuestions.length && progData && progData.answers) {
-        const questionsMap = {};
-        const orderedIds = [];
-        attemptQuestions.forEach(function (q) {
-          if (!q || !q.id) return;
-          questionsMap[q.id] = q;
-          orderedIds.push(q.id);
-        });
-        renderExamReview(message, questionsMap, progData, orderedIds);
-      } else {
-        content.innerHTML = alreadySubmittedFallback(message);
-      }
-    }).catch(function () {
-      content.innerHTML = alreadySubmittedFallback(message);
-    });
+    if (S.reloads > MAX_RELOADS) return submit(true, 'عدد مرات إعادة تحميل الصفحة تعدّى الحد المسموح (' + MAX_RELOADS + ').');
+    aref().child('reloadCount').set(S.reloads);
+    if (S.violations >= S.maxViol) return submit(true, 'وصلت للحد الأقصى من المخالفات (' + S.maxViol + ').');
+    if (remaining() <= 0) return submit(true, 'انتهى وقت الاختبار.');
+    beginExam();
   }
 
-  function alreadySubmittedFallback(message) {
-    return `
-      <div class="already-done-card" style="border-color:var(--teal-light);">
-        <div class="big-icon" style="color:var(--teal);"><i class="fas fa-check-circle"></i></div>
-        <h3 style="margin:10px 0 6px; color:var(--primary-dark);">✅ تم التسليم</h3>
-        <p class="muted">${message}</p>
-        <a class="btn btn-primary btn-sm" style="width:auto; margin-top:14px;" href="competition.html?id=${encodeURIComponent(compId)}">
-          <i class="fas fa-arrow-left"></i> العودة للمحاضرة
-        </a>
-      </div>
-    `;
+  /* ============================================================
+     واجهة الاختبار
+     ============================================================ */
+  function remaining() { return Math.max(0, Math.ceil(S.duration * 60 - (nowSrv() - S.startedAt) / 1000)); }
+
+  function beginExam() {
+    S.active = true; S.done = false;
+    var first = S.qs.findIndex(function (q) { return !isAnswered(q); });
+    S.idx = first >= 0 ? first : 0;
+    setApp(
+      '<div class="ex-bar" id="exBar">' +
+        '<div class="ex-bar-title"><b>' + esc(S.exam.title || 'الاختبار') + '</b><small id="exCount"></small></div>' +
+        '<div class="ex-bar-prog"><div class="ex-prog"><i id="exProg"></i></div><small id="exProgTxt"></small></div>' +
+        '<div style="display:flex;gap:10px;align-items:center"><div class="ex-timer" id="exTimer"><i class="fas fa-clock"></i><span id="exTime">--:--</span></div>' +
+        '<button type="button" class="ex-btn green sm ex-bar-submit" id="exSubmitTop"><i class="fas fa-paper-plane"></i> تسليم</button></div>' +
+      '</div>' +
+      '<div class="ex-alert warn" id="exViol" hidden></div>' +
+      '<div class="ex-alert info" id="exReload" hidden></div>' +
+      '<div class="ex-layout">' +
+        '<section class="ex-card ex-main" id="exMain"></section>' +
+        '<aside class="ex-side"><div class="ex-card ex-pal"><h4><i class="fas fa-table-cells"></i> خريطة الأسئلة</h4>' +
+          '<div class="ex-grid" id="exGrid"></div>' +
+          '<div class="ex-legend"><span><i class="a"></i> اتجاوب</span><span><i class="c"></i> الحالي</span><span><i class="f"></i> للمراجعة</span></div>' +
+          '<button type="button" class="ex-btn green" id="exSubmit"><i class="fas fa-paper-plane"></i> تسليم الاختبار</button></div></aside>' +
+      '</div>');
+    $('exSubmit').onclick = $('exSubmitTop').onclick = askSubmit;
+    paintQuestion(); paintPalette(); paintMeta(); paintViol();
+    var rl = $('exReload');
+    if (S.reloads > 0) { rl.hidden = false; rl.innerHTML = '<i class="fas fa-rotate-right"></i> اتعمل إعادة تحميل للصفحة ' + S.reloads + ' من ' + MAX_RELOADS + ' مرات مسموحة. إجاباتك محفوظة.'; }
+    tick(); S.timer = setInterval(tick, 1000);
+    startProtection();
+    S.sessTimer = setInterval(checkSess, 5000);
   }
 
-  // ===== عرض مراجعة الإجابات (كل سؤال مع الاختيارات: الصح أخضر، والخطأ المُختار أحمر) =====
-  function renderExamReview(message, questionsMap, progData, orderedIds) {
-    const content = document.getElementById('content');
-    const userAnswers = progData.answers || {};
-    const qIds = orderedIds && orderedIds.length ? orderedIds : Object.keys(questionsMap);
-    const total = qIds.filter(function (i) { return questionsMap[i] && questionsMap[i].type !== 'essay'; }).length;
-    const score = progData.score || 0;
-    const earnedPoints = progData.earnedPoints || 0;
-    const percentage = total ? Math.round((score / total) * 100) : 0;
-
-    let html = `
-      <div class="review-summary">
-        <div class="big-icon"><i class="fas fa-clipboard-check"></i></div>
-        <h3 style="margin:4px 0 6px; color:var(--primary-dark);">تفاصيل نتيجتك</h3>
-        <div class="score"><i class="fas fa-clipboard-check"></i> ${percentage}%</div>
-        <div class="details">إجابات صحيحة: <strong>${score}</strong> من <strong>${total}</strong> (${percentage}%)</div>
-        <div class="details" style="margin-top:8px;">${escapeHtml(message)}</div>
-      </div>
-      <div class="review-list">
-    `;
-
-    qIds.forEach((qId, idx) => {
-      const q = questionsMap[qId];
-      if (q.type === 'essay') {
-        const gd = progData.essayStatus === 'graded';
-        html += `<div class="review-item"><div class="review-item-head"><p class="q-text">${idx + 1}. ${escapeHtml(q.text)}</p><span class="review-status ${gd ? 'correct' : 'unanswered'}">${gd ? 'تم التصحيح' : 'جاري التصحيح'}</span></div><p style="white-space:pre-wrap">${escapeHtml(userAnswers[qId] || '— لا توجد إجابة —')}</p></div>`;
-        return;
-      }
-      const selected = userAnswers[qId];
-      const hasAnswer = (selected !== undefined && selected !== null && selected >= 0);
-      const isCorrect = hasAnswer && selected === q.correct;
-
-      let statusClass = 'unanswered';
-      let statusText = 'لم تتم الإجابة';
-      if (hasAnswer) {
-        statusClass = isCorrect ? 'correct' : 'wrong';
-        statusText = isCorrect ? 'إجابة صحيحة' : 'إجابة خاطئة';
-      }
-
-      html += `
-        <div class="review-item">
-          <div class="review-item-head">
-            <p class="q-text">${idx + 1}. ${escapeHtml(q.text)}</p>
-            <span class="review-status ${statusClass}">${statusText}</span>
-          </div>
-          <div class="quiz-options">
-      `;
-
-      (q.options || []).forEach((opt, oi) => {
-        let cls = 'quiz-option disabled';
-        let iconHtml = '';
-        if (oi === q.correct) {
-          cls += ' correct';
-          iconHtml = icon('check');
-        } else if (hasAnswer && oi === selected) {
-          cls += ' wrong';
-          iconHtml = icon('xmark');
-        }
-        html += `<div class="${cls}"><span class="opt-label">${escapeHtml(opt)}</span>${iconHtml}</div>`;
-      });
-
-      html += `</div></div>`;
-    });
-
-    html += `
-      </div>
-      <div style="margin-top:6px; text-align:center;">
-        <a class="btn btn-primary btn-sm" style="width:auto;" href="competition.html?id=${encodeURIComponent(compId)}">
-          <i class="fas fa-arrow-left"></i> العودة للمحاضرة
-        </a>
-      </div>
-    `;
-
-    content.innerHTML = html;
-  }
-
-  // ===== شاشة تأكيد بدء الاختبار (تعليمات + مخالفات) =====
-  function showStartScreen() {
-    document.getElementById('examTimer').style.display = 'none';
-    document.getElementById('violationWarning').style.display = 'none';
-    document.getElementById('reloadWarning').style.display = 'none';
-
-    const duration = examData.duration || 10;
-    const qCount = examData.questionCount || 10;
-    const content = document.getElementById('content');
-
-    content.innerHTML =
-      '<div class="exam-start-screen">' +
-        '<div class="start-icon"><i class="fas fa-file-signature"></i></div>' +
-        '<h2>أنت على وشك بدء الاختبار</h2>' +
-        '<p class="start-sub">من فضلك اقرأ التعليمات والمخالفات التالية جيداً، ثم اضغط "ابدأ الاختبار" عندما تكون جاهزاً. بمجرد الضغط سيبدأ العدّاد الزمني فوراً.</p>' +
-
-        '<div class="start-info-grid">' +
-          '<div class="info-chip"><i class="fas fa-list-ol"></i><span>' + qCount + ' سؤال</span></div>' +
-          '<div class="info-chip"><i class="fas fa-hourglass-half"></i><span>' + duration + ' دقيقة</span></div>' +
-          '<div class="info-chip"><i class="fas fa-triangle-exclamation"></i><span>' + maxViolations + ' مخالفات كحد أقصى</span></div>' +
-        '</div>' +
-
-        '<div class="start-section">' +
-          '<h3><i class="fas fa-circle-info"></i> تعليمات الاختبار</h3>' +
-          '<ul class="start-list">' +
-            '<li>بمجرد الضغط على "ابدأ الاختبار" يبدأ العدّاد الزمني ولا يتوقف حتى تنتهي المدة أو تُسلّم الاختبار بنفسك.</li>' +
-            '<li>يمكنك التنقل بين الأسئلة بحرية والإجابة بأي ترتيب قبل الضغط على زر "تسليم الاختبار".</li>' +
-            '<li>إجاباتك تُحفظ تلقائياً أولاً بأول، ويمكنك إعادة تحميل الصفحة عند الضرورة (بحد أقصى ' + MAX_RELOADS + ' مرات طوال الاختبار).</li>' +
-            '<li>بعد التسليم النهائي لن تتمكن من تعديل إجاباتك أو إعادة دخول الاختبار مرة أخرى.</li>' +
-            '<li>يجب إكمال الاختبار من نفس الجهاز والمتصفح الذي بدأت منه، دون تسجيل الدخول بحسابك من أي جهاز آخر أثناء الاختبار.</li>' +
-          '</ul>' +
-        '</div>' +
-
-        '<div class="start-section violations-box">' +
-          '<h3><i class="fas fa-ban"></i> مخالفات تؤدي إلى إغلاق الاختبار تلقائياً</h3>' +
-          '<p class="violations-note">عند الوصول إلى ' + maxViolations + ' مخالفات، سيتم تسليم اختبارك تلقائياً وإنهاؤه بغض النظر عن عدد الأسئلة التي أجبت عنها، ولن تُتاح لك محاولة أخرى.</p>' +
-          '<ul class="start-list violations-list">' +
-            '<li><i class="fas fa-arrow-right-arrow-left"></i> الخروج من صفحة الاختبار أو تغيير التبويب</li>' +
-            '<li><i class="fas fa-window-minimize"></i> تصغير المتصفح أو التبديل إلى تطبيق آخر (فقدان تركيز النافذة)</li>' +
-            '<li><i class="fas fa-keyboard"></i> استخدام Alt+Tab، أو اختصارات مثل Ctrl+C وCtrl+V وCtrl+S وCtrl+U</li>' +
-            '<li><i class="fas fa-code"></i> محاولة فتح أدوات المطوّر بالضغط على F12</li>' +
-            '<li><i class="fas fa-copy"></i> محاولة نسخ أو لصق أو قص أي محتوى من صفحة الاختبار</li>' +
-            '<li><i class="fas fa-computer-mouse"></i> الضغط بزر الفأرة الأيمن لفتح القائمة المنسدلة</li>' +
-            '<li><i class="fas fa-mobile-screen-button"></i> تسجيل الدخول بنفس الحساب من جهاز أو متصفح آخر أثناء الاختبار</li>' +
-            '<li><i class="fas fa-rotate-right"></i> تجاوز الحد المسموح لإعادة تحميل صفحة الاختبار (' + MAX_RELOADS + ' مرات)</li>' +
-          '</ul>' +
-        '</div>' +
-
-        '<label class="start-agree" for="agreeCheckbox">' +
-          '<input type="checkbox" id="agreeCheckbox">' +
-          '<span>قرأت التعليمات والمخالفات أعلاه وأوافق على بدء الاختبار الآن</span>' +
-        '</label>' +
-
-        '<button class="btn btn-primary btn-start-exam" id="startExamBtn" disabled>' +
-          '<i class="fas fa-play"></i> ابدأ الاختبار' +
-        '</button>' +
+  function paintQuestion() {
+    var q = S.qs[S.idx], id = q.id, n = S.qs.length, flagged = !!S.flags[id], essay = isEssay(q), body;
+    if (essay) {
+      var v = typeof S.answers[id] === 'string' ? S.answers[id] : '';
+      body = '<textarea id="exEssay" class="ex-essay" placeholder="اكتب إجابتك هنا… (سؤال مقالي بيصححه المدرس يدويًا)">' + esc(v) + '</textarea>' +
+             '<div class="ex-essay-meta"><span id="exCnt">' + v.length + ' حرف</span><span id="exSaved"><i class="fas fa-cloud-arrow-up"></i> بيتحفظ تلقائيًا</span></div>';
+    } else {
+      body = '<div class="ex-opts">' + (q.options || []).map(function (o, i) {
+        return '<label class="ex-opt"><input type="radio" name="opt" value="' + i + '"' + (S.answers[id] === i ? ' checked' : '') + '>' +
+          '<span class="ex-opt-in"><span class="ex-let">' + (LETTERS[i] || (i + 1)) + '</span><span class="ex-opt-t">' + esc(o) + '</span></span></label>';
+      }).join('') + '</div>';
+    }
+    var last = S.idx === n - 1;
+    $('exMain').innerHTML =
+      '<div class="ex-qhead"><span class="ex-qnum">سؤال ' + (S.idx + 1) + ' من ' + n + '</span>' +
+        '<span class="ex-tag">' + (essay ? 'مقالي' : 'اختيار من متعدد') + '</span>' +
+        '<span class="ex-tag pts">' + num(pts(q, essay ? 2 : 1)) + ' درجة</span>' +
+        '<button type="button" class="ex-flagbtn' + (flagged ? ' on' : '') + '" id="exFlag"><i class="fas fa-flag"></i><span>' + (flagged ? 'شيل العلامة' : 'علّم للمراجعة') + '</span></button></div>' +
+      '<p class="ex-q">' + esc(q.text) + '</p>' + body +
+      '<div class="ex-nav">' +
+        '<button type="button" class="ex-btn ghost" id="exPrev"' + (S.idx === 0 ? ' disabled' : '') + '><i class="fas fa-chevron-right"></i> السابق</button>' +
+        '<button type="button" class="ex-btn ghost" id="exNext"' + (last ? ' disabled' : '') + '>التالي <i class="fas fa-chevron-left"></i></button>' +
+        '<span class="sp"></span>' +
+        (!essay && isAnswered(q) ? '<button type="button" class="ex-clear" id="exClear">مسح الاختيار</button>' : '') +
+        (last ? '<button type="button" class="ex-btn green" id="exSubmitLast"><i class="fas fa-paper-plane"></i> تسليم الاختبار</button>' : '') +
       '</div>';
 
-    const agreeCheckbox = document.getElementById('agreeCheckbox');
-    const startExamBtn = document.getElementById('startExamBtn');
-
-    agreeCheckbox.addEventListener('change', function () {
-      startExamBtn.disabled = !agreeCheckbox.checked;
-    });
-
-    startExamBtn.addEventListener('click', function () {
-      if (!agreeCheckbox.checked) return;
-      startExamBtn.disabled = true;
-      startExamBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جارٍ التحضير...';
-      document.getElementById('examTimer').style.display = '';
-      startNewExam();
-    });
-  }
-
-  function startNewExam() {
-    const questionCount = examData.questionCount || 10;
-    getRandomQuestions(compId, lessonId, examId, questionCount)
-      .then(function(selectedQuestions) {
-        if (!selectedQuestions || selectedQuestions.length === 0) {
-          throw new Error('لا توجد أسئلة في هذا الاختبار. أضف أسئلة أولاً.');
-        }
-        return startExamAttempt(compId, lessonId, examId, currentUser.uid, selectedQuestions)
-          .then(function() {
-            return db.ref('examAttempts/' + compId + '/' + lessonId + '/' + examId + '/' + currentUser.uid + '/sessionId')
-              .set(localStorage.getItem('asb_session_id'));
-          })
-          .then(function() {
-            questionsData = selectedQuestions;
-            questionIds = selectedQuestions.map(function(q) { return q.id; });
-            userAnswers = {};
-            reloadCount = 0;
-            updateReloadWarning();
-            examDuration = examData.duration || 10;
-            startTime = Date.now();
-            document.getElementById('timerDisplay').textContent = formatTime(examDuration * 60);
-            if (timerInterval) clearInterval(timerInterval);
-            timerInterval = setInterval(updateTimer, 1000);
-            renderExam();
-            startProtection();
-            sessionCheckInterval = setInterval(checkSessionPeriodically, 5000);
-          });
-      })
-      .catch(function(err) {
-        document.getElementById('content').innerHTML = '<div class="already-done-card"><p class="muted">' + err.message + '</p></div>';
-      });
-  }
-
-  function restoreExam(attempt) {
-    if (attempt.submitted || attempt.forceEnded) {
-      // تم إنهاء المحاولة بالفعل
-      showAlreadySubmitted('هذه المحاولة انتهت. لا يمكنك إعادة الاختبار.');
-      return;
-    }
-
-    // ✅ محاولة فاسدة/ناقصة (مفيهاش أسئلة أصلاً، غالبًا بسبب تصفير جزئي من لوحة التحكم):
-    // نمسحها تلقائيًا ونبدأ محاولة جديدة نضيفة بدل ما نحاول نسترجعها ونطيح الصفحة.
-    if (!attempt.questions || attempt.questions.length === 0) {
-      db.ref('examAttempts/' + compId + '/' + lessonId + '/' + examId + '/' + currentUser.uid).remove()
-        .then(function() { startNewExam(); })
-        .catch(function() { startNewExam(); });
-      return;
-    }
-
-    // ✅ السماح بإعادة تحميل الصفحة حتى MAX_RELOADS مرة قبل إنهاء الاختبار قسريًا
-    reloadCount = (attempt.reloadCount || 0) + 1;
-    if (reloadCount > MAX_RELOADS) {
-      forceEndExam('لقد تجاوزت الحد المسموح لإعادة تحميل صفحة الاختبار (' + MAX_RELOADS + ' مرات).');
-      return;
-    }
-    db.ref('examAttempts/' + compId + '/' + lessonId + '/' + examId + '/' + currentUser.uid + '/reloadCount').set(reloadCount);
-    updateReloadWarning();
-
-    // استرجاع المحاولة النشطة
-    questionsData = attempt.questions || [];
-    questionIds = questionsData.map(function(q) { return q.id; });
-    userAnswers = attempt.answers || {};
-    violationCount = attempt.violations || 0;
-    document.getElementById('violationCount').textContent = violationCount;
-    if (violationCount >= maxViolations) {
-      submitExam(true);
-      return;
-    }
-    const elapsed = Math.floor((Date.now() - attempt.startedAt) / 1000);
-    const totalSeconds = examDuration * 60;
-    const remaining = Math.max(0, totalSeconds - elapsed);
-    document.getElementById('timerDisplay').textContent = formatTime(remaining);
-    if (remaining <= 0) {
-      submitExam(true);
-      return;
-    }
-    startTime = Date.now() - elapsed * 1000;
-    timerInterval = setInterval(updateTimer, 1000);
-    renderExam();
-    startProtection();
-    sessionCheckInterval = setInterval(checkSessionPeriodically, 5000);
-  }
-
-  function updateReloadWarning() {
-    const el = document.getElementById('reloadWarning');
-    document.getElementById('reloadCountDisplay').textContent = reloadCount;
-    document.getElementById('maxReloads').textContent = MAX_RELOADS;
-    if (el) el.classList.toggle('show', reloadCount > 0);
-  }
-
-  function checkSessionPeriodically() {
-    if (isSubmitted || isForceEnded) return;
-    checkSession(currentUser).then(function(result) {
-      if (!result.valid) {
-        logViolation(currentUser.uid, compId + '_' + lessonId + '_' + examId, 'session_mismatch', 'تم اكتشاف جلسة جديدة من جهاز آخر');
-        submitExam(true);
-      }
-    });
-  }
-
-  // ===== نظام المخالفات المحسّن =====
-  function startProtection() {
-    document.addEventListener('contextmenu', function(e) {
-      e.preventDefault();
-      logViolationAndIncrement('right_click', 'محاولة استخدام القائمة المنسدلة');
-    });
-
-    document.addEventListener('copy', function(e) {
-      e.preventDefault();
-      logViolationAndIncrement('copy_attempt', 'محاولة نسخ');
-    });
-    document.addEventListener('paste', function(e) {
-      e.preventDefault();
-      logViolationAndIncrement('paste_attempt', 'محاولة لصق');
-    });
-    document.addEventListener('cut', function(e) {
-      e.preventDefault();
-      logViolationAndIncrement('cut_attempt', 'محاولة قص');
-    });
-
-    document.addEventListener('keydown', function(e) {
-      const key = e.key;
-      const ctrl = e.ctrlKey || e.metaKey;
-      if (ctrl && (key === 'c' || key === 'v' || key === 'u' || key === 's')) {
-        e.preventDefault();
-        logViolationAndIncrement('keyboard_shortcut', 'استخدام اختصار ' + key);
-      }
-      if (key === 'F12') {
-        e.preventDefault();
-        logViolationAndIncrement('devtools', 'فتح أدوات المطور');
-      }
-      if (e.altKey && (key === 'Tab' || key === 'F4')) {
-        e.preventDefault();
-        logViolationAndIncrement('alt_tab', 'استخدام Alt+Tab');
-      }
-    });
-
-    // مراقبة تغيير التبويب (visibilitychange)
-    document.addEventListener('visibilitychange', function() {
-      if (document.hidden) {
-        if (!isSubmitted && !isForceEnded) {
-          isTabActive = false;
-          const details = 'تم تغيير التبويب (الانتقال لتبويب آخر في المتصفح)';
-          logViolationAndIncrement('tab_switch', details);
-          showProtectionOverlay(
-            '⚠️ تم تغيير التبويب',
-            'هذا يُعتبر مخالفة (' + (violationCount + 1) + '/' + maxViolations + '). الرجاء العودة للاختبار فوراً.'
-          );
-        }
-      } else {
-        isTabActive = true;
-        hideProtectionOverlay();
-      }
-    });
-
-    // مراقبة فقدان التركيز (blur) - مع تجنب تكرار المخالفة
-    window.addEventListener('blur', function() {
-      if (document.hidden) return;
-      if (!isSubmitted && !isForceEnded) {
-        const details = 'تم تصغير المتصفح أو التبديل إلى تطبيق آخر (فقدان التركيز)';
-        logViolationAndIncrement('window_blur', details);
-        showProtectionOverlay(
-          '⚠️ تم تصغير المتصفح أو التبديل لتطبيق آخر',
-          'هذا يُعتبر مخالفة (' + (violationCount + 1) + '/' + maxViolations + '). الرجاء العودة للاختبار فوراً.'
-        );
-      }
-    });
-    window.addEventListener('focus', function() {
-      hideProtectionOverlay();
-    });
-
-    window.addEventListener('beforeunload', function(e) {
-      if (!isSubmitted && !isForceEnded) {
-        e.preventDefault();
-        e.returnValue = 'هل أنت متأكد من مغادرة الصفحة؟ إجاباتك محفوظة، لكن يُسمح بإعادة التحميل ' + MAX_RELOADS + ' مرات فقط طوال الاختبار.';
-      }
-    });
-  }
-
-  function logViolationAndIncrement(type, details) {
-    if (isSubmitted || isForceEnded) return;
-    const examRef = compId + '_' + lessonId + '_' + examId;
-    logViolation(currentUser.uid, examRef, type, details);
-    incrementViolations(compId, lessonId, examId, currentUser.uid).then(function() {
-      violationCount++;
-      document.getElementById('violationCount').textContent = violationCount;
-      document.getElementById('violationWarning').classList.add('show');
-      if (violationCount >= maxViolations) {
-        submitExam(true);
-      }
-    });
-  }
-
-  function showProtectionOverlay(title, detail) {
-    const overlay = document.getElementById('protectionOverlay');
-    overlay.querySelector('#protectionMsg').textContent = title;
-    overlay.querySelector('#protectionDetail').textContent = detail;
-    overlay.classList.add('show');
-  }
-
-  function hideProtectionOverlay() {
-    document.getElementById('protectionOverlay').classList.remove('show');
-  }
-
-  document.getElementById('returnToExamBtn').addEventListener('click', function() {
-    hideProtectionOverlay();
-    window.focus();
-  });
-
-  // ===== العداد الزمني =====
-  function formatTime(seconds) {
-    const m = Math.floor(seconds / 60);
-    const s = Math.floor(seconds % 60);
-    return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
-  }
-
-  function updateTimer() {
-    if (isSubmitted || isForceEnded) return;
-    const elapsed = Math.floor((Date.now() - startTime) / 1000);
-    const remaining = Math.max(0, (examDuration * 60) - elapsed);
-    document.getElementById('timerDisplay').textContent = formatTime(remaining);
-    if (remaining <= 0) {
-      clearInterval(timerInterval);
-      alert('⏰ انتهى الوقت المحدد للاختبار. سيتم تسليم إجاباتك تلقائياً.');
-      submitExam(true);
-    }
-  }
-
-  // ===== عرض الاختبار =====
-  function renderExam() {
-    const content = document.getElementById('content');
-    const total = questionIds.length;
-    if (total === 0) {
-      content.innerHTML = '<p class="muted">لا توجد أسئلة.</p>';
-      return;
-    }
-    const qId = questionIds[currentQuestionIndex];
-    const q = questionsData[currentQuestionIndex];
-    const isLast = (currentQuestionIndex === total - 1);
-
-    let navHtml = '<div class="exam-progress-wrap">' +
-      '<div class="exam-progress-bar"><div class="exam-progress-fill" id="examProgressFill" style="width:0%;"></div></div>' +
-      '<span class="exam-progress-label" id="examProgressLabel">0 من ' + total + ' تمت الإجابة عليها</span>' +
-    '</div><div class="exam-nav">';
-    questionIds.forEach((id, idx) => {
-      const isActive = idx === currentQuestionIndex;
-      const isAnswered = (userAnswers[id] !== undefined);
-      const isViewed = (idx <= currentQuestionIndex);
-      let cls = 'q-btn';
-      if (isActive) cls += ' active';
-      else if (isAnswered) cls += ' answered';
-      else if (isViewed) cls += ' viewed';
-      else cls += ' unseen';
-      navHtml += `<button class="${cls}" data-index="${idx}">${idx+1}</button>`;
-    });
-    navHtml += '</div>';
-
-    let qHtml = '<div class="exam-question-area">';
-    qHtml += `<div class="q-text"><i class="fas fa-question-circle"></i> ${currentQuestionIndex+1}. ${escapeHtml(q.text)}</div>`;
-    if (q.type === 'essay') {
-      qHtml += '<textarea class="essay-input" rows="7" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:inherit;font-size:15px;background:var(--bg);color:var(--text);" placeholder="اكتب إجابتك هنا (سؤال مقالي — يصححه المدرس يدويًا)" oninput="recordAnswer(\'' + qId + '\', this.value)">' + escapeHtml(userAnswers[qId] || '') + '</textarea>';
+    $('exPrev').onclick = function () { go(S.idx - 1); };
+    $('exNext').onclick = function () { go(S.idx + 1); };
+    $('exFlag').onclick = toggleFlag;
+    if (essay) {
+      $('exEssay').oninput = function () { onEssay(id, this.value); };
     } else {
-    qHtml += '<div class="quiz-options">';
-    (q.options || []).forEach((opt, oi) => {
-      const checked = (userAnswers[qId] === oi) ? 'checked' : '';
-      qHtml += `<label class="quiz-option">
-        <input type="radio" name="q_${qId}" value="${oi}" ${checked} onchange="recordAnswer('${qId}', ${oi})">
-        <span class="opt-label">${escapeHtml(opt)}</span>
-      </label>`;
+      $('exMain').querySelectorAll('input[name=opt]').forEach(function (r) { r.onchange = function () { setMcq(id, +r.value); paintQuestionLite(); }; });
+      var c = $('exClear'); if (c) c.onclick = function () { setMcq(id, null); paintQuestion(); };
+    }
+    var sl = $('exSubmitLast'); if (sl) sl.onclick = askSubmit;
+  }
+  /* بعد اختيار إجابة بنضيف زر «مسح الاختيار» من غير ما نعيد رسم السؤال كله */
+  function paintQuestionLite() {
+    if ($('exClear')) return;
+    var nav = $('exMain').querySelector('.ex-nav .sp');
+    if (!nav) return;
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'ex-clear'; b.id = 'exClear'; b.textContent = 'مسح الاختيار';
+    b.onclick = function () { setMcq(S.qs[S.idx].id, null); paintQuestion(); };
+    nav.insertAdjacentElement('afterend', b);
+  }
+
+  function paintPalette() {
+    $('exGrid').innerHTML = S.qs.map(function (q, i) {
+      var cls = 'ex-n' + (i === S.idx ? ' cur' : '') + (isAnswered(q) ? ' ans' : '') + (S.flags[q.id] ? ' flag' : '');
+      return '<button type="button" class="' + cls + '" data-i="' + i + '" aria-label="سؤال ' + (i + 1) + '">' + (i + 1) + '</button>';
+    }).join('');
+    $('exGrid').querySelectorAll('.ex-n').forEach(function (b) { b.onclick = function () { go(+b.dataset.i); }; });
+  }
+  function paintMeta() {
+    var n = S.qs.length, a = S.qs.filter(isAnswered).length;
+    $('exCount').textContent = n + ' سؤال';
+    $('exProg').style.width = (n ? a / n * 100 : 0) + '%';
+    $('exProgTxt').textContent = a + ' من ' + n + ' اتجاوبت';
+    var cells = $('exGrid').children;
+    S.qs.forEach(function (q, i) { if (cells[i]) cells[i].classList.toggle('ans', isAnswered(q)); });
+  }
+  function paintViol() {
+    var el = $('exViol'); if (!el) return;
+    el.hidden = S.violations <= 0;
+    el.innerHTML = '<i class="fas fa-triangle-exclamation"></i> المخالفات: ' + S.violations + ' من ' + S.maxViol + '. لو وصلت للحد الأقصى هيتسلّم الاختبار تلقائيًا.';
+  }
+  function go(i) {
+    if (!S.active || i < 0 || i >= S.qs.length) return;
+    flushEssays();
+    S.idx = i; paintQuestion(); paintPalette();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  function toggleFlag() {
+    var id = S.qs[S.idx].id, on = !S.flags[id];
+    if (on) S.flags[id] = true; else delete S.flags[id];
+    aref().child('flags/' + id).set(on ? true : null).catch(function () {});
+    var b = $('exFlag'); b.classList.toggle('on', on); b.querySelector('span').textContent = on ? 'شيل العلامة' : 'علّم للمراجعة';
+    paintPalette();
+  }
+
+  /* ============================================================
+     حفظ الإجابات
+     ============================================================ */
+  var dirty = {}, essayTimer = null, saveWarned = false;
+  function warnSave() { if (!saveWarned && typeof showToast === 'function') { saveWarned = true; showToast('تعذّر حفظ إجابتك، اتأكد من الإنترنت', 'error'); setTimeout(function () { saveWarned = false; }, 8000); } }
+  function setMcq(qid, val) {
+    if (!S.active || S.done) return;
+    var p;
+    if (val === null) { delete S.answers[qid]; p = aref().child('answers/' + qid).remove(); }
+    else { S.answers[qid] = val; p = saveAnswer(compId, lessonId, examId, S.user.uid, qid, val); }
+    p.catch(warnSave);
+    paintMeta();
+  }
+  function onEssay(qid, text) {
+    if (!S.active || S.done) return;
+    S.answers[qid] = text; dirty[qid] = text;
+    var c = $('exCnt'); if (c) c.textContent = text.length + ' حرف';
+    var sv = $('exSaved'); if (sv) sv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ…';
+    clearTimeout(essayTimer); essayTimer = setTimeout(flushEssays, 700);
+    paintMeta();
+  }
+  function flushEssays() {
+    clearTimeout(essayTimer);
+    var ks = Object.keys(dirty);
+    if (!ks.length) return Promise.resolve();
+    var u = {}; ks.forEach(function (k) { u[k] = dirty[k] && dirty[k].trim() ? dirty[k] : null; delete dirty[k]; });
+    return aref().child('answers').update(u).then(function () {
+      var sv = $('exSaved'); if (sv) sv.innerHTML = '<i class="fas fa-circle-check"></i> تم الحفظ';
+    }).catch(warnSave);
+  }
+
+  /* ============================================================
+     المؤقّت
+     ============================================================ */
+  function tick() {
+    if (S.done) return;
+    var r = remaining(), t = $('exTimer');
+    $('exTime').textContent = fmtClock(r);
+    t.classList.toggle('warn', r <= 300 && r > 60);
+    t.classList.toggle('danger', r <= 60);
+    if (r <= 0) {
+      submit(true, 'انتهى وقت الاختبار.');
+    }
+  }
+  function stopTimers() { clearInterval(S.timer); clearInterval(S.sessTimer); }
+
+  /* ============================================================
+     الحماية والمخالفات
+     ============================================================ */
+  var protOn = false, lastFocusViol = 0;
+  function violate(type, details, opts) {
+    opts = opts || {};
+    if (!S.active || S.done) return;
+    if (opts.focus) { var t = Date.now(); if (t - lastFocusViol < FOCUS_COOLDOWN) return; lastFocusViol = t; }
+    logViolation(S.user.uid, compId + '_' + lessonId + '_' + examId, type, details);
+    incrementViolations(compId, lessonId, examId, S.user.uid).then(function (res) {
+      var v = res && res.snapshot ? Number(res.snapshot.val()) : NaN;
+      S.violations = isFinite(v) && v > 0 ? v : S.violations + 1;
+    }).catch(function () { S.violations++; }).then(function () {
+      paintViol();
+      if (S.violations >= S.maxViol) { submit(true, 'وصلت للحد الأقصى من المخالفات (' + S.maxViol + ').'); return; }
+      if (opts.overlay) showOverlay(opts.overlay, 'ده يُعتبر مخالفة رقم ' + S.violations + ' من ' + S.maxViol + '. ارجع للاختبار فورًا.');
     });
-    qHtml += '</div>';
-    }
-    qHtml += '</div>';
+  }
+  function startProtection() {
+    if (protOn) return; protOn = true;
+    var live = function () { return S.active && !S.done; };
+    document.addEventListener('contextmenu', function (e) { if (!live()) return; e.preventDefault(); violate('right_click', 'محاولة استخدام القائمة المنسدلة'); });
+    [['copy', 'copy_attempt', 'محاولة نسخ'], ['paste', 'paste_attempt', 'محاولة لصق'], ['cut', 'cut_attempt', 'محاولة قص']].forEach(function (x) {
+      document.addEventListener(x[0], function (e) { if (!live()) return; e.preventDefault(); violate(x[1], x[2]); });
+    });
+    document.addEventListener('keydown', function (e) {
+      if (!live()) return;
+      var k = e.key, ctrl = e.ctrlKey || e.metaKey;
+      // بنقارن بـ e.code عشان الاختصارات تتكشف حتى لو الكيبورد عربي
+      if (ctrl && ['KeyC', 'KeyV', 'KeyU', 'KeyS'].indexOf(e.code) >= 0) { e.preventDefault(); violate('keyboard_shortcut', 'استخدام اختصار Ctrl+' + e.code.slice(3)); return; }
+      if (k === 'F12') { e.preventDefault(); violate('devtools', 'فتح أدوات المطور'); return; }
+      if (e.altKey && (k === 'Tab' || k === 'F4')) { e.preventDefault(); violate('alt_tab', 'استخدام Alt+Tab'); return; }
+      var tag = (e.target && e.target.tagName) || '';
+      if (tag && tag !== 'BODY') return;               // مبنتنقلش بالأسهم وإنت واقف على حقل أو زر
+      if (k === 'ArrowLeft') go(S.idx + 1);          // الاتجاه عكسي لأن الصفحة RTL
+      else if (k === 'ArrowRight') go(S.idx - 1);
+    });
+    document.addEventListener('visibilitychange', function () {
+      if (!live()) return;
+      if (document.hidden) violate('tab_switch', 'تم تغيير التبويب', { focus: true, overlay: 'غيّرت التبويب' });
+      else hideOverlay();
+    });
+    window.addEventListener('blur', function () {
+      if (!live() || document.hidden) return;
+      violate('window_blur', 'تم تصغير المتصفح أو التبديل لتطبيق آخر', { focus: true, overlay: 'سبت نافذة الاختبار' });
+    });
+    window.addEventListener('focus', hideOverlay);
+    window.addEventListener('beforeunload', function (e) {
+      if (!live()) return;
+      flushEssays();
+      logViolation(S.user.uid, compId + '_' + lessonId + '_' + examId, 'page_reload', 'إعادة تحميل الصفحة (محاولة رقم ' + (S.reloads + 1) + ' من ' + MAX_RELOADS + ')');
+      e.preventDefault(); e.returnValue = 'إجاباتك محفوظة، لكن إعادة التحميل محسوبة (حد أقصى ' + MAX_RELOADS + ' مرات).';
+    });
+  }
+  function checkSess() {
+    if (!S.active || S.done) return;
+    checkSession(S.user).then(function (r) {
+      if (r.valid) { S.sessMiss = 0; return; }
+      if (r.reason === 'no_session') { ensureSession(S.user).catch(function () {}); return; }
+      if (++S.sessMiss >= 2) {      // لازم تتكرر مرتين ورا بعض عشان تأخر الشبكة اللحظي ما يطرّدش الطالب
+        logViolation(S.user.uid, compId + '_' + lessonId + '_' + examId, 'session_mismatch', 'تم اكتشاف جلسة جديدة من جهاز آخر');
+        submit(true, 'تم تسجيل الدخول بحسابك من جهاز آخر أثناء الاختبار.');
+      }
+    }).catch(function () {});
+  }
 
-    let actionsHtml = '<div class="exam-actions">';
-    if (currentQuestionIndex > 0) {
-      actionsHtml += `<button class="btn btn-outline btn-sm" onclick="goToQuestion(${currentQuestionIndex-1})">
-        <i class="fas fa-chevron-right"></i> السابق
-      </button>`;
-    }
-    if (currentQuestionIndex < total - 1) {
-      actionsHtml += `<button class="btn btn-outline btn-sm" onclick="goToQuestion(${currentQuestionIndex+1})">
-        التالي <i class="fas fa-chevron-left"></i>
-      </button>`;
-    }
-    actionsHtml += '</div>';
-
-    let submitHtml = '';
-    if (isLast && !isSubmitted && !isForceEnded) {
-      submitHtml = `
-        <div class="submit-btn-wrapper">
-          <button class="btn-submit-final" onclick="openConfirm()">
-            <i class="fas fa-paper-plane"></i> تسليم الاختبار
-          </button>
-        </div>
-      `;
-    }
-
-    content.innerHTML = navHtml + qHtml + actionsHtml + submitHtml + '<div id="resultArea"></div>';
-    updateExamProgressBar();
-
-    document.querySelectorAll('.exam-nav .q-btn').forEach(btn => {
-      btn.addEventListener('click', function() {
-        if (!isSubmitted && !isForceEnded) goToQuestion(parseInt(this.dataset.index));
-      });
+  /* ============================================================
+     التسليم
+     ============================================================ */
+  function askSubmit() {
+    if (!S.active || S.done) return;
+    flushEssays();
+    var un = [], fl = [];
+    S.qs.forEach(function (q, i) { if (!isAnswered(q)) un.push(i + 1); if (S.flags[q.id]) fl.push(i + 1); });
+    var body = 'جاوبت على <b>' + (S.qs.length - un.length) + '</b> من <b>' + S.qs.length + '</b> سؤال.' +
+      (un.length ? '<div class="miss">لسه من غير إجابة: ' + un.join('، ') + '</div>' : '') +
+      (fl.length ? '<div class="miss" style="background:#FEF3C7">معلّمة للمراجعة: ' + fl.join('، ') + '</div>' : '') +
+      '<div style="margin-top:10px">بعد التسليم مش هتقدر تعدّل إجاباتك.</div>';
+    modal({
+      icon: 'paper-plane', title: 'تسليم الاختبار؟', body: body,
+      actions: [
+        { label: 'رجوع للمراجعة', cls: 'ghost', fn: closeModal },
+        { label: 'سلّم الآن', cls: 'green', fn: function () { closeModal(); submit(false); } }
+      ]
     });
   }
 
-  function goToQuestion(index) {
-    if (isSubmitted || isForceEnded) return;
-    currentQuestionIndex = index;
-    renderExam();
+  function submit(auto, reason) {
+    if (S.done) return;
+    S.done = true; S.active = false; stopTimers(); hideOverlay();
+    closeModal();
+    setApp('<div class="ex-card ex-gate"><div class="loader" style="margin:0 auto"></div><h2>جاري تسليم إجاباتك…</h2><p>' + (auto && reason ? esc(reason) + ' ' : '') + 'متقفلش الصفحة لحد ما النتيجة تظهر.</p></div>');
+    window.scrollTo({ top: 0 });
+    flushEssays().then(function () { return saveResult(auto, reason); }).catch(function (err) {
+      console.error(err);
+      S.done = false;
+      gate('triangle-exclamation', 'تعذّر حفظ النتيجة', 'إجاباتك لسه محفوظة. اتأكد من الإنترنت وجرّب تسلّم تاني.', 'bad',
+        '<button type="button" class="ex-btn" id="retrySubmit"><i class="fas fa-rotate-right"></i> إعادة المحاولة</button>');
+      $('retrySubmit').onclick = function () { submit(auto, reason); };
+    });
   }
 
-  function recordAnswer(qId, selected) {
-    if (isSubmitted || isForceEnded) return;
-    if (selected === '') { delete userAnswers[qId]; } else { userAnswers[qId] = selected; }
-    saveAnswer(compId, lessonId, examId, currentUser.uid, qId, selected)
-      .catch(function(err) { console.warn('فشل حفظ الإجابة:', err); });
-    const btns = document.querySelectorAll('.exam-nav .q-btn');
-    const idx = questionIds.indexOf(qId);
-    if (idx >= 0 && btns[idx]) {
-      btns[idx].classList.remove('unseen', 'viewed', 'active');
-      btns[idx].classList.add('answered');
-    }
-    updateExamProgressBar();
-  }
-
-  window.recordAnswer = recordAnswer;
-  window.goToQuestion = goToQuestion;
-  window.openConfirm = openConfirm;
-
-  function updateExamProgressBar() {
-    const bar = document.getElementById('examProgressFill');
-    const label = document.getElementById('examProgressLabel');
-    if (!bar || !label) return;
-    const total = questionIds.length;
-    const answered = questionIds.filter(function (id) { return userAnswers[id] !== undefined; }).length;
-    const pct = total ? Math.round((answered / total) * 100) : 0;
-    bar.style.width = pct + '%';
-    label.textContent = answered + ' من ' + total + ' تمت الإجابة عليها';
-  }
-
-  function openConfirm() {
-    if (isSubmitted || isForceEnded) return;
-    showConfirm();
-  }
-
-  confirmYesBtn.addEventListener('click', function () {
-    hideConfirm();
-    if (!isSubmitted && !isForceEnded) submitExam(false);
-  });
-
-  function submitExam(autoSubmit) {
-    if (isSubmitted) return;
-    const totalAll = questionIds.length;
-    if (totalAll === 0) {
-      // لا توجد أسئلة لتسليمها (بيانات محاولة فاسدة) — لا تحاول الحفظ، امسح المحاولة وابدأ من جديد
-      isSubmitted = true;
-      clearInterval(timerInterval);
-      clearInterval(sessionCheckInterval);
-      db.ref('examAttempts/' + compId + '/' + lessonId + '/' + examId + '/' + currentUser.uid).remove()
-        .finally(function() { location.reload(); });
-      return;
-    }
-    isSubmitted = true;
-    clearInterval(timerInterval);
-    clearInterval(sessionCheckInterval);
-    hideProtectionOverlay();
-    let correct = 0;
-    let earnedPoints = 0;
-    let mcqTotal = 0, maxPoints = 0, essayMax = 0, hasEssay = false;
-    const answersRecord = {};
-    const essayAnswers = {};
-
-    questionIds.forEach((qId, idx) => {
-      const q = questionsData[idx];
-      const selected = userAnswers[qId];
-      if (q.type === 'essay') {
-        hasEssay = true;
-        essayMax += (q.points != null ? q.points : 2);
-        answersRecord[qId] = (typeof selected === 'string') ? selected : '';
-        essayAnswers[qId] = answersRecord[qId];
+  function saveResult(auto, reason) {
+    var correct = 0, earned = 0, mcq = 0, maxP = 0, essayMax = 0, hasEssay = false, rec = {}, essayAns = {};
+    S.qs.forEach(function (q) {
+      var sel = S.answers[q.id];
+      if (isEssay(q)) {
+        hasEssay = true; essayMax += pts(q, 2);
+        rec[q.id] = typeof sel === 'string' ? sel : ''; essayAns[q.id] = rec[q.id];
         return;
       }
-      mcqTotal++;
-      maxPoints += (q.points != null ? q.points : 1);
-      answersRecord[qId] = (selected !== undefined) ? selected : -1;
-      if (selected !== undefined && selected === q.correct) {
-        correct++;
-        earnedPoints += (q.points != null ? q.points : 1);
-      }
+      mcq++; maxP += pts(q, 1);
+      rec[q.id] = typeof sel === 'number' ? sel : -1;
+      if (typeof sel === 'number' && sel === q.correct) { correct++; earned += pts(q, 1); }
     });
-    const timeSpentSec = Math.max(0, Math.min(examDuration * 60, Math.floor((Date.now() - startTime) / 1000)));
+    var spent = Math.max(0, Math.min(S.duration * 60, Math.floor((nowSrv() - S.startedAt) / 1000)));
+    var data = { completed: true, score: correct, totalQuestions: mcq, earnedPoints: earned, maxPoints: maxP, timeSpentSec: spent, answers: rec, answeredAt: firebase.database.ServerValue.TIMESTAMP };
+    if (hasEssay) { data.essayMax = essayMax; data.essayStatus = 'pending'; }
 
-    const progRef = db.ref('userProgress/' + currentUser.uid + '/' + compId + '/' + lessonId);
-    const examDataToSave = {
-      completed: true,
-      score: correct,
-      totalQuestions: mcqTotal,
-      earnedPoints: earnedPoints,
-      maxPoints: maxPoints,
-      timeSpentSec: timeSpentSec,
-      answers: answersRecord,
-      answeredAt: firebase.database.ServerValue.TIMESTAMP
-    };
-    if (hasEssay) { examDataToSave.essayMax = essayMax; examDataToSave.essayStatus = 'pending'; }
-    const total = mcqTotal;
-
-    endExamAttempt(compId, lessonId, examId, currentUser.uid, true, false);
-
-    // ✅ نقرأ نتيجة أي محاولة سابقة لنفس الاختبار قبل ما نقرر: لو الطالب بدأ محاولة
-    // تانية (بعد ما المسؤول صفّر بياناته) وطلع بدرجة أقل من محاولته السابقة، نحتفظ
-    // بالدرجة الأعلى ومنلمسش نقاطه. لو طلع بدرجة أعلى أو دي أول محاولة، نحفظ الجديدة.
-    let keptPrevious = false;
-    let prevEarnedForMsg = 0;
-    progRef.child('exams/' + examId).once('value')
-      .then((prevSnap) => {
-        const prevData = prevSnap.val() || {};
-        const prevEarned = prevData.earnedPoints || 0;
-        prevEarnedForMsg = prevEarned;
-        if (hasEssay) {
-          db.ref('essaySubmissions/' + compId + '/' + lessonId + '/' + examId + '/' + currentUser.uid).set({
-            status: 'pending', name: currentUserData.name || '', answers: essayAnswers, submittedAt: firebase.database.ServerValue.TIMESTAMP
-          });
-        }
-        if (earnedPoints >= prevEarned) {
-          return progRef.child('exams/' + examId).set(examDataToSave)
-;
-        }
-        // المحاولة الجديدة أقل من الأعلى المسجلة سابقًا: نحتفظ بالبيانات القديمة كما هي
-        keptPrevious = true;
-        return Promise.resolve();
-      })
-      .then(() => progRef.once('value'))
-      .then((snap) => {
-        const lp = snap.val() || {};
-        const c = computeLessonCompletion(lessonData, lp);
-        return progRef.update({ completed: c.completed, earnedPoints: c.earnedPoints });
-      })
-      .then(() => {
-        const percentage = total ? Math.round((correct / total) * 100) : 0;
-        let autoMsg = hasEssay ? '<div style="margin-top:8px;font-weight:700;"><i class="fas fa-hourglass-half"></i> المقالي: جاري التصحيح</div>' : '';
-        if (autoSubmit) {
-          autoMsg = '<div style="margin-top:8px;color:var(--danger);font-weight:700;"><i class="fas fa-exclamation-triangle"></i> تم التسليم تلقائياً.</div>';
-        }
-        if (keptPrevious) {
-          autoMsg += '<div style="margin-top:8px;color:var(--muted);font-weight:600;"><i class="fas fa-info-circle"></i> درجتك في هذه المحاولة أقل من أعلى نتيجة سابقة لك، لذلك تم الاحتفاظ بالأعلى.</div>';
-        }
-        // إخفاء المؤقت والتحذير
-        document.getElementById('examTimer').style.display = 'none';
-        document.getElementById('violationWarning').style.display = 'none';
-        document.getElementById('resultArea').innerHTML = `
-          <div class="exam-result">
-            <div class="score"><i class="fas fa-clipboard-check" style="color:var(--teal);"></i> ${percentage}%</div>
-            <div class="details">إجابات صحيحة: <span>${correct}</span> من <span>${total}</span></div>
-            <div class="details">نسبة النجاح: <span>${percentage}%</span></div>
-            ${autoMsg}
-            <div style="margin-top:16px;">
-              <a class="btn btn-primary btn-sm" style="width:auto;" href="competition.html?id=${encodeURIComponent(compId)}">
-                <i class="fas fa-arrow-left"></i> العودة للمحاضرة
-              </a>
-            </div>
-          </div>
-        `;
-        document.querySelectorAll('.exam-actions button, .btn-submit-final').forEach(b => b.disabled = true);
-        sendExamResultEmail({
-          studentName: currentUserData.name || '',
-          studentEmail: currentUserData.email || currentUser.email || '',
-          competitionName: compData.title || '',
-          lessonName: lessonData.title || '',
-          score: correct,
-          totalQuestions: total,
-          percentage: percentage,
-          earnedPoints: earnedPoints,
-          completionDate: formatArabicDate(Date.now())
-        });
-      })
-      .catch(err => {
-        alert('❌ حدث خطأ أثناء حفظ النتيجة: ' + err.message);
-        isSubmitted = false;
-      });
+    var kept = false, ref = pref();
+    return ref.child('exams/' + examId).once('value').then(function (prev) {
+      var prevEarned = (prev.val() || {}).earnedPoints || 0;
+      var jobs = [];
+      if (hasEssay) jobs.push(db.ref('essaySubmissions/' + compId + '/' + lessonId + '/' + examId + '/' + S.user.uid).set({
+        status: 'pending', name: S.ud.name || '', answers: essayAns, submittedAt: firebase.database.ServerValue.TIMESTAMP }));
+      if (earned >= prevEarned) jobs.push(ref.child('exams/' + examId).set(data)); else kept = true;   // لو أقل من أعلى درجة سابقة بنحتفظ بالأعلى
+      return Promise.all(jobs);
+    }).then(function () { return ref.once('value'); }).then(function (snap) {
+      var c = computeLessonCompletion(S.lesson, snap.val() || {});
+      return ref.update({ completed: c.completed, earnedPoints: c.earnedPoints });
+    }).then(function () { return endExamAttempt(compId, lessonId, examId, S.user.uid, true, false); }).then(function () {
+      var shown = Object.assign({}, data, { answeredAt: Date.now() });
+      renderResult({ qs: S.qs, answers: rec, data: shown, auto: auto, reason: reason, kept: kept });
+    });
   }
 
-  function forceEndExam(reason) {
-    if (isForceEnded) return;
-    isForceEnded = true;
-    clearInterval(timerInterval);
-    clearInterval(sessionCheckInterval);
-    hideProtectionOverlay();
-    endExamAttempt(compId, lessonId, examId, currentUser.uid, false, true);
-    document.getElementById('examTimer').style.display = 'none';
-    document.getElementById('violationWarning').style.display = 'none';
-    document.getElementById('content').innerHTML = `
-      <div class="already-done-card">
-        <div class="big-icon" style="color:var(--danger);"><i class="fas fa-exclamation-circle" style="font-size:46px;"></i></div>
-        <h3 style="margin:10px 0 6px; color:var(--danger);">تم إنهاء الاختبار</h3>
-        <p class="muted">${reason}</p>
-        <a class="btn btn-primary btn-sm" style="width:auto; margin-top:14px;" href="competition.html?id=${encodeURIComponent(compId)}">العودة للمحاضرة</a>
-      </div>
-    `;
-    document.querySelectorAll('.exam-actions button, .btn-submit-final').forEach(b => b.disabled = true);
+  /* ============================================================
+     النتيجة والمراجعة
+     ============================================================ */
+  function showFinished(message) {
+    setApp('<div class="center-loading"><div class="loader"></div></div>');
+    Promise.all([aref().child('questions').once('value'), pref().child('exams/' + examId).once('value')]).then(function (r) {
+      var q = r[0].val(), d = r[1].val();
+      var qs = Array.isArray(q) ? q : (q ? Object.keys(q).map(function (k) { return q[k]; }) : []);
+      qs = qs.filter(function (x) { return x && x.id; });
+      if (qs.length && d && d.answers) renderResult({ qs: qs, answers: d.answers, data: d, note: message });
+      else gate('circle-check', 'تم التسليم', esc(message));
+    }).catch(function () { gate('circle-check', 'تم التسليم', esc(message)); });
   }
 
-  window.forceEndExam = forceEndExam;
+  function renderResult(r) {
+    var d = r.data, total = d.totalQuestions || 0, correct = d.score || 0, wrong = 0, none = 0;
+    r.qs.forEach(function (q) {
+      if (isEssay(q)) return;
+      var s = r.answers[q.id];
+      if (!(typeof s === 'number' && s >= 0)) none++; else if (s !== q.correct) wrong++;
+    });
+    var pct = total ? Math.round(correct / total * 100) : null;
+    var color = pct == null ? '#1D4ED8' : pct >= 85 ? '#12A150' : pct >= 65 ? '#1D4ED8' : pct >= 50 ? '#F59E0B' : '#E5484D';
+    var verdict = pct == null ? 'في انتظار التصحيح' : pct >= 90 ? 'ممتاز 🌟' : pct >= 75 ? 'جيد جدًا' : pct >= 60 ? 'جيد' : pct >= 50 ? 'مقبول' : 'محتاج مراجعة للدرس';
+    var C = 2 * Math.PI * 76;
+    var graded = d.essayStatus === 'graded';
+    var notes = '';
+    if (r.auto) notes += '<div class="ex-note warn"><i class="fas fa-bolt"></i> اتسلّم الاختبار تلقائيًا' + (r.reason ? ': ' + esc(r.reason) : '.') + '</div>';
+    if (r.kept) notes += '<div class="ex-note"><i class="fas fa-circle-info"></i> درجتك في المحاولة دي أقل من أعلى نتيجة سابقة ليك، فاتحتفظ بالأعلى.</div>';
+    if (r.note) notes += '<div class="ex-note">' + esc(r.note) + '</div>';
+    if (d.essayMax) notes += '<div class="ex-note ' + (graded ? '' : 'pend') + '"><i class="fas fa-' + (graded ? 'circle-check' : 'hourglass-half') + '"></i> الأسئلة المقالية: ' +
+      (graded ? 'اتصححت — ' + num(d.essayScore || 0) + ' من ' + num(d.essayMax) : 'جاري التصحيح، والنتيجة النهائية هتتحدّث بعد ما المدرس يصححها.') + '</div>';
 
-  window.addEventListener('beforeunload', function() {
-    if (!isSubmitted && !isForceEnded) {
-      logViolation(currentUser.uid, compId + '_' + lessonId + '_' + examId, 'page_reload', 'إعادة تحميل الصفحة (محاولة رقم ' + (reloadCount + 1) + ' من ' + MAX_RELOADS + ')');
-    }
-  });
+    var html =
+      '<div class="ex-card ex-res"><h2>' + (r.note || r.kept === undefined && !r.auto ? 'نتيجتك في الاختبار' : 'تم تسليم الاختبار') + '</h2>' +
+      '<p class="sub">' + esc(S.exam.title || '') + '</p>' +
+      '<div class="ex-ring" style="--ring:' + color + '"><svg viewBox="0 0 176 176"><circle class="bg" cx="88" cy="88" r="76"/><circle class="fg" id="ringFg" cx="88" cy="88" r="76" stroke-dasharray="' + C.toFixed(1) + '" stroke-dashoffset="' + C.toFixed(1) + '"/></svg>' +
+      '<div class="mid"><b>' + (pct == null ? '—' : pct + '%') + '</b><small>' + (total ? correct + ' من ' + total : '') + '</small></div></div>' +
+      '<span class="ex-verdict">' + verdict + '</span>' +
+      '<div class="ex-stats">' +
+        '<div class="ex-stat ok"><b>' + correct + '</b><small>إجابة صحيحة</small></div>' +
+        '<div class="ex-stat bad"><b>' + wrong + '</b><small>إجابة خاطئة</small></div>' +
+        '<div class="ex-stat none"><b>' + none + '</b><small>من غير إجابة</small></div>' +
+        '<div class="ex-stat"><b>' + num(d.earnedPoints || 0) + '<span style="font-size:14px;color:var(--text-muted)"> / ' + num(d.maxPoints || 0) + '</span></b><small>الدرجات</small></div>' +
+        '<div class="ex-stat"><b>' + fmtSpent(d.timeSpentSec) + '</b><small>الوقت المستغرق</small></div>' +
+      '</div>' + notes +
+      '<a class="ex-btn" href="' + BACK + '"><i class="fas fa-arrow-right"></i> العودة للمحاضرة</a></div>' +
+      '<div class="ex-rev-h"><h3><i class="fas fa-clipboard-list" style="color:var(--primary-light)"></i> مراجعة إجاباتك</h3>' +
+        '<div class="ex-filters" id="exFilters">' +
+          '<button type="button" class="ex-f on" data-f="all">الكل</button><button type="button" class="ex-f" data-f="ok">صحيحة (' + correct + ')</button>' +
+          '<button type="button" class="ex-f" data-f="bad">خاطئة (' + wrong + ')</button><button type="button" class="ex-f" data-f="none">بدون إجابة (' + none + ')</button>' +
+        '</div></div><div id="exReview">' + reviewHtml(r, graded) + '</div>';
+    setApp(html);
+    window.scrollTo({ top: 0 });
+    requestAnimationFrame(function () { requestAnimationFrame(function () { var fg = $('ringFg'); if (fg && pct != null) fg.style.strokeDashoffset = (C * (1 - pct / 100)).toFixed(1); }); });
+    $('exFilters').querySelectorAll('.ex-f').forEach(function (b) {
+      b.onclick = function () {
+        $('exFilters').querySelectorAll('.ex-f').forEach(function (x) { x.classList.toggle('on', x === b); });
+        document.querySelectorAll('#exReview .ex-rv').forEach(function (c) { c.classList.toggle('hide', b.dataset.f !== 'all' && c.dataset.st !== b.dataset.f); });
+      };
+    });
+  }
 
+  function reviewHtml(r, graded) {
+    return r.qs.map(function (q, i) {
+      var sel = r.answers[q.id];
+      if (isEssay(q)) {
+        return '<div class="ex-card ex-rv" data-st="essay"><div class="ex-rv-h"><p>' + (i + 1) + '. ' + esc(q.text) + '</p><span class="ex-pill ' + (graded ? 'ok' : 'pend') + '">' + (graded ? 'اتصحح' : 'جاري التصحيح') + '</span></div>' +
+          '<div class="ex-ans">' + (typeof sel === 'string' && sel.trim() ? esc(sel) : '— مفيش إجابة —') + '</div></div>';
+      }
+      var has = typeof sel === 'number' && sel >= 0, ok = has && sel === q.correct, st = !has ? 'none' : ok ? 'ok' : 'bad';
+      var opts = (q.options || []).map(function (o, oi) {
+        var cls = oi === q.correct ? ' ok' : (has && oi === sel ? ' bad' : '');
+        var ic = oi === q.correct ? '<i class="fas fa-circle-check"></i>' : (has && oi === sel ? '<i class="fas fa-circle-xmark"></i>' : '');
+        return '<div class="ex-ro' + cls + '"><span class="ex-let">' + (LETTERS[oi] || (oi + 1)) + '</span><span class="t">' + esc(o) + '</span>' + ic + '</div>';
+      }).join('');
+      return '<div class="ex-card ex-rv" data-st="' + st + '"><div class="ex-rv-h"><p>' + (i + 1) + '. ' + esc(q.text) + '</p>' +
+        '<span class="ex-pill ' + (st === 'ok' ? 'ok' : st === 'bad' ? 'bad' : '') + '">' + (st === 'ok' ? 'صح' : st === 'bad' ? 'غلط' : 'من غير إجابة') + '</span></div>' + opts + '</div>';
+    }).join('');
+  }
+})();
 </script>
 </body>
 </html>
