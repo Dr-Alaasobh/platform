@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <script>document.documentElement.setAttribute("data-theme",localStorage.getItem("asb_theme")||"light")</script>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
 <title>الفيديو — منصة د.علاء صبح</title>
 <link rel="stylesheet" href="style.css?v=11">
 <link rel="stylesheet" href="theme.css?v=3">
@@ -175,6 +175,7 @@ a.vp-it:hover{background:var(--bg)}
 }
 @media (prefers-reduced-motion:reduce){.vp *{transition:none!important;animation:none!important}}
 </style>
+<link rel="stylesheet" href="mobile-app.css?v=2">
 </head>
 <body>
 <header class="nv" id="appHeader"></header>
@@ -649,5 +650,6 @@ function sendReply(commentId) {
   }).catch(function (err) { console.error('تعذر إرسال الرد:', err); input.disabled = btn.disabled = false; });
 }
 </script>
+<script src="mobile-app.js?v=1"></script>
 </body>
 </html>

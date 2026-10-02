@@ -3,12 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <script>document.documentElement.setAttribute("data-theme",localStorage.getItem("asb_theme")||"light")</script>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
 <title>المستوى — منصة د.علاء صبح</title>
 <link rel="stylesheet" href="style.css?v=11">
 <link rel="stylesheet" href="theme.css?v=3">
 <link rel="stylesheet" href="shell.css?v=2">
 <link rel="stylesheet" href="pages.css?v=1">
+<link rel="stylesheet" href="mobile-app.css?v=2">
 </head>
 <body>
 <header class="nv" id="appHeader"></header>
@@ -43,5 +44,6 @@ requireAuth(function(user,u){
   $('ks').innerHTML=k('bookOpen',ids.length,'كورس مشترك فيه')+k('play',vid,'فيديو تمت مشاهدته')+k('listCheck',ex,'اختبار تم حله')+k('chartSimple',avg+'%','متوسط نتائج الاختبارات');
   $('cb').innerHTML=rows.length?rows.map(function(x){return '<a class="sp-lc" href="competition.html?id='+encodeURIComponent(x.id)+'"><div class="n"><h4>'+escapeHtml(x.t)+'</h4><small>'+x.d+' من '+x.n+' محاضرة</small><div class="sp-pr" style="margin-top:8px"><div class="sp-pb"><i style="width:'+x.pc+'%"></i></div><b>'+x.pc+'%</b></div></div><span class="sp-st '+(x.pc>=100?'d':'')+'">'+(x.pc>=100?'مكتمل':'قيد الدراسة')+'</span></a>'}).join(''):'<div class="sp-empty">اشترك في كورس علشان يظهر تقدمك هنا</div>'})});
 </script>
+<script src="mobile-app.js?v=1"></script>
 </body>
 </html>
