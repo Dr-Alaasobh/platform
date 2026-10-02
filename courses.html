@@ -7,7 +7,7 @@
 <title>الكورسات — منصة د.علاء صبح</title>
 <link rel="stylesheet" href="style.css?v=11">
 <link rel="stylesheet" href="theme.css?v=3">
-<link rel="stylesheet" href="shell.css?v=1">
+<link rel="stylesheet" href="shell.css?v=2">
 <link rel="stylesheet" href="pages.css?v=1">
 </head>
 <body>
@@ -38,7 +38,7 @@
    var b=$('clr');if(b)b.onclick=function(){Q='';$('searchInput').value='';draw()};return}
   $('content').innerHTML=ids.map(function(id){var c=D[id],L=c.lessons||{},n=Object.keys(L).length,en=!!EN[id],p=en?computeCourseProgress(L,PR[id]||{}):0,
    nw=c.createdAt&&Date.now()-c.createdAt<6048e5,img=c.coverUrl||c.image;
-   return '<a class="sp-c" href="competition.html?id='+encodeURIComponent(id)+'"><div class="sp-cv">'+(img?'<img loading="lazy" alt="" src="'+escapeHtml(img)+'">':'<span class="ini">'+ini(c)+'</span>')+
+   return '<a class="sp-c" href="competition.html?id='+encodeURIComponent(id)+'"><div class="sp-cv">'+(img?'<img loading="lazy" alt="" src="'+escapeHtml(img)+'">':'<span class="ini">'+icon('bookOpen','icon-xl')+'</span>')+
    '<span class="sp-bg">'+(en?icon('circleCheck','icon-sm')+' مشترك':icon('gem','icon-sm')+' مجاني')+'</span>'+(nw?'<span class="sp-bg new">'+icon('star','icon-sm')+' جديد</span>':'')+'</div>'+
    '<div class="sp-cb"><h3>'+escapeHtml(c.title||'بدون عنوان')+'</h3><p>'+escapeHtml(c.description?c.description.slice(0,80):'')+'</p>'+
    '<div class="sp-mt"><span>'+icon('bookOpen','icon-sm')+' '+n+' محاضرة</span>'+(c.instructorName?'<span>'+icon('graduationCap','icon-sm')+' '+escapeHtml(c.instructorName)+'</span>':'')+'</div>'+

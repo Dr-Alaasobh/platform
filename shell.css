@@ -116,3 +116,13 @@
   .ft-grid{grid-template-columns:1fr;gap:26px}
   .ft-bot{justify-content:center;text-align:center;margin-top:28px}
 }
+
+/* ===== v2: ملاءمة الموبايل (واجهة الطالب) ===== */
+@media(max-width:900px){
+ input:not([type=checkbox]):not([type=radio]):not([type=range]),select,textarea{font-size:16px!important}
+ .hm-tab,.sp-tab,.ltab{min-height:42px}
+ .vp-back,.ex-back{min-height:42px;display:inline-flex;align-items:center}
+ #copyBtn{min-width:42px;min-height:42px}
+ .ft a{min-height:40px;display:inline-flex;align-items:center}
+}
+@media(max-width:900px){.ex-flagbtn{min-height:42px;padding-inline:12px;display:inline-flex;align-items:center;gap:6px}.ex-bar-submit{min-height:42px}.ex-n{min-width:42px;min-height:42px}}

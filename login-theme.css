@@ -13,3 +13,5 @@ h1,h2,h3,.display{font-family:'Cairo','IBM Plex Sans Arabic',sans-serif!importan
 input{border-radius:10px!important;border:1.5px solid var(--line)!important}
 input:focus{outline:0!important;border-color:#1D4ED8!important;box-shadow:0 0 0 4px rgba(29,78,216,.16)!important}
 button[type=submit],.btn,.btn-primary,.submit-btn{background:linear-gradient(135deg,#1D4ED8,#0B2447)!important;color:#fff!important;border:0!important;border-radius:10px!important;font-weight:700;box-shadow:0 8px 20px rgba(29,78,216,.30)}
+
+@media(max-width:900px){.ltab{min-height:44px}.pw-toggle{min-width:44px;min-height:44px}input:not([type=checkbox]):not([type=radio]){font-size:16px}}

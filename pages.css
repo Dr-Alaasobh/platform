@@ -44,3 +44,4 @@
 .sp-lc .n{flex:1;min-width:0}.sp-lc h4{margin:0 0 3px;font-size:16px}.sp-lc small{color:var(--text-muted)}
 .sp-st{font-size:12px;font-weight:700;padding:4px 12px;border-radius:99px;background:var(--primary-tint);color:var(--primary-light);white-space:nowrap}.sp-st.d{background:var(--teal-pale);color:var(--teal)}
 @media(max-width:640px){.sp{padding:14px 12px 30px}.sp-hero{padding:20px 16px}.sp-hero h1{font-size:22px}.sp-lv{grid-template-columns:1fr;justify-items:center;text-align:center}.sp-ring{width:140px;height:140px}.sp-ring b{font-size:30px}.sp-mini div{flex:1;min-width:0}.sp-st{display:none}}
+.sp-cv>span.ini{display:grid;place-items:center;font-size:inherit;color:rgba(255,255,255,.8)}.sp-mini small{white-space:nowrap}
