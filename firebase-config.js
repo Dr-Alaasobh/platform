@@ -156,3 +156,49 @@ const db = firebase.database();
     }
   };
 })();
+
+/* ===== الحظر التلقائي (كتاب الحضور والغياب) =====
+   الغياب المتواصل والدفع بيتحسبوا في لوحة المسئول لحظة التسجيل.
+   هنا بنتأكد من الاشتراك وقت دخول الطالب (علشان مرور الشهر مش محتاج المسئول يفتح اللوحة). */
+window.AttGuard = (function () {
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function mk(ts) { var d = new Date(ts); return d.getFullYear() + '-' + pad(d.getMonth() + 1); }
+  function overdue(u, pay, grace, now) {
+    var out = [];
+    if (!u || !u.attFrom) return out;
+    var y = +u.attFrom.slice(0, 4), m = +u.attFrom.slice(5, 7);
+    for (var i = 0; i < 120; i++) {
+      if (now < new Date(y, m, 1).getTime() + grace * 864e5) break;
+      var k = y + '-' + pad(m), p = pay && pay[k];
+      if (!(p && (p.status === 'paid' || p.status === 'free'))) out.push(k);
+      m++; if (m > 12) { m = 1; y++; }
+    }
+    return out;
+  }
+  function msg(u) {
+    var r = (u && u.blockReason) || '';
+    if (r === 'absence') return 'تم إيقاف حسابك بسبب الغياب عن حصتين متتاليتين. هيتفتح تلقائيًا أول ما تحضر الحصة الجاية، أو تواصل مع المسئول.';
+    if (r === 'payment') return 'تم إيقاف حسابك لعدم دفع اشتراك الشهر. هيتفتح تلقائيًا أول ما يتسجل دفعك، أو تواصل مع المسئول.';
+    if (r === 'absence+payment') return 'تم إيقاف حسابك بسبب الغياب المتواصل وعدم دفع الاشتراك. تواصل مع المسئول.';
+    return 'تم إيقاف حسابك من المنصة. تواصل مع المسئول.';
+  }
+  function refresh(uid, u) {
+    if (!u || u.blocked === true || !u.attFrom) return Promise.resolve(u);
+    return Promise.all([db.ref('attSettings/graceDays').once('value'), db.ref('attPayments/' + uid).once('value')]).then(function (r) {
+      var now = Date.now(), od = overdue(u, r[1].val(), +r[0].val() || 0, now), ov = u.attOverride;
+      if (!od.length || (ov && ov.month === mk(now))) return u;
+      var up = {};
+      up['users/' + uid + '/blocked'] = true; up['users/' + uid + '/blockReason'] = 'payment'; up['users/' + uid + '/blockedAt'] = now;
+      up['attLog/' + db.ref('attLog').push().key] = { code: uid, name: u.name || uid, type: 'block', reason: 'payment', by: 'auto', at: now };
+      u.blocked = true; u.blockReason = 'payment'; u.blockedAt = now;
+      return db.ref().update(up).catch(function () {}).then(function () { return u; });
+    }).catch(function () { return u; });
+  }
+  /* بديل db.ref('users/'+uid).once('value') بيرجّع نفس الشكل بعد فحص الاشتراك */
+  function userSnap(uid) {
+    return db.ref('users/' + uid).once('value').then(function (s) {
+      return refresh(uid, s.val()).then(function (x) { return { val: function () { return x; } }; });
+    });
+  }
+  return { msg: msg, refresh: refresh, userSnap: userSnap };
+})();

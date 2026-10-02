@@ -416,10 +416,10 @@ window.showAddPhoneNotice = showAddPhoneNotice;
 function requireAuth(onReady) {
   auth.onAuthStateChanged(function (user) {
     if (!user) { window.location.href = 'index.html'; return; }
-    db.ref('users/' + user.uid).once('value').then(function (snap) {
+    AttGuard.userSnap(user.uid).then(function (snap) {
       const data = snap.val();
       if (!data || !data.name) { window.location.href = 'register.html'; return; }
-      if (data.blocked === true) { alert('تم إيقاف حسابك من المنصة. تواصل مع المسئول.'); auth.signOut().then(function(){ window.location.href = 'index.html'; }); return; }
+      if (data.blocked === true) { alert(AttGuard.msg(data)); auth.signOut().then(function(){ window.location.href = 'index.html'; }); return; }
       user.displayName = data.name;
       onReady(user, data);
     }).catch(function (err) {
