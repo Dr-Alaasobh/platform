@@ -4,10 +4,15 @@
 <meta charset="UTF-8">
 <script>document.documentElement.setAttribute("data-theme",localStorage.getItem("asb_theme")||"light")</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
-<title>بيانات الطالب | د.علاء صبح</title>
+<meta name="theme-color" content="#06142B">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>بيانات الطالب | د.علاء صبح</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Amiri:wght@400;700&display=swap" crossorigin="anonymous" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Amiri:wght@400;700&display=swap"></noscript>
 <style>
   :root{
     --primary:#391263;
@@ -326,10 +331,10 @@
     .field input{font-size:16px;}
   }
 </style>
-<link rel="stylesheet" href="login-theme.css?v=4">
-<link rel="stylesheet" href="mobile-app.css?v=2">
+<link rel="stylesheet" href="login-theme.css?v=2">
+<link rel="stylesheet" href="mobile-app.css?v=4">
 </head>
-<body>
+<body data-no-dev>
 
 <div class="shell">
 
@@ -432,9 +437,9 @@
 <div class="toast-stack" id="toastStack" aria-live="polite"></div>
 
 <!-- ===== Firebase ===== -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-<script src="firebase-config.js?v=12"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js" crossorigin="anonymous"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js" crossorigin="anonymous"></script>
+<script src="firebase-config.js?v=13"></script>
 <script src="icons.js?v=3"></script>
 <script>
   const code = CenterAuth.session();
@@ -493,6 +498,6 @@
     });
   });
 </script>
-<script src="mobile-app.js?v=1"></script>
+<script src="mobile-app.js?v=3"></script>
 </body>
 </html>

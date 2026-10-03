@@ -4,11 +4,19 @@
 <meta charset="UTF-8">
 <script>document.documentElement.setAttribute("data-theme",localStorage.getItem("asb_theme")||"light")</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#06142B">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Amiri:wght@400;700&display=swap" crossorigin="anonymous" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Amiri:wght@400;700&display=swap"></noscript>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>حسابي — منصة د.علاء صبح</title>
-<link rel="stylesheet" href="style.css?v=11">
-<link rel="stylesheet" href="theme.css?v=3">
-<link rel="stylesheet" href="shell.css?v=2">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="style.css?v=12">
+<link rel="stylesheet" href="theme.css?v=4">
+<link rel="stylesheet" href="shell.css?v=3">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></noscript>
 <style>
 /* صفحة حسابي — تصميم جديد بالكامل، كل الكلاسات بادئة بـ ac- */
 .ac{max-width:1100px;margin:0 auto;padding:6px 0 56px}
@@ -139,10 +147,11 @@
 @media (max-width:420px){.ac-tab i{display:none}}
 @media (prefers-reduced-motion:reduce){.ac *{transition:none!important;animation:none!important}}
 </style>
-<link rel="stylesheet" href="mobile-app.css?v=2">
+<link rel="stylesheet" href="mobile-app.css?v=4">
 </head>
 <body>
 <header class="nv" id="appHeader"></header>
+<script>(function(){try{var f=location.pathname.split('/').pop()||'home.html',t=document.documentElement.getAttribute('data-theme')||'light',c=JSON.parse(localStorage.getItem('asb_h:'+f+':'+t)),s=localStorage.getItem('asb_session_v2'),h=document.getElementById('appHeader');if(!c||!h||!s||c.u!==s)return;h.className='nv';h.innerHTML=c.h;h.setAttribute('data-sig',c.sig);if(c.b)document.body.classList.add('has-bnav');var n=h.querySelector('.nv-bn');if(n){var q=sessionStorage.getItem('asb_bn'),i=+n.style.getPropertyValue('--i');if(q!==null&&+q!==i&&+q>=0&&+q<4){n.style.setProperty('--i',+q);requestAnimationFrame(function(){requestAnimationFrame(function(){n.style.setProperty('--i',i)})})}if(!n.classList.contains('no-act'))sessionStorage.setItem('asb_bn',i)}}catch(e){}})()</script>
 
 <main class="page"><div class="ac">
 
@@ -210,11 +219,11 @@
 </div>
 
 <footer class="ft" id="siteFooter"></footer>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-<script src="firebase-config.js?v=12"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js" crossorigin="anonymous"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js" crossorigin="anonymous"></script>
+<script src="firebase-config.js?v=13"></script>
 <script src="icons.js?v=3"></script>
-<script src="app-shell.js?v=9"></script>
+<script src="app-shell.js?v=11"></script>
 <script>
 const $ = function (id) { return document.getElementById(id); };
 let currentUser = null, currentUserData = null, allExams = [], exFilter = 'all';
@@ -379,6 +388,6 @@ function setupEdit() {
   };
 }
 </script>
-<script src="mobile-app.js?v=1"></script>
+<script src="mobile-app.js?v=3"></script>
 </body>
 </html>

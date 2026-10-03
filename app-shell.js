@@ -413,13 +413,17 @@ function showAddPhoneNotice(user, userData) {
 }
 window.showAddPhoneNotice = showAddPhoneNotice;
 
-function requireAuth(onReady) {
+function requireAuth(onReady, fast) {
   auth.onAuthStateChanged(function (user) {
     if (!user) { window.location.href = 'index.html'; return; }
+    /* fast: لو عندنا بيانات الطالب من زيارة سابقة نبدأ فورًا، والتحقق (حظر/تسجيل) بيكمّل في الخلفية */
+    const cu = fast ? cachedUser(user.uid) : null;
+    if (cu) { user.displayName = cu.name; onReady(user, cu); }
     AttGuard.userSnap(user.uid).then(function (snap) {
       const data = snap.val();
       if (!data || !data.name) { window.location.href = 'register.html'; return; }
       if (data.blocked === true) { AttGuard.show(user.uid, data); return; }
+      if (cu) return;
       user.displayName = data.name;
       onReady(user, data);
     }).catch(function (err) {
@@ -492,30 +496,51 @@ function renderAppHeader(user, userData, opts) {
   const center = userData && userData.centerName ? 'سنتر ' + userData.centerName : 'طالب';
   const initial = name.trim().charAt(0) || '؟';
   const showBnav = cur !== 'exam.html';
+  const theme = isDark ? 'dark' : 'light';
+  const uid = user && user.uid ? String(user.uid) : '';
+  window.__nvUser = user;
+  const actIdx = Math.max(0, links.findIndex(function (l) { return l[0] === active; }));
+  const hasAct = links.some(function (l) { return l[0] === active; });
+  const sig = [cur, theme, uid, name, center].join('|');
 
-  header.className = 'nv';
-  header.innerHTML =
-    '<div class="nv-in" id="headerInnerNormal">' +
-      '<a class="nv-brand" href="home.html" aria-label="الذهاب للرئيسية">' +
-        '<span class="nv-mark">' + shellMark(44) + '</span>' +
-        '<span class="nv-bt"><b>د.علاء صبح</b><small>منصة طلاب السناتر</small></span>' +
-      '</a>' +
-      '<nav class="nv-nav" aria-label="التنقل">' +
-        links.map(function (l) {
-          const on = l[0] === active;
-          return '<a class="nv-link' + (on ? ' active' : '') + '" href="' + l[0] + '"' + (on ? ' aria-current="page"' : '') + '>' + icon(l[2], 'icon') + '<span>' + l[1] + '</span></a>';
-        }).join('') +
-      '</nav>' +
-      '<div class="nv-end">' +
-        '<a class="nv-user" href="account.html" aria-label="حسابي"><span class="nv-av">' + escapeHtml(initial) + '</span>' +
-          '<span class="nv-un"><b>' + escapeHtml(short || 'مستخدم') + '</b><small>' + escapeHtml(center) + '</small></span></a>' +
-        '<button type="button" class="nv-btn" id="themeBtn" aria-label="تبديل الوضع النهاري / الليلي">' + icon(isDark ? 'sun' : 'moon', 'icon') + '</button>' +
-        '<button type="button" class="nv-btn out" id="logoutBtn" title="تسجيل الخروج" aria-label="تسجيل الخروج">' + icon('logout', 'icon') + '</button>' +
+  if (header.getAttribute('data-sig') !== sig) {
+    header.className = 'nv';
+    header.innerHTML =
+      '<div class="nv-in" id="headerInnerNormal">' +
+        '<a class="nv-brand" href="home.html" aria-label="الذهاب للرئيسية">' +
+          '<span class="nv-mark">' + shellMark(44) + '</span>' +
+          '<span class="nv-bt"><b>د.علاء صبح</b><small>منصة طلاب السناتر</small></span>' +
+        '</a>' +
+        '<nav class="nv-nav" aria-label="التنقل">' +
+          links.map(function (l) {
+            const on = l[0] === active;
+            return '<a class="nv-link' + (on ? ' active' : '') + '" href="' + l[0] + '"' + (on ? ' aria-current="page"' : '') + '>' + icon(l[2], 'icon') + '<span>' + l[1] + '</span></a>';
+          }).join('') +
+        '</nav>' +
+        '<div class="nv-end">' +
+          '<a class="nv-user" href="account.html" aria-label="حسابي"><span class="nv-av">' + escapeHtml(initial) + '</span>' +
+            '<span class="nv-un"><b>' + escapeHtml(short || 'مستخدم') + '</b><small>' + escapeHtml(center) + '</small></span></a>' +
+          '<button type="button" class="nv-btn" id="themeBtn" aria-label="تبديل الوضع النهاري / الليلي">' + icon(isDark ? 'sun' : 'moon', 'icon') + '</button>' +
+          '<button type="button" class="nv-btn out" id="logoutBtn" title="تسجيل الخروج" aria-label="تسجيل الخروج">' + icon('logout', 'icon') + '</button>' +
+        '</div>' +
       '</div>' +
-    '</div>' +
-    (showBnav ? '<nav class="nv-bn" aria-label="التنقل السفلي">' + links.map(function (l) {
-      return '<a href="' + l[0] + '" class="' + (l[0] === active ? 'active' : '') + '">' + icon(l[2], 'icon') + '<span>' + l[1] + '</span></a>';
-    }).join('') + '</nav>' : '');
+      (showBnav ? '<nav class="nv-bn' + (hasAct ? '' : ' no-act') + '" aria-label="التنقل السفلي" style="--i:' + actIdx + '"><span class="nv-bn-ind" aria-hidden="true"></span>' + links.map(function (l) {
+        const on = l[0] === active;
+        return '<a href="' + l[0] + '" class="' + (on ? 'active' : '') + '"' + (on ? ' aria-current="page"' : '') + '><span class="nv-bn-ic">' + icon(l[2], 'icon') + '</span><span class="nv-bn-tx">' + l[1] + '</span></a>';
+      }).join('') + '</nav>' : '');
+    header.setAttribute('data-sig', sig);
+    /* حركة انزلاق المؤشر من التبويب السابق إلى الحالي */
+    try {
+      const nav = header.querySelector('.nv-bn'), prev = sessionStorage.getItem('asb_bn');
+      if (nav && prev !== null && +prev !== actIdx && +prev >= 0 && +prev < links.length) {
+        nav.style.setProperty('--i', +prev);
+        requestAnimationFrame(function () { requestAnimationFrame(function () { nav.style.setProperty('--i', actIdx); }); });
+      }
+      if (hasAct) sessionStorage.setItem('asb_bn', actIdx);
+    } catch (e) {}
+    /* نخزّن الهيدر الجاهز علشان يظهر فورًا (قبل ما Firebase يرد) في الزيارات الجاية */
+    try { localStorage.setItem('asb_h:' + cur + ':' + theme, JSON.stringify({ u: uid, sig: sig, b: showBnav ? 1 : 0, h: header.innerHTML })); } catch (e) {}
+  }
   if (showBnav) document.body.classList.add('has-bnav');
 
   /* نافذة تأكيد الخروج */
@@ -532,7 +557,8 @@ function renderAppHeader(user, userData, opts) {
   document.getElementById('nvStay').onclick = closeDlg;
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeDlg(); });
   document.getElementById('nvGo').onclick = function () {
-    clearLocalSession(user).then(function () { return auth.signOut(); }).catch(function () {}).then(function () { window.location.href = 'index.html'; });
+    try { Object.keys(localStorage).forEach(function (k) { if (/^asb_(h|dc|ud):/.test(k)) localStorage.removeItem(k); }); sessionStorage.removeItem('asb_bn'); } catch (e) {}
+    clearLocalSession(window.__nvUser || user).then(function () { return auth.signOut(); }).catch(function () {}).then(function () { window.location.href = 'index.html'; });
   };
   document.getElementById('logoutBtn').addEventListener('click', function () { dlg.classList.add('open'); });
 
@@ -544,6 +570,18 @@ function renderAppHeader(user, userData, opts) {
   });
 }
 window.renderAppHeader = renderAppHeader;
+
+/* القائمة السفلية: لمسة اهتزاز خفيفة + إخفاؤها أثناء الكتابة (لوحة المفاتيح) + تحميل مسبق للصفحات */
+(function () {
+  if (window.__asbBnInit) return; window.__asbBnInit = true;
+  document.addEventListener('click', function (e) {
+    const a = e.target.closest && e.target.closest('.nv-bn a');
+    if (a && !a.classList.contains('active') && navigator.vibrate) { try { navigator.vibrate(8); } catch (x) {} }
+  }, true);
+  const isField = function (t) { return t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) && !/^(checkbox|radio|range|button|submit|file)$/.test(t.type || ''); };
+  document.addEventListener('focusin', function (e) { if (isField(e.target) && window.innerWidth <= 820) document.body.classList.add('kb-open'); });
+  document.addEventListener('focusout', function (e) { if (isField(e.target)) setTimeout(function () { if (!isField(document.activeElement)) document.body.classList.remove('kb-open'); }, 60); });
+})();
 
 /* ================= دوال الإشعارات ================= */
 

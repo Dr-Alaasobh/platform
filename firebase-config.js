@@ -197,11 +197,29 @@ window.AttGuard = (function () {
   /* بديل db.ref('users/'+uid).once('value') بيرجّع نفس الشكل بعد فحص الاشتراك */
   function userSnap(uid) {
     return db.ref('users/' + uid).once('value').then(function (s) {
-      return refresh(uid, s.val()).then(function (x) { return { val: function () { return x; } }; });
+      return refresh(uid, s.val()).then(function (x) {
+        try { if (x && x.name && x.blocked !== true) localStorage.setItem('asb_ud:' + uid, JSON.stringify(x)); else localStorage.removeItem('asb_ud:' + uid); } catch (e) {}
+        return { val: function () { return x; } };
+      });
     });
   }
   return { msg: msg, refresh: refresh, userSnap: userSnap };
 })();
+
+/* ===== تحميل فوري: آخر نسخة من البيانات من الجهاز تظهر أولًا، وبعدها تتحدّث من Firebase لو فيه جديد ===== */
+window.cachedUser = function (uid) {
+  try { var u = JSON.parse(localStorage.getItem('asb_ud:' + uid)); return u && u.name && u.blocked !== true ? u : null; } catch (e) { return null; }
+};
+window.fastLoad = function (uid, cb) {
+  var K = ['competitions', 'userEnrollments/' + uid, 'userProgress/' + uid], ck = 'asb_dc:' + uid, shown = '';
+  try { var c = JSON.parse(localStorage.getItem(ck)); if (c && c.length === 3) { shown = JSON.stringify(c); try { cb(c, true); } catch (e) { console.error(e); } } } catch (e) {}
+  return Promise.all(K.map(function (k) { return db.ref(k).once('value'); })).then(function (r) {
+    var v = r.map(function (x) { return x.val() || {}; }), j = JSON.stringify(v);
+    try { localStorage.setItem(ck, j); } catch (e) {}
+    if (j !== shown) cb(v, false);
+    return v;
+  });
+};
 
 /* ===== رسالة الحظر العائمة (بديل alert) ===== */
 (function () {

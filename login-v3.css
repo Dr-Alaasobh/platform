@@ -1,0 +1,150 @@
+/* login-v3.css — صفحات الدخول (طالب + مسئول) — تصميم جديد
+   الفكرة: ورقة مربعات كحلية (كراسة)، وبطاقة الكود: أول 4 أرقام من الكود = السنتر (بنعلّمها بقلم الهايلايت) */
+:root{
+ --navy:#06142B;--navy-2:#0B2447;--royal:#1D4ED8;--royal-d:#14369E;--teal:#0F9F82;--mark:#FFD84D;
+ --ink:#0F1B33;--muted:#5B6B86;--line:#DCE3EE;--field:#F3F6FB;--sheet:#FFFFFF;
+ --danger:#D93A3F;--danger-bg:rgba(217,58,63,.08);
+ --f-head:'Reem Kufi','Cairo','Tahoma',sans-serif;
+ --f-body:'IBM Plex Sans Arabic','Cairo','Tahoma',sans-serif;
+ --f-mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+:root[data-theme=dark]{
+ --ink:#E8EEFB;--muted:#9AA9C4;--line:#23334F;--field:#0A1424;--sheet:#0E1A2E;
+ --royal:#3562F0;--royal-d:#1F3FA8;--danger:#FF6B70;--danger-bg:rgba(255,107,112,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{font-family:var(--f-body);color:var(--ink);background:var(--navy);min-height:100vh;min-height:100dvh;-webkit-font-smoothing:antialiased}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+
+/* ===== الهيكل (موبايل أولاً) ===== */
+.auth{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;background-color:var(--navy);
+ background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);
+ background-size:32px 32px;background-position:center top}
+.hero{color:#fff;padding:calc(22px + env(safe-area-inset-top,0px)) 22px 42px;display:flex;flex-direction:column;gap:18px}
+.brand{display:flex;align-items:center;gap:12px;color:inherit;text-decoration:none;width:fit-content}
+.brand svg{width:44px;height:44px;flex:none}
+.brand b{display:block;font:700 19px/1.2 var(--f-head)}
+.brand small{display:block;font-size:12.5px;color:rgba(255,255,255,.62);margin-top:3px}
+.hero-body{display:flex;flex-direction:column;gap:20px}
+.hero-title{font:700 22px/1.5 var(--f-head);max-width:15em}
+.hero-sub,.idcard,.ledger{display:none}
+
+.sheet{flex:1;background:var(--sheet);border-radius:28px 28px 0 0;margin-top:-22px;position:relative;
+ padding:28px 20px calc(32px + env(safe-area-inset-bottom,0px))}
+.sheet-in{width:100%;max-width:420px;margin:0 auto}
+
+/* ===== رأس النموذج ===== */
+.form-head h1{font:700 30px/1.3 var(--f-head)}
+.form-head p{margin-top:8px;color:var(--muted);font-size:15px;line-height:1.8;min-height:3.6em}
+
+/* ===== التبويبات ===== */
+.login-tabs{position:relative;display:grid;grid-template-columns:1fr 1fr;margin-top:20px;padding:4px;border-radius:14px;background:var(--field);border:1px solid var(--line)}
+.ltab-ind{position:absolute;top:4px;bottom:4px;inset-inline-start:4px;width:calc(50% - 4px);border-radius:10px;background:var(--sheet);
+ box-shadow:0 0 0 1px var(--line),0 2px 6px rgba(6,20,43,.12);transition:inset-inline-start .25s cubic-bezier(.4,0,.2,1)}
+.login-tabs[data-mode=code] .ltab-ind{inset-inline-start:50%}
+.ltab{position:relative;z-index:1;min-height:44px;padding:0 8px;border:0;background:none;border-radius:10px;font-size:14px;font-weight:600;color:var(--muted);transition:color .2s}
+.ltab.active{color:var(--ink)}
+
+/* ===== الحقول ===== */
+form{margin-top:20px}
+.field{margin-bottom:16px}
+.lbl{display:block;margin-bottom:8px;font-size:14px;font-weight:600}
+.input-shell{position:relative}
+.input-shell input[type=text],.input-shell input[type=password]{width:100%;height:54px;padding:0 46px 0 16px;border:1.5px solid var(--line);border-radius:14px;background:var(--field);font-size:16px;
+ transition:border-color .15s,box-shadow .15s,background .15s}
+.input-shell input::placeholder{color:var(--muted);opacity:.5}
+.input-shell input:focus{outline:0;border-color:var(--royal);background:var(--sheet);box-shadow:0 0 0 4px rgba(29,78,216,.16)}
+.field-icon{position:absolute;right:15px;top:50%;width:20px;height:20px;margin-top:-10px;color:var(--muted);pointer-events:none;transition:color .15s}
+.input-shell:focus-within .field-icon{color:var(--royal)}
+.num{direction:ltr;text-align:right}
+.input-shell .pw-toggle{color:var(--muted)}
+.input-shell .pw-toggle:hover{background:var(--line);color:var(--ink)}
+.input-shell .pw-toggle svg{width:20px;height:20px}
+.field-error{display:none;margin-top:6px;font-size:13px;color:var(--danger)}
+.field.has-error .field-error{display:block}
+.field.has-error input{border-color:var(--danger);background:var(--danger-bg)}
+
+/* خانة الكود + عدّاد الـ12 رقم */
+.code-input{direction:ltr;text-align:center;font-family:var(--f-mono)!important;font-size:20px!important;font-weight:600;letter-spacing:.18em;padding:0 46px!important}
+.code-meter{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;margin-top:10px;direction:ltr}
+.code-meter i{height:6px;border-radius:3px;background:var(--line);transition:background .15s}
+.code-meter i.on{background:var(--royal)}
+.code-meter i.c.on{background:var(--mark)}
+.code-hint{margin-top:8px;font-size:13px;line-height:1.7;color:var(--muted)}
+
+.remember{display:flex;align-items:center;gap:10px;min-height:44px;margin:2px 0 14px;font-size:14px;color:var(--muted);cursor:pointer}
+.remember input{width:20px;height:20px;accent-color:var(--royal);flex:none}
+
+/* ===== زر الدخول ===== */
+.submit-btn{position:relative;width:100%;min-height:54px;display:grid;place-items:center;border:0;border-radius:14px;background:var(--royal);color:#fff;
+ font-size:17px;font-weight:700;box-shadow:0 4px 0 var(--royal-d);transition:transform .08s,box-shadow .08s,opacity .2s}
+.submit-btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--royal-d)}
+.submit-btn:disabled{cursor:progress;opacity:.85}
+.submit-btn .spinner{position:absolute;width:22px;height:22px;border:3px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;opacity:0;animation:spin .7s linear infinite}
+.submit-btn.loading .btn-text{opacity:0}
+.submit-btn.loading .spinner{opacity:1}
+.ltab:focus-visible,.submit-btn:focus-visible,.remember input:focus-visible{outline:3px solid rgba(29,78,216,.5);outline-offset:2px}
+.help{margin-top:22px;text-align:center;font-size:13.5px;line-height:1.8;color:var(--muted)}
+
+/* ===== التنبيهات ===== */
+.toast-stack{position:fixed;inset-inline:0;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:50;display:grid;justify-items:center;gap:8px;padding:0 16px;pointer-events:none}
+.toast{display:flex;align-items:center;gap:10px;max-width:420px;padding:12px 16px;border-radius:14px;background:#0F1B33;color:#fff;font-size:14px;line-height:1.6;
+ box-shadow:0 10px 30px rgba(6,20,43,.35);opacity:0;transform:translateY(10px);transition:opacity .25s,transform .25s}
+.toast.show{opacity:1;transform:none}
+.toast.error{background:#B42328}
+.toast svg{width:20px;height:20px;flex:none}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes drop{from{opacity:0;transform:translateY(-18px) rotate(-5deg)}to{opacity:1;transform:rotate(-2deg)}}
+
+/* ===== شاشات صغيرة جداً ===== */
+@media(max-width:380px){
+ .form-head h1{font-size:26px}
+ .ltab{font-size:12.5px}
+ .sheet{padding-inline:16px}
+ .code-input{font-size:18px!important;letter-spacing:.14em}
+}
+
+/* ===== الكمبيوتر / التابلت الكبير ===== */
+@media(min-width:900px){
+ .auth{flex-direction:row;align-items:stretch}
+ .hero{flex:1 1 0;min-width:0;padding:56px clamp(40px,6vw,96px);gap:0}
+ .hero-body{margin:auto 0;gap:22px;padding:40px 0}
+ .hero-title{font-size:clamp(34px,3.6vw,48px);max-width:13em}
+ .hero-sub{display:block;max-width:30em;font-size:17px;line-height:1.9;color:rgba(255,255,255,.74)}
+ .sheet{flex:0 0 min(520px,44vw);margin:16px;border-radius:28px;padding:48px 40px;display:flex;align-items:center}
+
+ /* بطاقة الكود */
+ .idcard{display:block;position:relative;width:min(460px,100%);margin-top:10px;padding:38px 28px 26px;border-radius:22px;background:var(--navy-2);
+  border:1px solid rgba(255,255,255,.14);box-shadow:0 24px 50px rgba(0,0,0,.38);transform:rotate(-2deg);animation:drop .7s cubic-bezier(.2,.8,.2,1) both}
+ .idcard::before{content:"";position:absolute;top:13px;left:50%;width:48px;height:8px;margin-left:-24px;border-radius:8px;background:var(--navy);box-shadow:inset 0 1px 3px rgba(0,0,0,.7)}
+ .idc-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;font-size:13px;color:rgba(255,255,255,.62)}
+ .idc-code{direction:ltr;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;font:600 clamp(20px,2.3vw,28px)/1 var(--f-mono);letter-spacing:.08em}
+ .idc-code span{padding:15px 0;text-align:center;border-radius:10px;background:rgba(255,255,255,.07);color:#fff}
+ .idc-code .hl{background:var(--mark);color:var(--navy);border-radius:6px 12px 8px 10px;transform:rotate(-1.2deg)}
+ .idc-legend{direction:ltr;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px;font-size:13px;text-align:center;color:rgba(255,255,255,.7)}
+ .idc-legend span{padding-top:8px;border-top:2px solid rgba(255,255,255,.25)}
+ .idc-legend span:nth-child(2){grid-column:span 2}
+ .idc-legend .hl{border-top-color:var(--mark);color:var(--mark)}
+
+ /* قائمة لوحة المسئول */
+ .ledger{display:block;list-style:none;width:min(440px,100%);padding:4px 22px;border-radius:20px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14)}
+ .ledger li{display:flex;align-items:baseline;gap:12px;padding:15px 0;font-size:16px;font-weight:600;color:#fff}
+ .ledger li+li{border-top:1px dashed rgba(255,255,255,.2)}
+ .ledger li::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--teal);flex:none;align-self:center}
+ .ledger small{margin-inline-start:auto;font-size:13px;font-weight:400;color:rgba(255,255,255,.55)}
+}
+
+/* ===== تابلت رأسي: النموذج في المنتصف ===== */
+@media(min-width:600px) and (max-width:899px){
+ .hero{padding-inline:40px}
+ .hero-title{font-size:28px}
+ .sheet{padding-inline:40px}
+}
+
+@media(prefers-reduced-motion:reduce){
+ *{animation:none!important;transition-duration:.01ms!important}
+ .idcard{opacity:1;transform:rotate(-2deg)}
+}

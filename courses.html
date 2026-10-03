@@ -4,15 +4,24 @@
 <meta charset="UTF-8">
 <script>document.documentElement.setAttribute("data-theme",localStorage.getItem("asb_theme")||"light")</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#06142B">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Amiri:wght@400;700&display=swap" crossorigin="anonymous" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Amiri:wght@400;700&display=swap"></noscript>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>الكورسات — منصة د.علاء صبح</title>
-<link rel="stylesheet" href="style.css?v=11">
-<link rel="stylesheet" href="theme.css?v=3">
-<link rel="stylesheet" href="shell.css?v=2">
+<link rel="stylesheet" href="style.css?v=12">
+<link rel="stylesheet" href="theme.css?v=4">
+<link rel="stylesheet" href="shell.css?v=3">
 <link rel="stylesheet" href="pages.css?v=1">
-<link rel="stylesheet" href="mobile-app.css?v=2">
+<link rel="stylesheet" href="mobile-app.css?v=4">
 </head>
 <body>
 <header class="nv" id="appHeader"></header>
+<script>(function(){try{var f=location.pathname.split('/').pop()||'home.html',t=document.documentElement.getAttribute('data-theme')||'light',c=JSON.parse(localStorage.getItem('asb_h:'+f+':'+t)),s=localStorage.getItem('asb_session_v2'),h=document.getElementById('appHeader');if(!c||!h||!s||c.u!==s)return;h.className='nv';h.innerHTML=c.h;h.setAttribute('data-sig',c.sig);if(c.b)document.body.classList.add('has-bnav');var n=h.querySelector('.nv-bn');if(n){var q=sessionStorage.getItem('asb_bn'),i=+n.style.getPropertyValue('--i');if(q!==null&&+q!==i&&+q>=0&&+q<4){n.style.setProperty('--i',+q);requestAnimationFrame(function(){requestAnimationFrame(function(){n.style.setProperty('--i',i)})})}if(!n.classList.contains('no-act'))sessionStorage.setItem('asb_bn',i)}}catch(e){}})()</script>
 <main class="sp">
   <section class="sp-hero"><div><h1 id="gName">أهلًا بك 👋</h1><p id="gSub">اختر كورسك وكمّل رحلتك</p></div>
     <div class="sp-mini" id="mini"></div></section>
@@ -22,11 +31,11 @@
   <div class="sp-g" id="content"><div class="sp-empty">جاري التحميل...</div></div>
 </main>
 <footer class="ft" id="siteFooter"></footer>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-<script src="firebase-config.js?v=12"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js" crossorigin="anonymous"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js" crossorigin="anonymous"></script>
+<script src="firebase-config.js?v=13"></script>
 <script src="icons.js?v=3"></script>
-<script src="app-shell.js?v=9"></script>
+<script src="app-shell.js?v=11"></script>
 <script>
 (function(){
  var $=function(i){return document.getElementById(i)},F='all',Q='',D={},EN={},PR={};
@@ -54,24 +63,28 @@
  $('tabs').onclick=function(e){var b=e.target.closest('.sp-tab');if(!b)return;F=b.dataset.f;document.querySelectorAll('.sp-tab').forEach(function(x){x.classList.toggle('on',x===b)});draw()};
  $('searchInput').addEventListener('input',function(){Q=this.value.trim().toLowerCase();draw()});
  var q0=new URLSearchParams(location.search).get('q');if(q0){Q=q0.toLowerCase();$('searchInput').value=q0}
- auth.onAuthStateChanged(function(user){
-  if(!user){location.href='index.html';return}
-  AttGuard.userSnap(user.uid).then(function(s){var u=s.val();
-   if(!u||!u.name){location.href='register.html';return Promise.reject(new Error('redirect'))}
-   window.__ud=u;if(u.blocked===true){AttGuard.show(user.uid,u);return Promise.reject(new Error('blocked'))}
-   renderAppHeader(user,u,{showPoints:true});renderFooter();
-   $('gName').textContent='أهلًا يا '+u.name.trim()+' 👋';$('gSub').textContent='طالب سنتر '+(u.centerName||'');
-   return Promise.all([db.ref('competitions').once('value'),db.ref('userEnrollments/'+user.uid).once('value'),db.ref('userProgress/'+user.uid).once('value')])})
-  .then(function(r){if(!r)return;var all=r[0].val()||{};EN=r[1].val()||{};PR=r[2].val()||{};
+ function greet(u){$('gName').textContent='أهلًا يا '+u.name.trim()+' 👋';$('gSub').textContent='طالب سنتر '+(u.centerName||'')}
+ function apply(r){var all=r[0]||{};EN=r[1]||{};PR=r[2]||{};D={};
    Object.keys(all).forEach(function(id){var L=all[id].lessons||{},has=Object.values(L).some(function(l){return ['videos','exams','pdfs'].some(function(k){return l[k]&&Object.keys(l[k]).length})});
     if(has&&isCourseVisibleForUser(all[id],window.__ud))D[id]=all[id]});
    var has=Object.keys(EN).some(function(i){return D[i]});
    document.querySelector('[data-f=mine]').style.display=has?'':'none';document.querySelector('[data-f=all]').style.display=has?'none':'';
    if(has&&F==='all')F='mine';document.querySelectorAll('.sp-tab').forEach(function(x){x.classList.toggle('on',x.dataset.f===F)});
-   stats();draw()})
+   stats();draw()}
+ auth.onAuthStateChanged(function(user){
+  if(!user){location.href='index.html';return}
+  var cu=cachedUser(user.uid),pending=null;
+  if(cu){window.__ud=cu;renderAppHeader(user,cu,{showPoints:true});renderFooter();greet(cu)}
+  var guard=AttGuard.userSnap(user.uid).then(function(s){var u=s.val();
+   if(!u||!u.name){location.href='register.html';return Promise.reject(new Error('redirect'))}
+   window.__ud=u;if(u.blocked===true){AttGuard.show(user.uid,u);return Promise.reject(new Error('blocked'))}
+   renderAppHeader(user,u,{showPoints:true});if(!cu)renderFooter();greet(u);
+   if(pending){var p=pending;pending=null;apply(p)}});
+  var data=fastLoad(user.uid,function(r){if(window.__ud)apply(r);else pending=r});
+  Promise.all([guard,data])
   .catch(function(e){if(e&&(e.message==='redirect'||e.message==='blocked'))return;console.error(e);$('content').innerHTML='<div class="sp-empty"><p>تعذر تحميل المحتوى</p><button class="btn btn-primary btn-sm" style="width:auto" onclick="location.reload()">إعادة المحاولة</button></div>'})
  })})();
 </script>
-<script src="mobile-app.js?v=1"></script>
+<script src="mobile-app.js?v=3"></script>
 </body>
 </html>

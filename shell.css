@@ -72,15 +72,30 @@
   .nv-btn{width:38px;height:38px}
   .nv-bt b{font-size:17px}
   .nv-mark svg{width:38px;height:38px}
-  /* شريط سفلي */
-  body.has-bnav{padding-bottom:calc(74px + env(safe-area-inset-bottom,0px))}
-  .nv-bn{display:flex;position:fixed;z-index:60;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom,0px));
-    padding:6px;gap:4px;border-radius:22px;background:color-mix(in srgb,var(--card-bg) 92%,transparent);
-    -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border:1px solid var(--border);box-shadow:0 14px 36px rgba(11,36,71,.22)}
-  .nv-bn a{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;border-radius:16px;text-decoration:none;font-size:11.5px;font-weight:800;color:var(--text-muted);transition:background .18s,color .18s}
-  .nv-bn a .icon{width:21px;height:21px}
-  .nv-bn a.active{background:var(--gradient-primary);color:#fff}
-  body.has-bnav .fab-stack{bottom:calc(92px + env(safe-area-inset-bottom,0px))}
+  /* ===== شريط التنقل السفلي (لوح عائم بمؤشر منزلق) ===== */
+  body.has-bnav{padding-bottom:calc(92px + env(safe-area-inset-bottom,0px))}
+  .nv-bn{display:flex;position:fixed;z-index:60;inset-inline:14px;bottom:calc(12px + env(safe-area-inset-bottom,0px));height:66px;padding:6px;gap:4px;border-radius:26px;
+    background:color-mix(in srgb,var(--card-bg) 84%,transparent);-webkit-backdrop-filter:saturate(1.6) blur(20px);backdrop-filter:saturate(1.6) blur(20px);
+    border:1px solid color-mix(in srgb,var(--border) 75%,transparent);
+    box-shadow:0 14px 34px rgba(6,20,43,.20),0 2px 6px rgba(6,20,43,.08),inset 0 1px 0 color-mix(in srgb,#fff 40%,transparent);
+    transition:transform .3s cubic-bezier(.3,.7,.2,1),opacity .2s;max-width:520px;margin-inline:auto}
+  .nv-bn-ind{position:absolute;z-index:0;top:6px;bottom:6px;inset-inline-start:6px;width:calc((100% - 24px) / 4);border-radius:20px;
+    background:var(--gradient-primary);box-shadow:0 8px 18px rgba(29,78,216,.36),inset 0 1px 0 rgba(255,255,255,.22);
+    transform:translateX(calc(var(--i,0) * (100% + 4px)));transition:transform .42s cubic-bezier(.34,1.32,.5,1);will-change:transform}
+  html[dir=rtl] .nv-bn-ind{transform:translateX(calc(var(--i,0) * -1 * (100% + 4px)))}
+  .nv-bn.no-act .nv-bn-ind{display:none}
+  .nv-bn a{position:relative;z-index:1;flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border-radius:20px;text-decoration:none;
+    font-size:11px;line-height:1;font-weight:700;color:var(--text-muted);-webkit-tap-highlight-color:transparent;transition:color .25s}
+  .nv-bn-ic{display:grid;place-items:center;height:24px;transition:transform .3s cubic-bezier(.34,1.5,.5,1)}
+  .nv-bn a .icon{width:22px;height:22px}
+  .nv-bn-tx{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;letter-spacing:.1px}
+  .nv-bn a.active{color:#fff;font-weight:800}
+  .nv-bn a.active .nv-bn-ic{transform:translateY(-1px) scale(1.12)}
+  .nv-bn a:not(.active):active .nv-bn-ic{transform:scale(.86)}
+  body.kb-open .nv-bn{transform:translateY(170%);opacity:0;pointer-events:none}
+  body.has-bnav .fab-stack{bottom:calc(100px + env(safe-area-inset-bottom,0px))}
+  .back-to-top{bottom:calc(98px + env(safe-area-inset-bottom,0px))}
+  @media (prefers-reduced-motion:reduce){.nv-bn,.nv-bn-ind,.nv-bn-ic{transition:none}}
 }
 @media (max-width:360px){.nv-bt small{display:none}}
 
@@ -126,3 +141,14 @@
  .ft a{min-height:40px;display:inline-flex;align-items:center}
 }
 @media(max-width:900px){.ex-flagbtn{min-height:42px;padding-inline:12px;display:inline-flex;align-items:center;gap:6px}.ex-bar-submit{min-height:42px}.ex-n{min-width:42px;min-height:42px}}
+
+/* انتقال ناعم بين الصفحات (Chrome/Edge/Android) — الهيدر والقائمة السفلية ثابتين */
+@view-transition{navigation:auto}
+.nv{view-transition-name:asb-top}
+.nv-bn{view-transition-name:asb-bnav}
+::view-transition-group(asb-top),::view-transition-group(asb-bnav){animation-duration:0s}
+::view-transition-old(root){animation:asbOut .12s ease both}
+::view-transition-new(root){animation:asbIn .18s ease both}
+@keyframes asbOut{to{opacity:0}}
+@keyframes asbIn{from{opacity:0}}
+@media (prefers-reduced-motion:reduce){::view-transition-old(root),::view-transition-new(root){animation:none}}

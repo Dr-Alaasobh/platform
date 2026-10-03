@@ -18,17 +18,7 @@
  .nv-btn .icon{width:20px;height:20px}.nv-btn:hover{transform:none}
  .fs-btn.fs-float{position:fixed;z-index:9999;top:calc(10px + env(safe-area-inset-top,0px));inset-inline-end:12px;background:rgba(6,20,43,.72)!important;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 
- /* شريط تبويبات سفلي */
- .nv-bn{left:0!important;right:0!important;bottom:0!important;border-radius:22px 22px 0 0!important;border-width:0!important;
-  background:var(--card-bg)!important;box-shadow:0 -8px 28px rgba(6,20,43,.14)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;
-  padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px))!important;gap:4px!important}
- .nv-bn a{position:relative;border-radius:16px!important;font-size:11px!important;font-weight:800!important;padding:8px 2px 6px!important;background:none!important;color:var(--text-muted)!important;transition:transform .15s}
- .nv-bn a .icon{width:24px!important;height:24px!important}
- .nv-bn a.active{color:var(--primary-light)!important;background:var(--primary-tint)!important}
- .nv-bn a.active::before{content:"";position:absolute;top:-8px;left:30%;right:30%;height:3px;border-radius:0 0 4px 4px;background:var(--primary-light)}
- .nv-bn a:active{transform:scale(.92)}
- body.has-bnav{padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))!important}
- body.has-bnav .fab-stack{bottom:calc(88px + env(safe-area-inset-bottom,0px))!important}
+ .back-to-top{display:none!important}
 
  /* محتوى */
  .hm-card,.box,.card{border-radius:20px!important;box-shadow:0 2px 10px rgba(11,36,71,.07)!important}
@@ -42,3 +32,29 @@
  .dev-credit b{color:var(--primary-light,#1D4ED8);font-weight:900;font-size:13px;letter-spacing:.3px}
  .dev-credit::before{content:"</>";direction:ltr;color:var(--teal,#0F9F82);font-weight:900}
 }
+
+/* ===== v3: تحسينات عامة للهواتف (كل الصفحات) ===== */
+body[data-no-dev] .dev-credit{display:none!important}
+.to-top{display:none}
+@media (max-width:600px){
+ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+ body{max-width:100%;overflow-x:hidden;overflow-x:clip}
+ img,video,canvas,iframe{max-width:100%}
+ input:not([type=checkbox]):not([type=radio]):not([type=range]),select,textarea{font-size:16px!important}
+ .btn,button[type=submit]{min-height:44px}
+ pre,code{white-space:pre-wrap;word-break:break-word}
+ .shell{min-height:100vh;min-height:100dvh}
+}
+@media (max-width:600px) and (pointer:coarse){
+ .to-top{display:grid;position:fixed;right:14px;bottom:calc(98px + env(safe-area-inset-bottom,0px));z-index:900;width:44px;height:44px;padding:0;place-items:center;border-radius:50%;
+  border:1px solid var(--border,#DFE5EF);background:var(--card-bg,#fff);color:var(--primary-light,#1D4ED8);box-shadow:0 6px 18px rgba(6,20,43,.22);
+  opacity:0;transform:translateY(12px) scale(.9);pointer-events:none;transition:opacity .2s,transform .2s;cursor:pointer}
+ .to-top.show{opacity:1;transform:none;pointer-events:auto}
+ .to-top:active{transform:scale(.92)}
+}
+@media screen and (max-width:600px){table{display:block;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}}
+
+/* ===== غلاف ملء الشاشة المستمر (انظر mobile-app.js) ===== */
+html.asb-shell-on,html.asb-shell-on body{overflow:hidden!important;height:100%;background:var(--bg,#F3F6FB)}
+html.asb-shell-on body>*:not(.asb-shell){display:none!important}
+.asb-shell{position:fixed;inset:0;width:100%;height:100%;border:0;margin:0;padding:0;z-index:2147483000;background:var(--bg,#F3F6FB);display:block}
